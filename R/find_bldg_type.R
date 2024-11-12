@@ -1,5 +1,8 @@
 #' Find Building Type
 #'
+#' @description
+#' Takes in a tidybuilding and outputs the land use.
+#'
 #' @param tidybuilding Tidybuilding data formatted in a data fram
 #'
 #' @return A string stating the building land use (1_family, 2_family, etc.).

@@ -14,5 +14,5 @@ A string stating the building land use (1_family, 2_family, etc.).
 This will coincide with the way it is written in the tidyzining object.
 }
 \description{
-Find Building Type
+Takes in a tidybuilding and outputs the land use.
 }
