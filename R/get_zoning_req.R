@@ -24,8 +24,10 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
     filter(side == "front")
   parcel_without_centroid <- tidyparcel[!is.na(tidyparcel$side),]
 
-  lot_width <- st_length(front_of_parcel) |> set_units(ft)
-  lot_area <- st_polygonize(st_union(parcel_without_centroid)) |> st_area() |> set_units(ft2)
+  lot_width <- st_length(front_of_parcel) * 3.28084 # converting to ft
+  units(lot_width) <- "ft"
+  lot_area <- st_polygonize(st_union(parcel_without_centroid)) |> st_area() * 10.7639 # converting to ft
+  units(lot_area) <- "ft^2"
   # establish the building variables that might be used in the equations
   bed_list <- c(units_0bed = 0,
                 units_1bed = 1,
@@ -242,6 +244,7 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
 
     lot_constraints[i,"min_value"] <- constraint_min_val
     lot_constraints[i,"max_value"] <- constraint_max_val
+    lot_constraints[i, "units"] <- constraint_info$unit
   }
 
 
@@ -442,6 +445,7 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
 
     structure_constraints[i,"min_value"] <- constraint_min_val
     structure_constraints[i,"max_value"] <- constraint_max_val
+    structure_constraints[i, "units"] <- constraint_info$unit
   }
 
   # listing other constraints
@@ -640,6 +644,7 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
 
     other_constraints[i,"min_value"] <- constraint_min_val
     other_constraints[i,"max_value"] <- constraint_max_val
+    other_constraints[i, "units"] <- constraint_info$unit
   }
 
   rbind(lot_constraints, structure_constraints, other_constraints)
