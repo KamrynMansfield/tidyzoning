@@ -1,4 +1,3 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
-^R/testing.R
