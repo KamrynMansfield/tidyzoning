@@ -74,13 +74,25 @@ check_footprint <- function(tidybuilding, buildable_area, num_rotations = 24){
 
 
 
-
+#
+# ggplot(build_area_raster) +
+#   geom_tile(aes(x = x, y = y)) +
+#   geom_sf(data = footprint, color = "red4", fill = "red", alpha = .5)
+#
+#
+#
+#
+#
 # tidybuilding <- tidybuilding_ex
 # tidyparcel <- tidyparcel_ex[tidyparcel_ex$OBJECTID == 1,]
 # tidydistrict <- tidyzoning_ex[11,]
 #
+# show_shapes(tidybuilding)
+#
 # parcel_with_setbacks <- add_setbacks(tidyparcel,tidydistrict, tidybuilding)
 # buildable_area <- get_buildable_area(parcel_with_setbacks)
+#
+# show_shapes(buildable_area,parcel_with_setbacks)
 #
 # show_shapes(tidybuilding)
 # show_shapes(buildable_area)
@@ -91,7 +103,7 @@ check_footprint <- function(tidybuilding, buildable_area, num_rotations = 24){
 #
 # system.time(check_footprint(shape2,shape1,4))
 # system.time(check_footprint(shape2,shape1))
-
+#
 
 #
 # # This is the outside shape
