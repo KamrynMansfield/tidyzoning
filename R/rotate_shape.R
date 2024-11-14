@@ -7,7 +7,7 @@ rotate_shape <- function(shape, angle_degrees, center = NULL) {
 
   # If no center is provided, use the centroid
   if (is.null(center)) {
-    center <- st_centroid(shape)
+    center <- st_centroid(shape[,"geometry"])
     center <- st_coordinates(center)[1, ]
   }
 
