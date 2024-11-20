@@ -20,7 +20,7 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
   buffered_polygon <- st_union(buffered_sides)
 
   # make a new shape the parts not overlapping
-  not_overlapping <- st_sym_difference(buffered_polygon, polygon)
+  not_overlapping <- st_sym_difference(st_make_valid(buffered_polygon), st_make_valid(polygon))
 
   # separate the polygons from the multipolygon
   not_overlapping <- st_cast(not_overlapping, "POLYGON")
@@ -28,15 +28,20 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
   # select the non-overlapping shape that is the buildable area
   buildable_area <- not_overlapping[2]
 
-  # get only the nodes from buildable area that will creat a smooth, accurate line
-  parcel_geometries <- parcel_with_setbacks[,"geometry"]
-  parcel_nodes <- st_cast(parcel_geometries, "POINT")
-  build_area_nodes <- st_cast(buildable_area, "POINT")
-  important_nodes <- st_nearest_feature(parcel_nodes, build_area_nodes)
+  buildable_area
 
-  build_area_nodes[important_nodes] |>
-    st_union() |>
-    st_cast("MULTILINESTRING") |>
-    st_cast("POLYGON")
+  # this stuff I tried to make it a simpler shape, but it sometimes didn't work.
+
+  # # get only the nodes from buildable area that will creat a smooth, accurate line
+  # parcel_geometries <- tidyparcel_with_setbacks[,"geometry"]
+  # parcel_nodes <- st_cast(parcel_geometries, "POINT")
+  # build_area_nodes <- st_cast(buildable_area, "POINT")
+  # important_nodes <- st_nearest_feature(parcel_nodes, build_area_nodes)
+  #
+  # build_area_nodes[important_nodes] |>
+  #   st_union() |>
+  #   st_cast("MULTILINESTRING") |>
+  #   st_cast("POLYGON")
 
 }
+

@@ -32,11 +32,11 @@ add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
 }
 
 #
-# tidyparcel <- tidyparcel_list_haltom[[i]]
+# tidyparcel <- tidyparcel_list_haltom[[1]]
 # tidydistrict <- tidyzoning_haltom[4,]
 # tidybuilding <- tidybuilding_ex
 # tidybuilding$units_3bed[1] <- 1
-
+#
 
 # tidyparcel <- tidyparcel_list_haltom[[2]]
 # tidybuilding <- tidybuilding_12fam
