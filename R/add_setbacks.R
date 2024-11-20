@@ -1,6 +1,13 @@
 add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
   tidyparcel <- tidyparcel[!is.na(tidyparcel$side),]
   zoning_req <- get_zoning_req(tidybuilding, tidyparcel, tidydistrict)
+
+  if (class(zoning_req) == "character"){
+    tidyparcel$setback <- NA
+    tidyparcel$units <- NA
+    return(tidyparcel)
+  }
+
   name_key <- c(front = "setback_front",
                 side.interior = "setback_side_int",
                 side.exterior = "setback_side_ext",
@@ -9,11 +16,21 @@ add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
     side_type <- tidyparcel[[i,"side"]]
     filtered_constraints <- zoning_req |>
       filter(constraint_name == name_key[[side_type]])
-    setback_value <- filtered_constraints[1,"min_value"]
 
-    tidyparcel[i,"setback"] <- setback_value
-    tidyparcel[i,"units"] <- filtered_constraints[1,"units"]
+    if (nrow(filtered_constraints) > 0){
+      setback_value <- filtered_constraints[1,"min_value"]
+
+      tidyparcel[i,"setback"] <- setback_value
+      tidyparcel[i,"units"] <- filtered_constraints[1,"units"]
+    } else {
+      tidyparcel[i,"setback"] <- NA
+      tidyparcel[i,"units"] <- NA
+    }
   }
 
   tidyparcel
 }
+#
+# tidydistrict <- tidyzoning_haltom[17,]
+# tidybuilding <- tidybuilding_ex
+# tidyparcel <- tidyparcel_list_haltom[[1]]

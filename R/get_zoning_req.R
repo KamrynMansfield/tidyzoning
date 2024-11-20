@@ -6,15 +6,31 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
 
   # What are the constraints that are recorded?
   # These three dfs will be appended and combined in the end
-  lot_constraints <- data.frame(constraint_name = names(tidydistrict$lot_constraints),
-                                min_value = NA,
-                                max_value = NA)
-  structure_constraints <- data.frame(constraint_name =names(tidydistrict$structure_constraints),
-                                      min_value = NA,
-                                      max_value = NA)
-  other_constraints <- data.frame(constraint_name =names(tidydistrict$other_constraints),
+  if (length(tidydistrict$lot_constraints) > 0){
+    lot_constraints <- data.frame(constraint_name = names(tidydistrict$lot_constraints),
                                   min_value = NA,
                                   max_value = NA)
+  } else{
+    lot_constraints <- data.frame()
+  }
+  if (length(tidydistrict$structure_constraints) > 0){
+    structure_constraints <- data.frame(constraint_name = names(tidydistrict$structure_constraints),
+                                        min_value = NA,
+                                        max_value = NA)
+  } else{
+    structure_constraints <- data.frame()
+  }
+  if (length(tidydistrict$other_constraints) > 0){
+    other_constraints <- data.frame(constraint_name =names(tidydistrict$other_constraints),
+                                    min_value = NA,
+                                    max_value = NA)
+  } else{
+    other_constraints <- data.frame()
+  }
+
+  if (nrow(rbind(lot_constraints, structure_constraints, other_constraints)) == 0){
+    return("No zoning requirements recorded for this district")
+  }
 
   # Name the building type
   bldg_type <- find_bldg_type(tidybuilding)

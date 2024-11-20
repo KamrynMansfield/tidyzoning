@@ -2,10 +2,15 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
   # make tidyparcel a polygon
   polygon <- st_polygonize(st_union(tidyparcel_with_setbacks))
 
+  if (nrow(tidyparcel_with_setbacks[!is.na(tidyparcel_with_setbacks$setback),]) == 0){
+    return(polygon)
+  }
+
   # convert the setback units to meters
   units(tidyparcel_with_setbacks$setback) <- tidyparcel_with_setbacks$units[[1]]
   tidyparcel_with_setbacks <- tidyparcel_with_setbacks |>
-    mutate(setback_m = set_units(setback,"m"))
+    mutate(setback_m = set_units(setback,"m")) |>
+    filter(!is.na(setback))
 
   # put a buffer on each side (need to convert to meters)
   buffered_sides <- tidyparcel_with_setbacks |>
