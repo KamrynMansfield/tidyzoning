@@ -53,10 +53,10 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
 
   bedrooms <- min(bed_list[names(tidybuilding)], na.rm = T)
   units_0bed <- ifelse(length(tidybuilding$units_0bed) > 0, tidybuilding$units_0bed, 0)
-  units_1bed <- ifelse(length(tidybuilding$units_1bed) > 0, tidybuilding$units_0bed, 0)
-  units_2bed <- ifelse(length(tidybuilding$units_2bed) > 0, tidybuilding$units_0bed, 0)
+  units_1bed <- ifelse(length(tidybuilding$units_1bed) > 0, tidybuilding$units_1bed, 0)
+  units_2bed <- ifelse(length(tidybuilding$units_2bed) > 0, tidybuilding$units_2bed, 0)
   units_3bed <- ifelse(length(tidybuilding$units_3bed) > 0, tidybuilding$units_3bed, 0)
-  units_4bed <- ifelse(length(tidybuilding$units_4bed) > 0, tidybuilding$units_0bed, 0)
+  units_4bed <- ifelse(length(tidybuilding$units_4bed) > 0, tidybuilding$units_4bed, 0)
   total_units <- units_0bed + units_1bed + units_2bed + units_3bed + units_4bed
   fl_area <- ifelse(length(tidybuilding$floor_area) > 0, tidybuilding$floor_area, NA)
   parking <- ifelse(length(tidybuilding$parking) > 0, tidybuilding$parking, NA)
@@ -64,6 +64,7 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
   floors <- ifelse(length(tidybuilding$floors) > 0, tidybuilding$floors, NA)
   min_unit_size <- ifelse(length(tidybuilding$min_unit_size) > 0, tidybuilding$min_unit_size, NA)
   max_unit_size <- ifelse(length(tidybuilding$max_unit_size) > 0, tidybuilding$max_unit_size, NA)
+  far <- fl_area / lot_area
 
   # loop through each zoning regulation in the district
 

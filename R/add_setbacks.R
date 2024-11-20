@@ -30,6 +30,14 @@ add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
 
   tidyparcel
 }
+
+#
+#
+# tidyparcel <- tidyparcel_list_haltom[[2]]
+# tidybuilding <- tidybuilding_12fam
+# tidydistrict <- tidyzoning_haltom[4,]
+
+
 #
 # tidydistrict <- tidyzoning_haltom[17,]
 # tidybuilding <- tidybuilding_ex
