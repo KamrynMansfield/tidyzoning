@@ -25,7 +25,7 @@ find_bldg_type <- function(tidybuilding){
   if (row_sum %in% c(1,2,3)){
     paste0(row_sum[[1]], "_family")
   } else if (row_sum > 3){
-    paste("4-family")
+    paste("4_family")
   } else {
     paste("other")
   }
