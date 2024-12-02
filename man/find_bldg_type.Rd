@@ -2,17 +2,17 @@
 % Please edit documentation in R/find_bldg_type.R
 \name{find_bldg_type}
 \alias{find_bldg_type}
-\title{Find Building Type}
+\title{Find land use of a building}
 \usage{
 find_bldg_type(tidybuilding)
 }
 \arguments{
-\item{tidybuilding}{Tidybuilding data formatted in a data fram}
+\item{tidybuilding}{A tidybuilding object is a special features object representing a building.}
 }
 \value{
 A string stating the building land use (1_family, 2_family, etc.).
-This will coincide with the way it is written in the tidyzining object.
+This will match the way land use is written in the tidyzining object.
 }
 \description{
-Takes in a tidybuilding and outputs the land use.
+`find_bldg_type()` takes in a tidybuilding and outputs the land use (1_family, 2_family, etc.).
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/show_shapes.R
 \name{show_shapes}
 \alias{show_shapes}
-\title{Show Shapes}
+\title{Quickly visualize sf objects}
 \usage{
 show_shapes(shape1, shape2 = NA, shape3 = NA, shape4 = NA)
 }
@@ -16,7 +16,7 @@ show_shapes(shape1, shape2 = NA, shape3 = NA, shape4 = NA)
 \item{shape4}{An sf object}
 }
 \value{
-A simple plot with the different shapes, each a different color
+Returns a simple plot with the different shapes, each a different color
 }
 \description{
 A quick way to visualize up to four different shapes using ggplot

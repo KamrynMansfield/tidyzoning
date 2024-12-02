@@ -2,21 +2,20 @@
 % Please edit documentation in R/add_setbacks.R
 \name{add_setbacks}
 \alias{add_setbacks}
-\title{Add Seetbacks}
+\title{Add setback column to tidyparcel object}
 \usage{
 add_setbacks(tidyparcel, tidydistrict, tidybuilding)
 }
 \arguments{
-\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label.}
+\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear).}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
 
 \item{tidybuilding}{A tidybuilding object is a special features object representing a building.}
 }
 \value{
-Tidyparcel with a "setbacks" and "units" column
+Returns the tidyparcel object with a "setbacks" and "units" column added to the end.
 }
 \description{
-Takes in a tidyparcel, tidydistrict, and tidybuilding.
-Returns the tidyparcel object with new columns to describing the setback and units of each side.
+`add_setbacks()` returns the tidyparcel object with new columns describing the setback and units of each side.
 }

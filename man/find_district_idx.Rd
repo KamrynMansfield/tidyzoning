@@ -2,20 +2,20 @@
 % Please edit documentation in R/find_district_idx.R
 \name{find_district_idx}
 \alias{find_district_idx}
-\title{Find District Index}
+\title{Find corresponding tidydistrict}
 \usage{
 find_district_idx(tidyparcel, tidyzoning)
 }
 \arguments{
-\item{tidyparcel}{An sf data frame with a linestring for each side of the parcel.}
+\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear).}
 
-\item{tidyzoning}{The sf data frame with district geometry.}
+\item{tidyzoning}{The tidyzoning object is a simple features object with a row for each zoning district and columns holding the geojson formatted zoning requirements of each district.}
 }
 \value{
-The row number of the district to which the parcel belongs.
+The row number of the tidyzoning object that contains the disrict to which the parcel belongs.
 Returns NA if there is no district found.
 }
 \description{
-Takes in an sf data frame with district geometry and a parcel.
+`find_district_idx()` takes in a tidyzoning object and a tidyparcel object.
 Returns the row number of the district to which the parcel belongs.
 }
