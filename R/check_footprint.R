@@ -71,15 +71,50 @@ check_footprint <- function(tidybuilding, buildable_area, num_rotations = 24){
   }
   return(FALSE)
 }
-#
-# ggplot(build_area_raster) +
-#   geom_tile(aes(x = x, y = y)) +
-#   geom_sf(data = footprint, color = "red4", fill = "red", alpha = .5)
-#
-#
+# #
+# # ggplot(build_area_raster) +
+# #   geom_tile(aes(x = x, y = y)) +
+# #   geom_sf(data = footprint, color = "red4", fill = "red", alpha = .5)
+# #
+# #
 # tidybuilding <- tidybuilding_ex
 # tidydistrict <- tidyzoning_ex[15,]
 # tidyparcel <- tidyparcel_ex[tidyparcel_ex$OBJECTID == 1,]
+# #
+# #
+# #
+# # mask <- !is.na(build_area_raster)
+# #
+# # use_r("check_footprint_simple")
+# #
+# # rep(1:5,2)
+# #
+# xmin <- min(build_area_raster$x)
+# xmax <- max(build_area_raster$x)
+# ymin <- min(build_area_raster$y)
+# ymax <- max(build_area_raster$y)
+#
+# mask <- data.frame(x = rep(xmin:xmax, length(ymin:ymax)),
+#                    y = rep(ymin:ymax, each = length(xmin:xmax)))
+# #
+# # ggplot(mask) +
+# #   geom_tile(aes(x = x, y = y), color = "grey") +
+# #   geom_tile(data = build_area_raster,aes(x = x, y = y), color = "black")
+# #
+# build_area_raster <- rasterize(st_as_sf(buildable_area), raster_template,
+#                                touches = TRUE) |>
+# #   as.data.frame()
+# #
+# # mask <- !is.na(build_area_raster) |> as.data.frame()
+# #
+# # nrow(mask)
+# # nrow(as.data.frame(build_area_raster))
+# #
+# # ggplot(mask) +
+# #   geom_tile(aes(x = x, y = y), color = "black")
+# #
+# # show_shapes(buildable_area)
+#
 #
 # show_shapes(tidybuilding)
 # show_shapes(tidyparcel)
@@ -95,38 +130,38 @@ check_footprint <- function(tidybuilding, buildable_area, num_rotations = 24){
 #
 # check_footprint(tidybuilding, buildable_area)
 #
+# check_footprint_simple(buildable_area, 50, 70)
+#
+# #
+# #
+# #
+# #
+# # # This is the outside shape
+# # shape_1 <- st_polygon(list(matrix(c(0,0,
+# #                                     25,0,
+# #                                     25,50,
+# #                                     0,50,
+# #                                     0,0), byrow = T, ncol = 2)))
+# #
+# # # A little smaller than shape_1 and rotatad 90 degrees
+# # shape_2 <- st_polygon(list(matrix(c(0,0,
+# #                                     49,0,
+# #                                     49,24,
+# #                                     0,24,
+# #                                     0,0), byrow = T, ncol = 2)))
+# #
+# # shape_sf <- st_sf(geometry = st_sfc(shape_1, shape_2))
+# #
+# # shape1 <- shape_sf[1,"geometry"]
+# # shape2 <- shape_sf[2,"geometry"]
+# #
+# # show_shapes(shape1,shape2)
+# #
+# # check_footprint(shape1,shape2)
+# # check_footprint(shape2,shape1)
 #
 #
+# mask(build_area_raster, raster_template)
 #
 #
-#
-#
-# # This is the outside shape
-# shape_1 <- st_polygon(list(matrix(c(0,0,
-#                                     25,0,
-#                                     25,50,
-#                                     0,50,
-#                                     0,0), byrow = T, ncol = 2)))
-#
-# # A little smaller than shape_1 and rotatad 90 degrees
-# shape_2 <- st_polygon(list(matrix(c(0,0,
-#                                     49,0,
-#                                     49,24,
-#                                     0,24,
-#                                     0,0), byrow = T, ncol = 2)))
-#
-# shape_sf <- st_sf(geometry = st_sfc(shape_1, shape_2))
-#
-# shape1 <- shape_sf[1,"geometry"]
-# shape2 <- shape_sf[2,"geometry"]
-#
-# show_shapes(shape1,shape2)
-#
-# check_footprint(shape1,shape2)
-# check_footprint(shape2,shape1)
-#
-#
-#
-
-
 

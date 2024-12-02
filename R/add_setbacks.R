@@ -1,5 +1,21 @@
+#' Add Seetbacks
+#'
+#' @description
+#' Takes in a tidyparcel, tidydistrict, and tidybuilding.
+#' Returns the tidyparcel object with new columns describing the setback and units of each side.
+#'
+#'
+#' @param tidyparcel A tidyparcel object is an simple features object depicting each side of a parcel and its label.
+#' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
+#' @param tidybuilding A tidybuilding object is a special features object representing a building.
+#'
+#' @return Tidyparcel with a "setbacks" and "units" column
+#' @export
+#'
+#' @examples
+#'
 add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
-  tidyparcel <- tidyparcel[!is.na(tidyparcel$side),]
+  tidyparcel <- tidyparcel[tidyparcel$side != "centroid",]
   zoning_req <- get_zoning_req(tidybuilding, tidyparcel, tidydistrict)
 
   if (class(zoning_req) == "character"){
@@ -30,6 +46,7 @@ add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
 
   tidyparcel
 }
+
 
 #
 # tidyparcel <- tidyparcel_list_haltom[[1]]
