@@ -1,3 +1,17 @@
+#' Check if footprint fits in buildable area
+#'
+#' `check_footprint()` takes a building footprint from tidybuilding object and checks to see if it will fit in the provided buildable area. The buildable area can be any shape.
+#'
+#' @inheritParams add_setbacks
+#' @inheritParams check_footprint_simple
+#' @param num_rotations The number of rotations you wish to spin the building footprint. More rotations will be more accurate, but will cost significantly more time.
+#' Ex: if `num_rotations = 4` then the building footprint will be turned 90 degrees each time until it finds where it fits.
+#' Ex: if `num_rotations = 24` then the building footprint will be turned 15 degrees each time until it finds where it fits.
+#'
+#' @return
+#' Returns TRUE of FALSE stating whether or not the building footprint would fit in the buildable area.
+#' @export
+#'
 check_footprint <- function(tidybuilding, buildable_area, num_rotations = 24){
   # change crs so it is working in feet
   # (we may want to change this someday)
@@ -71,11 +85,14 @@ check_footprint <- function(tidybuilding, buildable_area, num_rotations = 24){
   }
   return(FALSE)
 }
-# #
-# # ggplot(build_area_raster) +
-# #   geom_tile(aes(x = x, y = y)) +
-# #   geom_sf(data = footprint, color = "red4", fill = "red", alpha = .5)
-# #
+
+# ggplot(build_area_raster) +
+#   geom_tile(aes(x = x, y = y)) +
+#   geom_sf(data = footprint, color = "red4", fill = "red", alpha = .5)
+#
+
+
+
 # #
 # tidybuilding <- tidybuilding_ex
 # tidydistrict <- tidyzoning_ex[15,]

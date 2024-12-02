@@ -1,15 +1,13 @@
-#' Find Building Type
+#' Find land use of a building
 #'
-#' @description
-#' Takes in a tidybuilding and outputs the land use.
+#' `find_bldg_type()` takes in a tidybuilding and outputs the land use (1_family, 2_family, etc.).
 #'
-#' @param tidybuilding Tidybuilding data formatted in a data fram
+#' @inheritParams add_setbacks
 #'
 #' @return A string stating the building land use (1_family, 2_family, etc.).
-#' This will coincide with the way it is written in the tidyzining object.
+#' This will match the way land use is written in the tidyzining object.
 #' @export
 #'
-#' @examples
 find_bldg_type <- function(tidybuilding){
   possible_columns <- c("units_0bed",
                         "units_1bed",

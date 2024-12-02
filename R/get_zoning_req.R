@@ -1,3 +1,16 @@
+#' Get district zoning requirements
+#'
+#' Because many zoning requirements depend on the proposed building or the parcel of that zoning district, `the get_zoning_req()` function takes a tidybuilding, a tidyparcel, and a tidydistrict and outputs a data frame listing the set zoning requirements that those three objects would create.
+#' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
+#'
+#' @inheritParams add_setbacks
+#'
+#' @return
+#' Returns a data frame with the value each zoning requirement for that specific building, parcel, and zoning district.
+#' NA values indicate the requirement isn't recorded in that district.
+#' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
+#' @export
+#'
 get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
   # make tidydistrit a nested list instead of sf object
   tidydistrict <- list(lot_constraints = fromJSON(tidydistrict$lot_constraints),
@@ -38,10 +51,14 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
   # establish the parcel variables that might be used in the equations
   front_of_parcel <- tidyparcel |>
     filter(side == "front")
+  side_of_parcel <- tidyparcel |>
+    filter(side == "Interior side")
   parcel_without_centroid <- tidyparcel[!is.na(tidyparcel$side),]
 
   lot_width <- st_length(front_of_parcel) * 3.28084 # converting to ft
   units(lot_width) <- "ft"
+  lot_depth <- st_length(side_of_parcel) * 3.28084 # converting to ft
+  units(lot_depth) <- "ft"
   lot_area <- st_polygonize(st_union(parcel_without_centroid)) |> st_area() * 10.7639 # converting to ft
   units(lot_area) <- "ft^2"
   # establish the building variables that might be used in the equations

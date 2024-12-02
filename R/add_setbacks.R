@@ -1,21 +1,20 @@
-#' Add Seetbacks
+#' Add setback column to tidyparcel object
 #'
-#' @description
-#' Takes in a tidyparcel, tidydistrict, and tidybuilding.
-#' Returns the tidyparcel object with new columns describing the setback and units of each side.
+#' `add_setbacks()` returns the tidyparcel object with new columns describing the setback and units of each side.
 #'
 #'
-#' @param tidyparcel A tidyparcel object is an simple features object depicting each side of a parcel and its label.
+#' @param tidyparcel A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear).
 #' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
 #' @param tidybuilding A tidybuilding object is a special features object representing a building.
 #'
-#' @return Tidyparcel with a "setbacks" and "units" column
+#' @return Returns the tidyparcel object with a "setbacks" and "units" column added to the end.
 #' @export
 #'
-#' @examples
-#'
+
+
 add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
   tidyparcel <- tidyparcel[tidyparcel$side != "centroid",]
+  tidyparcel <- tidyparcel[!is.na(tidyparcel$side),]
   zoning_req <- get_zoning_req(tidybuilding, tidyparcel, tidydistrict)
 
   if (class(zoning_req) == "character"){
@@ -47,20 +46,41 @@ add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
   tidyparcel
 }
 
-
 #
-# tidyparcel <- tidyparcel_list_haltom[[1]]
-# tidydistrict <- tidyzoning_haltom[4,]
+# parcel_ids <- unique(tidyparcel_for_testing$parcel_id)
+# district_idx <- c()
+# for (i in 1:length(parcel_ids)){
+#   parcel <- tidyparcel_for_testing |>
+#     filter(parcel_id == parcel_ids[[i]])
+#   district_idx <- c(district_idx, find_district_idx(parcel, tidyzoning_for_testing))
+#
+# }
+#
+# tidyparcel <- tidyparcel_for_testing |>
+#   filter(parcel_id == parcel_ids[[3]]) |>
+#   filter(side != "centroid")
+#
+# tidydistrict <- tidyzoning_for_testing[district_idx[[2]],]
+#
 # tidybuilding <- tidybuilding_ex
-# tidybuilding$units_3bed[1] <- 1
 #
-
-# tidyparcel <- tidyparcel_list_haltom[[2]]
-# tidybuilding <- tidybuilding_12fam
-# tidydistrict <- tidyzoning_haltom[4,]
-
-
+# tidyparcel_for_testing |>
+#   filter(parcel_id == parcel_ids[[2]]) |>
+#   ggplot() +
+#   geom_sf(aes(color = side))
 #
-# tidydistrict <- tidyzoning_haltom[17,]
-# tidybuilding <- tidybuilding_ex
-# tidyparcel <- tidyparcel_list_haltom[[1]]
+#
+# land_use_check <- c()
+# for (i in 1:length(parcel_ids)){
+#   district <- tidyzoning_for_testing[district_idx[[i]],]
+#   land_use_check <- c(land_use_check, check_land_use(tidybuilding, district))
+# }
+#
+# parcel_with_setbacks <- add_setbacks(tidyparcel, tidydistrict, tidybuilding)
+#
+# buildable_area <- get_buildable_area(parcel_with_setbacks)
+#
+# show_shapes(tidyparcel, buildable_area)
+#
+# check_footprint(tidybuilding,buildable_area)
+

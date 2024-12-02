@@ -1,3 +1,14 @@
+#' Create a parcel's buildable area
+#'
+#' get_buildable_area() takes a tidyparcel object with setback information and produces a polygon representing the builablel area of the parcel.
+#'
+#' @param tidyparcel_with_setbacks A tidyparcel object that has setback infomration added. tidyparcel_with_setbacks is the output of the [add_setbacks()] function.
+#'
+#' @return
+#' Returns a polygon representing the buildable area of the parcel.
+#' @export
+#'
+
 get_buildable_area <- function(tidyparcel_with_setbacks){
   # make tidyparcel a polygon
   polygon <- st_polygonize(st_union(tidyparcel_with_setbacks))
@@ -7,7 +18,13 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
   }
 
   # convert the setback units to meters
-  units(tidyparcel_with_setbacks$setback) <- tidyparcel_with_setbacks$units[[1]]
+  if (is.na(unique(tidyparcel_with_setbacks$units)[[1]])){
+    units(tidyparcel_with_setbacks$setback) <- unique(tidyparcel_with_setbacks$units)[[2]]
+  } else{
+    units(tidyparcel_with_setbacks$setback) <- unique(tidyparcel_with_setbacks$units)[[1]]
+  }
+
+
   tidyparcel_with_setbacks <- tidyparcel_with_setbacks |>
     mutate(setback_m = set_units(setback,"m")) |>
     filter(!is.na(setback))

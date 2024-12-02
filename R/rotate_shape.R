@@ -1,3 +1,16 @@
+#' Rotate polygon by specified angle
+#'
+#' The `rotate_shape()` function takes a one-row special feature object and rotates the geometry about the centroid or a specified point.
+#'
+#' @param shape a polygon you want to rotate. Must be a special feature object with only one row.
+#' @param angle_degrees The angle (in degrees) that you want to rotate the shape
+#' @param center The center about which to rotate in the form of XY coordinates.
+#' Default is null,  When NULL, rotation is about the centroid.
+#'
+#' @return
+#' Returns the simple feature shape object with rotated geometry
+#' @export
+#'
 rotate_shape <- function(shape, angle_degrees, center = NULL) {
   # Convert angle to radians
   rad <- angle_degrees * pi / 180

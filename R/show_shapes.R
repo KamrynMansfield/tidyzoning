@@ -1,4 +1,4 @@
-#' Show Shapes
+#' Quickly visualize sf objects
 #'
 #' @description
 #' A quick way to visualize up to four different shapes using ggplot
@@ -8,10 +8,10 @@
 #' @param shape3 An sf object
 #' @param shape4 An sf object
 #'
-#' @return A simple plot with the different shapes, each a different color
+#' @return
+#' Returns a simple plot with the different shapes, each a different color
 #' @export
 #'
-#' @examples
 show_shapes <- function(shape1, shape2 = NA, shape3 = NA, shape4 = NA){
   shape_list <- list(shape1,shape2,shape3,shape4)
   num_na <- shape_list[is.na(shape_list)] |> length()

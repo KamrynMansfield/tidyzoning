@@ -1,3 +1,15 @@
+#' Check if simple footprint fits in buildable area
+#'
+#' `check_footprint_simple()` takes a rectangular building footprint and checks to see if it will fit in the provided buildable area. The buildable area can be any shape.
+#'
+#' @param buildable_area A shape depicting the buildable area of a parcel. This is produced by the [get_buildable_area()] function.
+#' @param bldg_width_x The width (in feet) of the building footprint
+#' @param bldg_length_y The length (in feet) of the building footprint
+#'
+#' @return
+#' Returns TRUE of FALSE stating whether or not the building footprint would fit in the buildable area.
+#' @export
+#'
 check_footprint_simple <- function(buildable_area, bldg_width_x, bldg_length_y){
   # change crs so it is working in feet
   # (we may want to change this someday. Don't know if this is the correct crs)

@@ -1,17 +1,16 @@
-#' Find District Index
+#' Find corresponding tidydistrict
 #'
 #' @description
-#' Takes in an sf data frame with district geometry and a parcel.
+#' `find_district_idx()` takes in a tidyzoning object and a tidyparcel object.
 #' Returns the row number of the district to which the parcel belongs.
 #'
-#' @param tidyparcel An sf data frame with a linestring for each side of the parcel.
-#' @param tidyzoning The sf data frame with district geometry.
+#' @inheritParams add_setbacks
+#' @param tidyzoning The tidyzoning object is a simple features object with a row for each zoning district and columns holding the geojson formatted zoning requirements of each district.
 #'
-#' @return The row number of the district to which the parcel belongs.
+#' @return The row number of the tidyzoning object that contains the disrict to which the parcel belongs.
 #' Returns NA if there is no district found.
 #' @export
 #'
-#' @examples
 find_district_idx <- function(tidyparcel, tidyzoning){
   # lists TRUE/FALSE to indicate which tidyzoning geometries cover the parcel centroid
   contains <- st_contains(st_make_valid(tidyzoning), tail(tidyparcel,1), sparse = F)
