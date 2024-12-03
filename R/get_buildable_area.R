@@ -36,8 +36,10 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
   # make the buffered sides all one polygon
   buffered_polygon <- st_union(buffered_sides)
 
+
   # make a new shape the parts not overlapping
   not_overlapping <- st_sym_difference(st_make_valid(buffered_polygon), st_make_valid(polygon))
+  not_overlapping <- not_overlapping[st_area(not_overlapping) == max(st_area(not_overlapping))]
 
   # separate the polygons from the multipolygon
   not_overlapping <- st_cast(not_overlapping, "POLYGON")
