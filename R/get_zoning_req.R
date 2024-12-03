@@ -22,21 +22,24 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
   if (length(tidydistrict$lot_constraints) > 0){
     lot_constraints <- data.frame(constraint_name = names(tidydistrict$lot_constraints),
                                   min_value = NA,
-                                  max_value = NA)
+                                  max_value = NA,
+                                  units = NA)
   } else{
     lot_constraints <- data.frame()
   }
   if (length(tidydistrict$structure_constraints) > 0){
     structure_constraints <- data.frame(constraint_name = names(tidydistrict$structure_constraints),
                                         min_value = NA,
-                                        max_value = NA)
+                                        max_value = NA,
+                                        units = NA)
   } else{
     structure_constraints <- data.frame()
   }
   if (length(tidydistrict$other_constraints) > 0){
     other_constraints <- data.frame(constraint_name =names(tidydistrict$other_constraints),
                                     min_value = NA,
-                                    max_value = NA)
+                                    max_value = NA,
+                                    units = NA)
   } else{
     other_constraints <- data.frame()
   }
@@ -53,7 +56,11 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
     filter(side == "front")
   side_of_parcel <- tidyparcel |>
     filter(side == "Interior side")
-  parcel_without_centroid <- tidyparcel[!is.na(tidyparcel$side),]
+  parcel_without_centroid <- tidyparcel |>
+    filter(!is.na(side)) |>
+    filter(side != "centroid")
+
+
 
   lot_width <- st_length(front_of_parcel) * 3.28084 # converting to ft
   units(lot_width) <- "ft"
