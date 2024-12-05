@@ -1,11 +1,13 @@
 #' Compare building land use and allowed land uses
 #'
-#' `check_land_use()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on land use.
+#' `check_land_use_exceptions()`, like `check_land_use()`, will see if the district's zoning code allows the tidybuilding based on land use.
+#' But this function also return TRUE if the land use is recorded in the tidyzoning as a potential exception.
 #'
 #' @inheritParams add_setbacks
 #'
 #' @return
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on land use.
+#' It will also return TRUE if the tidyzoning records a potential exception would allow the land use.
 #' Note: If there is no recorded land use requirement in zoning code, it returns FALSE
 #' @export
 #'
@@ -19,10 +21,10 @@ check_land_use <- function(tidybuilding, tidydistrict){
     warning("Unable to calculate building type. Results may not be accurate")
   }
 
-  if (length(dist_info_list$uses_permitted$uses_value) == 0){
-    return(FALSE)
-    warning("Can't find permitted land uses. Assumed FALSE")
+  if (bldg_type %in% dist_info_list$uses_permitted$uses_value){
+    return(TRUE)
   } else{
-    return(bldg_type %in% dist_info_list$uses_permitted$uses_value)
+    return(bldg_type %in% dist_info_list$uses_permitted$excep_value)
   }
+
 }
