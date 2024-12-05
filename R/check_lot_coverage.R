@@ -23,7 +23,6 @@ check_lot_coverage <- function(tidybuilding, tidydistrict, tidyparcel){
     warning("No floor area found in tidybuilding")
   }
 
-  # units are in square meters right now
   lot_coverage <- footprint * 100 / st_area(tidyparcel)
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)

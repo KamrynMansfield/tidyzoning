@@ -40,7 +40,10 @@ check_height <- function(tidybuilding, tidydistrict){
     if (!is.na(zoning_req[zoning_req$constraint_name == "height", "units"])){
       height <- set_units(height, "ft")
       height_units <- zoning_req[zoning_req$constraint_name == "height", "units"]
-      height <- set_units(height, height_units)
+      units(max_height) <- height_units
+      units(min_height) <- height_units
+      max_height <- set_units(max_height, "ft")
+      min_height <- set_units(min_height, "ft")
     }
 
     return(height >= min_height & height <= max_height)

@@ -12,7 +12,7 @@ check_unit_density <- function(tidybuilding, tidydistrict){
   structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
   tidybuilding_no_geometry <- tidybuilding |>
-    st_set_geometry( NULL)
+    st_set_geometry(NULL)
 
   unit_list <- c("units_0bed",
                 "units_1bed",
