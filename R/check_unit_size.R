@@ -25,9 +25,6 @@ check_unit_size <- function(tidybuilding, tidydistrict){
     return(TRUE)
   }
 
-  min_size <- set_units(min_size, "ft2")
-  max_size <- set_units(max_size, "ft2")
-
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
 
   if ("unit_size" %in% zoning_req$constraint_name){
@@ -42,8 +39,10 @@ check_unit_size <- function(tidybuilding, tidydistrict){
       max_unit_size <- 100
     }
 
-    if (!is.na(zoning_req[zoning_req$constraint_name == "fl_area", "units"])){
-      unit_size_units <- zoning_req[zoning_req$constraint_name == "fl_area", "units"]
+    if (!is.na(zoning_req[zoning_req$constraint_name == "unit_size", "units"])){
+      min_size <- set_units(min_size, "ft2")
+      max_size <- set_units(max_size, "ft2")
+      unit_size_units <- zoning_req[zoning_req$constraint_name == "unit_size", "units"]
       min_size <- set_units(min_size, unit_size_units)
       max_size <- set_units(max_size, unit_size_units)
     }

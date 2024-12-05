@@ -22,8 +22,6 @@ check_height <- function(tidybuilding, tidydistrict){
     warning("No tidybuilding height recorded")
   }
 
-  height <- set_units(height, "ft")
-
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
 
   if ("height" %in% zoning_req$constraint_name){
@@ -40,6 +38,7 @@ check_height <- function(tidybuilding, tidydistrict){
 
     # change height units to match the ones recorded in the code
     if (!is.na(zoning_req[zoning_req$constraint_name == "height", "units"])){
+      height <- set_units(height, "ft")
       height_units <- zoning_req[zoning_req$constraint_name == "height", "units"]
       height <- set_units(height, height_units)
     }

@@ -1,18 +1,17 @@
-#' Compare building unit_density and allowed unit_density
+#' Compare building's unit density and allowed unit_density
 #'
-#' `check_unit_density()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit_density.
+#' `check_unit_density()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit density.
 #'
 #' @inheritParams add_setbacks
 #'
 #' @return
-#' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on building unit_density.
+#' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on unit density.
 #' @export
 #'
 check_unit_density <- function(tidybuilding, tidydistrict){
   structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
   tidybuilding_no_geometry <- tidybuilding |>
-    select(!units_2bed) |>
     st_set_geometry( NULL)
 
   unit_list <- c("units_0bed",
