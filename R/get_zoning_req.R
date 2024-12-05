@@ -69,7 +69,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 units_3bed = 3,
                 units_4bed = 4)
 
-  bedrooms <- min(bed_list[names(tidybuilding)], na.rm = T)
+  bedrooms <- max(bed_list[names(tidybuilding)], na.rm = T)
   units_0bed <- ifelse(length(tidybuilding$units_0bed) > 0, tidybuilding$units_0bed, 0)
   units_1bed <- ifelse(length(tidybuilding$units_1bed) > 0, tidybuilding$units_1bed, 0)
   units_2bed <- ifelse(length(tidybuilding$units_2bed) > 0, tidybuilding$units_2bed, 0)

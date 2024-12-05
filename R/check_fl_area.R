@@ -21,11 +21,13 @@ check_fl_area <- function(tidybuilding, tidydistrict){
     warning("No floor area found in tidybuilding")
   }
 
+  fl_area <- set_units(fl_area, "ft2")
+
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
 
   if ("fl_area" %in% zoning_req$constraint_name){
-    min_fl_area <- zoning_req[[zoning_req$constraint_name == "fl_area", "min_value"]]
-    max_fl_area <- zoning_req[[zoning_req$constraint_name == "fl_area", "max_value"]]
+    min_fl_area <- zoning_req[zoning_req$constraint_name == "fl_area", "min_value"]
+    max_fl_area <- zoning_req[zoning_req$constraint_name == "fl_area", "max_value"]
 
     if (is.na(min_fl_area)){
       min_fl_area <- 0
@@ -33,6 +35,12 @@ check_fl_area <- function(tidybuilding, tidydistrict){
 
     if (is.na(max_fl_area)){
       max_fl_area <- 1000000
+    }
+
+    # change fl_area units to match the ones recorded in the code
+    if (!is.na(zoning_req[zoning_req$constraint_name == "fl_area", "units"])){
+      fl_area_units <- zoning_req[zoning_req$constraint_name == "fl_area", "units"]
+      fl_area <- set_units(fl_area, fl_area_units)
     }
 
     return(fl_area >= min_fl_area & fl_area <= max_fl_area)

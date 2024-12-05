@@ -27,8 +27,8 @@ check_far <- function(tidybuilding, tidydistrict, tidyparcel){
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
 
   if ("far" %in% zoning_req$constraint_name){
-    min_far <- zoning_req[[zoning_req$constraint_name == "far", "min_value"]]
-    max_far <- zoning_req[[zoning_req$constraint_name == "far", "max_value"]]
+    min_far <- zoning_req[zoning_req$constraint_name == "far", "min_value"]
+    max_far <- zoning_req[zoning_req$constraint_name == "far", "max_value"]
 
     if (is.na(min_far)){
       min_far <- 0
@@ -36,12 +36,6 @@ check_far <- function(tidybuilding, tidydistrict, tidyparcel){
 
     if (is.na(max_far)){
       max_far <- 1000000
-    }
-
-    # change far units to match the ones recorded in the code
-    if (!is.na(zoning_req[[zoning_req$constraint_name == "far", "units"]])){
-      far_units <- zoning_req[[zoning_req$constraint_name == "far", "units"]]
-      far <- set_units(far, far_units)
     }
 
     return(far >= min_far & far <= max_far)
