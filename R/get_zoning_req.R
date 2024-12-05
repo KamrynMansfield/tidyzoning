@@ -11,7 +11,7 @@
 #' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
 #' @export
 #'
-get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
+get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   # make tidydistrit a nested list instead of sf object
   tidydistrict <- list(lot_constraints = fromJSON(tidydistrict$lot_constraints),
                        structure_constraints = fromJSON(tidydistrict$structure_constraints),
@@ -19,55 +19,49 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
 
   # What are the constraints that are recorded?
   # These three dfs will be appended and combined in the end
-  if (length(tidydistrict$lot_constraints) > 0){
-    lot_constraints <- data.frame(constraint_name = names(tidydistrict$lot_constraints),
-                                  min_value = NA,
-                                  max_value = NA,
-                                  units = NA)
-  } else{
-    lot_constraints <- data.frame()
-  }
-  if (length(tidydistrict$structure_constraints) > 0){
-    structure_constraints <- data.frame(constraint_name = names(tidydistrict$structure_constraints),
-                                        min_value = NA,
-                                        max_value = NA,
-                                        units = NA)
-  } else{
-    structure_constraints <- data.frame()
-  }
-  if (length(tidydistrict$other_constraints) > 0){
-    other_constraints <- data.frame(constraint_name =names(tidydistrict$other_constraints),
+
+  zoning_constraints <- list()
+  counter <- 1
+  for (i in 1:length(tidydistrict)){
+    if (length(tidydistrict[[i]]) > 0){
+      constraints <- data.frame(constraint_name = names(tidydistrict[[i]]),
                                     min_value = NA,
                                     max_value = NA,
                                     units = NA)
-  } else{
-    other_constraints <- data.frame()
+      zoning_constraints[[counter]] <- constraints
+      counter <- counter + 1
+    }
   }
 
-  if (nrow(rbind(lot_constraints, structure_constraints, other_constraints)) == 0){
+  if (nrow(bind_rows(zoning_constraints)) == 0){
     return("No zoning requirements recorded for this district")
   }
 
   # Name the building type
   bldg_type <- find_bldg_type(tidybuilding)
 
+  if (is.null(tidyparcel)){
+    lot_width <- NA
+    lot_depth <- NA
+    lot_area <- NA
+  } else{
   # establish the parcel variables that might be used in the equations
-  front_of_parcel <- tidyparcel |>
-    filter(side == "front")
-  side_of_parcel <- tidyparcel |>
-    filter(side == "Interior side")
-  parcel_without_centroid <- tidyparcel |>
-    filter(!is.na(side)) |>
-    filter(side != "centroid")
+    front_of_parcel <- tidyparcel |>
+      filter(side == "front")
+    side_of_parcel <- tidyparcel |>
+      filter(side == "Interior side")
+    parcel_without_centroid <- tidyparcel |>
+      filter(!is.na(side)) |>
+      filter(side != "centroid")
 
+    lot_width <- st_length(front_of_parcel) * 3.28084 # converting to ft
+    units(lot_width) <- "ft"
+    lot_depth <- st_length(side_of_parcel) * 3.28084 # converting to ft
+    units(lot_depth) <- "ft"
+    lot_area <- st_polygonize(st_union(parcel_without_centroid)) |> st_area() * 10.7639 # converting to ft
+    units(lot_area) <- "ft^2"
+  }
 
-
-  lot_width <- st_length(front_of_parcel) * 3.28084 # converting to ft
-  units(lot_width) <- "ft"
-  lot_depth <- st_length(side_of_parcel) * 3.28084 # converting to ft
-  units(lot_depth) <- "ft"
-  lot_area <- st_polygonize(st_union(parcel_without_centroid)) |> st_area() * 10.7639 # converting to ft
-  units(lot_area) <- "ft^2"
   # establish the building variables that might be used in the equations
   bed_list <- c(units_0bed = 0,
                 units_1bed = 1,
@@ -91,75 +85,53 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
   far <- fl_area / lot_area
 
   # loop through each zoning regulation in the district
+  warnings <- 0 # if tidyparcel == NULL, this will keep track of potential incorrect calculations
+  for (k in 1:length(zoning_constraints)){
+    constraints <- zoning_constraints[[k]]
 
-  # listing lot constraints
-  for (i in 1:nrow(lot_constraints)){
-    for (j in 1:length(tidydistrict$lot_constraints[[i]])){
-      use_name <- tidydistrict$lot_constraints[[i]][[j]]$use_name
-      if (bldg_type %in% use_name){
-        use_index <- j
-      }else {
-        use_index <- NA
+    # listing constraints
+    for (i in 1:nrow(constraints)){
+      for (j in 1:length(tidydistrict[[k]][[i]])){
+        use_name <- tidydistrict[[k]][[i]][[j]]$use_name
+        if (bldg_type %in% use_name){
+          use_index <- j
+          break
+        }else {
+          use_index <- NA
+        }
       }
-    }
-    if (is.na(use_index)){
-      break
-    }
-    constraint_info <- tidydistrict$lot_constraints[[i]][[use_index]]
+      if (is.na(use_index)){
+        break
+      }
+      constraint_info <- tidydistrict[[k]][[i]][[use_index]]
 
-    # Looking at possible min values
-    if (length(constraint_info$min_val[[1]]) == 1){ # this is just a one-line expression for the constraint
-      constraint_min_val <- parse(text = constraint_info$min_val[[1]]) |>
-        eval()
+      # Looking at possible min values
+      if (length(constraint_info$min_val[[1]]) == 1){ # this is just a one-line expression for the constraint
+        constraint_min_val <- parse(text = constraint_info$min_val[[1]]) |>
+          eval()
 
-    } else if (length(constraint_info$min_val) == 0){
-      constraint_min_val <- NA
+      } else if (length(constraint_info$min_val) == 0){
+        constraint_min_val <- NA
 
-    } else{ # this indicates a rule of some kind
-      # loop through each rule
-      for (j in 1:length(constraint_info$min_val)){
-        rule_items <- names(constraint_info$min_val[[j]])
-        if ("logical_operator" %in% rule_items ){
-          if (constraint_info$min_val[[j]]$logical_operator == "AND"){
-            logical_operator <- "&"
-          } else{
-            logical_operator <- "|"
-          }
-          if ("select" %in% rule_items){ # there is logical_op and there is a select
-            conditions_value <- parse(text = paste(constraint_info$min_val[[j]]$conditions,
-                                                   collapse = logical_operator)) |>
-              eval()
-
-            expressions <- c()
-            for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-              expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
+      } else{ # this indicates a rule of some kind
+        # loop through each rule
+        for (j in 1:length(constraint_info$min_val)){
+          rule_items <- names(constraint_info$min_val[[j]])
+          if ("logical_operator" %in% rule_items ){
+            if (constraint_info$min_val[[j]]$logical_operator == "AND"){
+              logical_operator <- "&"
+            } else{
+              logical_operator <- "|"
             }
-            if (conditions_value == TRUE){
-              if (constraint_info$min_val[[j]]$select == "min"){
-                constraint_min_val <- min(expressions)
-                break
-              } else{
-                constraint_min_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # there is logical_op and just one expression at end
-            constraint_min_val <- parse(text = constraint_info$min_val[[j]]$expression) |>
-              eval()
-            break
-          }
-        } else{
-          if ("select" %in% rule_items){ # not logical_op, but there is a select
-            if ("conditions" %in% rule_items){ # There is still a condition before selecting
-              # there is logical_op and there is a select
-              conditions_value <- parse(text = constraint_info$min_val[[j]]$conditions) |>
+            if ("select" %in% rule_items){ # there is logical_op and there is a select
+              conditions_value <- parse(text = paste(constraint_info$min_val[[j]]$conditions,
+                                                     collapse = logical_operator)) |>
                 eval()
 
               expressions <- c()
               for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
                 expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
               }
-
               if (conditions_value == TRUE){
                 if (constraint_info$min_val[[j]]$select == "min"){
                   constraint_min_val <- min(expressions)
@@ -169,197 +141,37 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
                   break
                 }
               }
-            } else{ # it is just a select with the expressions
-              expressions <- c()
-              for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
-              }
-              if (constraint_info$min_val[[j]]$select == "min"){
-                constraint_min_val <- min(expressions)
-                break
-              } else{
-                constraint_min_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # no logical_op and no select
-            conditions_value <- parse(text = constraint_info$min_val[[j]]$conditions) |>
-              eval()
-            if (conditions_value == TRUE){
+            } else{ # there is logical_op and just one expression at end
               constraint_min_val <- parse(text = constraint_info$min_val[[j]]$expression) |>
                 eval()
               break
             }
-          }
-        }
-
-      }
-    }
-
-    # Looking at possible max values
-    if (length(constraint_info$max_val[[1]]) == 1){ # this is just a one-line expression for the constraint
-      constraint_max_val <- parse(text = constraint_info$max_val[[1]]) |>
-        eval()
-    } else if (length(constraint_info$max_val) == 0){
-      constraint_max_val <- NA
-    } else{ # this indicates a rule of some kind
-      # loop through each rule
-      for (j in 1:length(constraint_info$max_val)){
-        rule_items <- names(constraint_info$max_val[[j]])
-        if ("logical_operator" %in% rule_items ){
-          if (constraint_info$max_val[[j]]$logical_operator == "AND"){
-            logical_operator <- "&"
           } else{
-            logical_operator <- "|"
-          }
-          if ("select" %in% rule_items){ # there is logical_op and there is a select
-            conditions_value <- parse(text = paste(constraint_info$max_val[[j]]$conditions,
-                                                   collapse = logical_operator)) |>
-              eval()
+            if ("select" %in% rule_items){ # not logical_op, but there is a select
+              if ("conditions" %in% rule_items){ # There is still a condition before selecting
+                # there is logical_op and there is a select
+                conditions_value <- parse(text = constraint_info$min_val[[j]]$conditions) |>
+                  eval()
 
-            expressions <- c()
-            for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-              expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
-            }
-            if (conditions_value == TRUE){
-              if (constraint_info$max_val[[j]]$select == "min"){
-                constraint_max_val <- min(expressions)
-                break
-              } else{
-                constraint_max_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # there is logical_op and just one expression at end
-            constraint_max_val <- parse(text = constraint_info$max_val[[j]]$expression) |>
-              eval()
-            break
-          }
-        } else{
-          if ("select" %in% rule_items){ # not logical_op, but there is a select
-            if ("conditions" %in% rule_items){ # There is still a condition before selecting
-              # there is logical_op and there is a select
-              conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
-                eval()
-
-              expressions <- c()
-              for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
-              }
-
-              if (conditions_value == TRUE){
-                if (constraint_info$max_val[[j]]$select == "min"){
-                  constraint_max_val <- min(expressions)
-                  break
-                } else{
-                  constraint_max_val <- max(expressions)
-                  break
+                expressions <- c()
+                for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
                 }
-              }
-            } else{ # it is just a select with the expressions
-              expressions <- c()
-              for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
-              }
-              if (constraint_info$max_val[[j]]$select == "min"){
-                constraint_max_val <- min(expressions)
-                break
-              } else{
-                constraint_max_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # no logical_op and no select
-            conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
-              eval()
-            if (conditions_value == TRUE){
-              constraint_max_val <- parse(text = constraint_info$max_val[[j]]$expression) |>
-                eval()
-              break
-            }
-          }
-        }
 
-      }
-    }
-
-    lot_constraints[i,"min_value"] <- constraint_min_val
-    lot_constraints[i,"max_value"] <- constraint_max_val
-    lot_constraints[i, "units"] <- constraint_info$unit
-  }
-
-
-
-  # listing structure constraints
-  for (i in 1:nrow(structure_constraints)){
-    for (j in 1:length(tidydistrict$structure_constraints[[i]])){
-      use_name <- tidydistrict$structure_constraints[[i]][[j]]$use_name
-      if (bldg_type %in% use_name){
-        use_index <- j
-      } else  {
-        use_index <- NA
-      }
-    }
-    if (is.na(use_index)){
-      break
-    }
-
-    constraint_info <- tidydistrict$structure_constraints[[i]][[use_index]]
-
-    # Looking at possible min values
-    if (length(constraint_info$min_val[[1]]) == 1){ # this is just a one-line expression for the constraint
-      constraint_min_val <- parse(text = constraint_info$min_val[[1]]) |>
-        eval()
-
-    } else if (length(constraint_info$min_val) == 0){
-      constraint_min_val <- NA
-
-    } else{ # this indicates a rule of some kind
-      # loop through each rule
-      for (j in 1:length(constraint_info$min_val)){
-        rule_items <- names(constraint_info$min_val[[j]])
-        if ("logical_operator" %in% rule_items ){
-          if (constraint_info$min_val[[j]]$logical_operator == "AND"){
-            logical_operator <- "&"
-          } else{
-            logical_operator <- "|"
-          }
-          if ("select" %in% rule_items){ # there is logical_op and there is a select
-            conditions_value <- parse(text = paste(constraint_info$min_val[[j]]$conditions,
-                                                   collapse = logical_operator)) |>
-              eval()
-
-            expressions <- c()
-            for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-              expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
-            }
-            if (conditions_value == TRUE){
-              if (constraint_info$min_val[[j]]$select == "min"){
-                constraint_min_val <- min(expressions)
-                break
-              } else{
-                constraint_min_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # there is logical_op and just one expression at end
-            constraint_min_val <- parse(text = constraint_info$min_val[[j]]$expression) |>
-              eval()
-            break
-          }
-        } else{
-          if ("select" %in% rule_items){ # not logical_op, but there is a select
-            if ("conditions" %in% rule_items){ # There is still a condition before selecting
-              # there is logical_op and there is a select
-              conditions_value <- parse(text = constraint_info$min_val[[j]]$conditions) |>
-                eval()
-
-              expressions <- c()
-              for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
-              }
-
-              if (conditions_value == TRUE){
+                if (conditions_value == TRUE){
+                  if (constraint_info$min_val[[j]]$select == "min"){
+                    constraint_min_val <- min(expressions)
+                    break
+                  } else{
+                    constraint_min_val <- max(expressions)
+                    break
+                  }
+                }
+              } else{ # it is just a select with the expressions
+                expressions <- c()
+                for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
+                }
                 if (constraint_info$min_val[[j]]$select == "min"){
                   constraint_min_val <- min(expressions)
                   break
@@ -368,285 +180,45 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
                   break
                 }
               }
-            } else{ # it is just a select with the expressions
-              expressions <- c()
-              for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
-              }
-              if (constraint_info$min_val[[j]]$select == "min"){
-                constraint_min_val <- min(expressions)
-                break
-              } else{
-                constraint_min_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # no logical_op and no select
-            conditions_value <- parse(text = constraint_info$min_val[[j]]$conditions) |>
-              eval()
-            if (conditions_value == TRUE){
-              constraint_min_val <- parse(text = constraint_info$min_val[[j]]$expression) |>
-                eval()
-              break
-            }
-          }
-        }
-
-      }
-    }
-
-    # Looking at possible max values
-    if (length(constraint_info$max_val[[1]]) == 1){ # this is just a one-line expression for the constraint
-      constraint_max_val <- parse(text = constraint_info$max_val[[1]]) |>
-        eval()
-
-    } else if (length(constraint_info$max_val) == 0){
-      constraint_max_val <- NA
-
-    } else{ # this indicates a rule of some kind
-      # loop through each rule
-      for (j in 1:length(constraint_info$max_val)){
-        rule_items <- names(constraint_info$max_val[[j]])
-        if ("logical_operator" %in% rule_items ){
-          if (constraint_info$max_val[[j]]$logical_operator == "AND"){
-            logical_operator <- "&"
-          } else{
-            logical_operator <- "|"
-          }
-          if ("select" %in% rule_items){ # there is logical_op and there is a select
-            conditions_value <- parse(text = paste(constraint_info$max_val[[j]]$conditions,
-                                                   collapse = logical_operator)) |>
-              eval()
-
-            expressions <- c()
-            for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-              expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
-            }
-            if (conditions_value == TRUE){
-              if (constraint_info$max_val[[j]]$select == "min"){
-                constraint_max_val <- min(expressions)
-                break
-              } else{
-                constraint_max_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # there is logical_op and just one expression at end
-            constraint_max_val <- parse(text = constraint_info$max_val[[j]]$expression) |>
-              eval()
-            break
-          }
-        } else{
-          if ("select" %in% rule_items){ # not logical_op, but there is a select
-            if ("conditions" %in% rule_items){ # There is still a condition before selecting
-              # there is logical_op and there is a select
-              conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
-                eval()
-
-              expressions <- c()
-              for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
-              }
-
-              if (conditions_value == TRUE){
-                if (constraint_info$max_val[[j]]$select == "min"){
-                  constraint_max_val <- min(expressions)
-                  break
-                } else{
-                  constraint_max_val <- max(expressions)
-                  break
-                }
-              }
-            } else{ # it is just a select with the expressions
-              expressions <- c()
-              for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
-              }
-              if (constraint_info$max_val[[j]]$select == "min"){
-                constraint_max_val <- min(expressions)
-                break
-              } else{
-                constraint_max_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # no logical_op and no select
-            conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
-              eval()
-            if (conditions_value == TRUE){
-              constraint_max_val <- parse(text = constraint_info$max_val[[j]]$expression) |>
-                eval()
-              break
-            }
-          }
-        }
-
-      }
-    }
-
-    structure_constraints[i,"min_value"] <- constraint_min_val
-    structure_constraints[i,"max_value"] <- constraint_max_val
-    structure_constraints[i, "units"] <- constraint_info$unit
-  }
-
-  # listing other constraints
-  for (i in 1:nrow(other_constraints)){
-    for (j in 1:length(tidydistrict$other_constraints[[i]])){
-      use_name <- tidydistrict$other_constraints[[i]][[j]]$use_name
-      if (bldg_type %in% use_name){
-        use_index <- j
-      } else  {
-        use_index <- NA
-      }
-    }
-    if (is.na(use_index)){
-      break
-    }
-
-    constraint_info <- tidydistrict$other_constraints[[i]][[use_index]]
-
-    # Looking at possible min values
-    if (length(constraint_info$min_val[[1]]) == 1){ # this is just a one-line expression for the constraint
-      constraint_min_val <- parse(text = constraint_info$min_val[[1]]) |>
-        eval()
-
-    } else if (length(constraint_info$min_val) == 0){
-      constraint_min_val <- NA
-
-    } else{ # this indicates a rule of some kind
-      # loop through each rule
-      for (j in 1:length(constraint_info$min_val)){
-        rule_items <- names(constraint_info$min_val[[j]])
-        if ("logical_operator" %in% rule_items ){
-          if (constraint_info$min_val[[j]]$logical_operator == "AND"){
-            logical_operator <- "&"
-          } else{
-            logical_operator <- "|"
-          }
-          if ("select" %in% rule_items){ # there is logical_op and there is a select
-            conditions_value <- parse(text = paste(constraint_info$min_val[[j]]$conditions,
-                                                   collapse = logical_operator)) |>
-              eval()
-
-            expressions <- c()
-            for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-              expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
-            }
-            if (conditions_value == TRUE){
-              if (constraint_info$min_val[[j]]$select == "min"){
-                constraint_min_val <- min(expressions)
-                break
-              } else{
-                constraint_min_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # there is logical_op and just one expression at end
-            constraint_min_val <- parse(text = constraint_info$min_val[[j]]$expression) |>
-              eval()
-            break
-          }
-        } else{
-          if ("select" %in% rule_items){ # not logical_op, but there is a select
-            if ("conditions" %in% rule_items){ # There is still a condition before selecting
-              # there is logical_op and there is a select
+            } else{ # no logical_op and no select
               conditions_value <- parse(text = constraint_info$min_val[[j]]$conditions) |>
                 eval()
-
-              expressions <- c()
-              for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
-              }
-
               if (conditions_value == TRUE){
-                if (constraint_info$min_val[[j]]$select == "min"){
-                  constraint_min_val <- min(expressions)
-                  break
-                } else{
-                  constraint_min_val <- max(expressions)
-                  break
-                }
-              }
-            } else{ # it is just a select with the expressions
-              expressions <- c()
-              for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
-              }
-              if (constraint_info$min_val[[j]]$select == "min"){
-                constraint_min_val <- min(expressions)
-                break
-              } else{
-                constraint_min_val <- max(expressions)
+                constraint_min_val <- parse(text = constraint_info$min_val[[j]]$expression) |>
+                  eval()
                 break
               }
-            }
-          } else{ # no logical_op and no select
-            conditions_value <- parse(text = constraint_info$min_val[[j]]$conditions) |>
-              eval()
-            if (conditions_value == TRUE){
-              constraint_min_val <- parse(text = constraint_info$min_val[[j]]$expression) |>
-                eval()
-              break
             }
           }
+
         }
-
       }
-    }
 
-    # Looking at possible max values
-    if (length(constraint_info$max_val[[1]]) == 1){ # this is just a one-line expression for the constraint
-      constraint_max_val <- parse(text = constraint_info$max_val[[1]]) |>
-        eval()
-
-    } else if (length(constraint_info$max_val) == 0){
-      constraint_max_val <- NA
-
-    } else{ # this indicates a rule of some kind
-      # loop through each rule
-      for (j in 1:length(constraint_info$max_val)){
-        rule_items <- names(constraint_info$max_val[[j]])
-        if ("logical_operator" %in% rule_items ){
-          if (constraint_info$max_val[[j]]$logical_operator == "AND"){
-            logical_operator <- "&"
-          } else{
-            logical_operator <- "|"
-          }
-          if ("select" %in% rule_items){ # there is logical_op and there is a select
-            conditions_value <- parse(text = paste(constraint_info$max_val[[j]]$conditions,
-                                                   collapse = logical_operator)) |>
-              eval()
-
-            expressions <- c()
-            for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-              expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
+      # Looking at possible max values
+      if (length(constraint_info$max_val[[1]]) == 1){ # this is just a one-line expression for the constraint
+        constraint_max_val <- parse(text = constraint_info$max_val[[1]]) |>
+          eval()
+      } else if (length(constraint_info$max_val) == 0){
+        constraint_max_val <- NA
+      } else{ # this indicates a rule of some kind
+        # loop through each rule
+        for (j in 1:length(constraint_info$max_val)){
+          rule_items <- names(constraint_info$max_val[[j]])
+          if ("logical_operator" %in% rule_items ){
+            if (constraint_info$max_val[[j]]$logical_operator == "AND"){
+              logical_operator <- "&"
+            } else{
+              logical_operator <- "|"
             }
-            if (conditions_value == TRUE){
-              if (constraint_info$max_val[[j]]$select == "min"){
-                constraint_max_val <- min(expressions)
-                break
-              } else{
-                constraint_max_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # there is logical_op and just one expression at end
-            constraint_max_val <- parse(text = constraint_info$max_val[[j]]$expression) |>
-              eval()
-            break
-          }
-        } else{
-          if ("select" %in% rule_items){ # not logical_op, but there is a select
-            if ("conditions" %in% rule_items){ # There is still a condition before selecting
-              # there is logical_op and there is a select
-              conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
+            if ("select" %in% rule_items){ # there is logical_op and there is a select
+              conditions_value <- parse(text = paste(constraint_info$max_val[[j]]$conditions,
+                                                     collapse = logical_operator)) |>
                 eval()
 
               expressions <- c()
               for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
                 expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
               }
-
               if (conditions_value == TRUE){
                 if (constraint_info$max_val[[j]]$select == "min"){
                   constraint_max_val <- min(expressions)
@@ -656,37 +228,76 @@ get_zoning_req <- function(tidybuilding, tidyparcel, tidydistrict){
                   break
                 }
               }
-            } else{ # it is just a select with the expressions
-              expressions <- c()
-              for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
-              }
-              if (constraint_info$max_val[[j]]$select == "min"){a
-                constraint_max_val <- min(expressions)
-                break
-              } else{
-                constraint_max_val <- max(expressions)
-                break
-              }
-            }
-          } else{ # no logical_op and no select
-            conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
-              eval()
-            if (conditions_value == TRUE){
+            } else{ # there is logical_op and just one expression at end
               constraint_max_val <- parse(text = constraint_info$max_val[[j]]$expression) |>
                 eval()
               break
             }
+          } else{
+            if ("select" %in% rule_items){ # not logical_op, but there is a select
+              if ("conditions" %in% rule_items){ # There is still a condition before selecting
+                # there is logical_op and there is a select
+                conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
+                  eval()
+
+                expressions <- c()
+                for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
+                }
+
+                if (conditions_value == TRUE){
+                  if (constraint_info$max_val[[j]]$select == "min"){
+                    constraint_max_val <- min(expressions)
+                    break
+                  } else{
+                    constraint_max_val <- max(expressions)
+                    break
+                  }
+                }
+              } else{ # it is just a select with the expressions
+                expressions <- c()
+                for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
+                }
+                if (constraint_info$max_val[[j]]$select == "min"){
+                  constraint_max_val <- min(expressions)
+                  break
+                } else{
+                  constraint_max_val <- max(expressions)
+                  break
+                }
+              }
+            } else{ # no logical_op and no select
+              conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
+                eval()
+              if (conditions_value == TRUE){
+                constraint_max_val <- parse(text = constraint_info$max_val[[j]]$expression) |>
+                  eval()
+                break
+              }
+            }
           }
+
         }
-
       }
-    }
 
-    other_constraints[i,"min_value"] <- constraint_min_val
-    other_constraints[i,"max_value"] <- constraint_max_val
-    other_constraints[i, "units"] <- constraint_info$unit
+      zoning_constraints[[k]][i,"min_value"] <- constraint_min_val
+      zoning_constraints[[k]][i,"max_value"] <- constraint_max_val
+      zoning_constraints[[k]][i, "units"] <- constraint_info$unit
+
+      if (is.na(constraint_min_val) & is.na(constraint_max_val) & !is.na(constraint_info$unit)){
+        warnings <- warnings + 1
+      }
+
+    }
   }
 
-  rbind(lot_constraints, structure_constraints, other_constraints)
+
+  if (warnings > 0){
+    warning("Some values my be inaccurate because they rely on parcel dimmensions")
+    return(bind_rows(zoning_constraints))
+  } else{
+    return(bind_rows(zoning_constraints))
+  }
+
 }
