@@ -44,18 +44,18 @@ check_unit_size <- function(tidybuilding, tidydistrict){
       max_size <- set_units(max_size, "ft2")
       unit_size_units <- zoning_req[zoning_req$constraint_name == "unit_size", "units"]
 
-      if (fl_area_units == "square feet"){
-        fl_area_units <- "ft2"
-      } else if (fl_area_units == "square meters"){
-        fl_area_units <- "m2"
-      } else if (fl_area_units == "acres"){
-        fl_area_units <- "acre"
+      if (unit_size_units == "square feet"){
+        unit_size_units <- "ft2"
+      } else if (unit_size_units == "square meters"){
+        unit_size_units <- "m2"
+      } else if (unit_size_units == "acres"){
+        unit_size_units <- "acre"
       }
 
       units(min_unit_size) <- unit_size_units
       units(max_unit_size) <- unit_size_units
-      min_unit_size <- set_units(min_unit_size, unit_size_units)
-      max_unit_size <- set_units(max_unit_size, unit_size_units)
+      min_unit_size <- set_units(min_unit_size, "ft2")
+      max_unit_size <- set_units(max_unit_size, "ft2")
     }
 
     return(min_size >= min_unit_size & max_size <= max_unit_size)
@@ -65,3 +65,4 @@ check_unit_size <- function(tidybuilding, tidydistrict){
   }
 
 }
+
