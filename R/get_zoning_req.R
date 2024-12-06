@@ -21,15 +21,14 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   # These three dfs will be appended and combined in the end
 
   zoning_constraints <- list()
-  counter <- 1
   for (i in 1:length(tidydistrict)){
     if (length(tidydistrict[[i]]) > 0){
       constraints <- data.frame(constraint_name = names(tidydistrict[[i]]),
-                                    min_value = NA,
-                                    max_value = NA,
-                                    units = NA)
-      zoning_constraints[[counter]] <- constraints
-      counter <- counter + 1
+                                min_value = NA,
+                                max_value = NA,
+                                units = NA)
+      constraint_name <- names(tidydistrict)[[i]]
+      zoning_constraints[[constraint_name]] <- constraints
     }
   }
 
@@ -45,7 +44,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
     lot_depth <- NA
     lot_area <- NA
   } else{
-  # establish the parcel variables that might be used in the equations
+    # establish the parcel variables that might be used in the equations
     front_of_parcel <- tidyparcel |>
       filter(side == "front")
     side_of_parcel <- tidyparcel |>
@@ -91,8 +90,9 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
 
     # listing constraints
     for (i in 1:nrow(constraints)){
-      for (j in 1:length(tidydistrict[[k]][[i]])){
-        use_name <- tidydistrict[[k]][[i]][[j]]$use_name
+      name <- names(zoning_constraints)[[k]]
+      for (j in 1:length(tidydistrict[[name]][[i]])){
+        use_name <- tidydistrict[[name]][[i]][[j]]$use_name
         if (bldg_type %in% use_name){
           use_index <- j
           break
@@ -103,7 +103,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
       if (is.na(use_index)){
         break
       }
-      constraint_info <- tidydistrict[[k]][[i]][[use_index]]
+      constraint_info <- tidydistrict[[name]][[i]][[use_index]]
 
       # Looking at possible min values
       if (length(constraint_info$min_val[[1]]) == 1){ # this is just a one-line expression for the constraint
