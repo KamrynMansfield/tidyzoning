@@ -23,6 +23,11 @@ check_fl_area <- function(tidybuilding, tidydistrict){
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
 
+  if (zoning_req == "No zoning requirements recorded for this district"){
+    return(TRUE)
+    warning("No zoning requirements recorded for this district")
+  }
+
   if ("fl_area" %in% zoning_req$constraint_name){
     min_fl_area <- zoning_req[zoning_req$constraint_name == "fl_area", "min_value"]
     max_fl_area <- zoning_req[zoning_req$constraint_name == "fl_area", "max_value"]

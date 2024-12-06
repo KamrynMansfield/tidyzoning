@@ -26,6 +26,10 @@ check_lot_coverage <- function(tidybuilding, tidydistrict, tidyparcel){
   lot_coverage <- footprint * 100 / st_area(tidyparcel)
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+  if (zoning_req == "No zoning requirements recorded for this district"){
+    return(TRUE)
+    warning("No zoning requirements recorded for this district")
+  }
 
   if ("lot_coverage" %in% zoning_req$constraint_name){
     min_lot_coverage <- zoning_req[zoning_req$constraint_name == "lot_coverage", "min_value"]

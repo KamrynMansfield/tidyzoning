@@ -26,6 +26,11 @@ check_bedrooms <- function(tidybuilding, tidydistrict){
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
 
+  if (zoning_req == "No zoning requirements recorded for this district"){
+    return(TRUE)
+    warning("No zoning requirements recorded for this district")
+  }
+
   if ("bedrooms" %in% zoning_req$constraint_name){
     min_bedrooms <- zoning_req[zoning_req$constraint_name == "bedrooms", "min_value"]
     max_bedrooms <- zoning_req[zoning_req$constraint_name == "bedrooms", "max_value"]

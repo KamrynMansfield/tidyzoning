@@ -26,6 +26,11 @@ check_far <- function(tidybuilding, tidydistrict, tidyparcel){
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
 
+  if (zoning_req == "No zoning requirements recorded for this district"){
+    return(TRUE)
+    warning("No zoning requirements recorded for this district")
+  }
+
   if ("far" %in% zoning_req$constraint_name){
     min_far <- zoning_req[zoning_req$constraint_name == "far", "min_value"]
     max_far <- zoning_req[zoning_req$constraint_name == "far", "max_value"]

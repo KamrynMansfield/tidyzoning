@@ -26,6 +26,10 @@ check_unit_size <- function(tidybuilding, tidydistrict){
   }
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
+  if (zoning_req == "No zoning requirements recorded for this district"){
+    return(TRUE)
+    warning("No zoning requirements recorded for this district")
+  }
 
   if ("unit_size" %in% zoning_req$constraint_name){
     min_unit_size <- zoning_req[zoning_req$constraint_name == "unit_size", "min_value"]

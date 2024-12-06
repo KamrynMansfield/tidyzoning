@@ -23,6 +23,10 @@ check_height <- function(tidybuilding, tidydistrict){
   }
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
+  if (zoning_req == "No zoning requirements recorded for this district"){
+    return(TRUE)
+    warning("No zoning requirements recorded for this district")
+  }
 
   if ("height" %in% zoning_req$constraint_name){
     min_height <- zoning_req[zoning_req$constraint_name == "height", "min_value"]
