@@ -27,9 +27,9 @@ check_unit_density <- function(tidybuilding, tidydistrict){
   unit_density <- unit_count / acres #units per acre
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
-  if (zoning_req == "No zoning requirements recorded for this district"){
-    return(TRUE)
+  if (class(zoning_req) == "character"){
     warning("No zoning requirements recorded for this district")
+    return(TRUE)
   }
 
   if ("unit_density" %in% zoning_req$constraint_name){

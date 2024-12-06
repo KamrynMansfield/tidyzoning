@@ -23,7 +23,7 @@ check_fl_area <- function(tidybuilding, tidydistrict){
 
   zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
 
-  if (zoning_req == "No zoning requirements recorded for this district"){
+  if (class(zoning_req) == "character"){
     return(TRUE)
     warning("No zoning requirements recorded for this district")
   }
