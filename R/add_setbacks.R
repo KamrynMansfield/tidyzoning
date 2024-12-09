@@ -15,7 +15,7 @@
 add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding){
   tidyparcel <- tidyparcel[tidyparcel$side != "centroid",]
   tidyparcel <- tidyparcel[!is.na(tidyparcel$side),]
-  zoning_req <- get_zoning_req(tidybuilding, tidyparcel, tidydistrict)
+  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
 
   if (class(zoning_req) == "character"){
     tidyparcel$setback <- NA
