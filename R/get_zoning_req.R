@@ -79,6 +79,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   parking_open <- ifelse(length(tidybuilding$parking_open) > 0, tidybuilding$parking_open, NA)
   parking_enclosed <- ifelse(length(tidybuilding$parking_enclosed) > 0, tidybuilding$parking_enclosed, NA)
   parking <- ifelse(length(tidybuilding$parking) > 0, tidybuilding$parking, NA)
+  parking_floors <- ifelse(length(tidybuilding$parking_floors) > 0, tidybuilding$parking_floors, NA)
+  parking_bel_grade <- ifelse(length(tidybuilding$parking_bel_grade) > 0, tidybuilding$parking_bel_grade, NA)
   height <- ifelse(length(tidybuilding$height) > 0, tidybuilding$height, NA)
   floors <- ifelse(length(tidybuilding$floors) > 0, tidybuilding$floors, NA)
   min_unit_size <- ifelse(length(tidybuilding$min_unit_size) > 0, tidybuilding$min_unit_size, NA)
