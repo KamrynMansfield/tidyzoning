@@ -27,6 +27,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                                 min_value = NA,
                                 max_value = NA,
                                 units = NA)
+
       constraint_name <- names(tidydistrict)[[i]]
       zoning_constraints[[constraint_name]] <- constraints
     }
@@ -133,8 +134,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 eval()
 
               expressions <- c()
-              for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
+              for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
+                expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
               }
               if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
                 if (constraint_info$min_val[[j]]$select == "min"){
@@ -158,8 +159,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                   eval()
 
                 expressions <- c()
-                for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-                  expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
+                for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
                 }
 
                 if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
@@ -173,8 +174,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 }
               } else{ # it is just a select with the expressions
                 expressions <- c()
-                for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
-                  expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
+                for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
                 }
                 if (constraint_info$min_val[[j]]$select == "min"){
                   constraint_min_val <- min(expressions)
@@ -220,8 +221,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 eval()
 
               expressions <- c()
-              for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-                expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
+              for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
+                expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
               }
               if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
                 if (constraint_info$max_val[[j]]$select == "min"){
@@ -245,8 +246,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                   eval()
 
                 expressions <- c()
-                for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-                  expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
+                for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
                 }
 
                 if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
@@ -260,8 +261,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 }
               } else{ # it is just a select with the expressions
                 expressions <- c()
-                for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
-                  expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
+                for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
                 }
                 if (constraint_info$max_val[[j]]$select == "min"){
                   constraint_max_val <- min(expressions)
