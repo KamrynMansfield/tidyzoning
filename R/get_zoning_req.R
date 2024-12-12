@@ -78,11 +78,11 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   fl_area <- ifelse(length(tidybuilding$floor_area) > 0, tidybuilding$floor_area, NA)
   parking_open <- ifelse(length(tidybuilding$parking_open) > 0, tidybuilding$parking_open, NA)
   parking_enclosed <- ifelse(length(tidybuilding$parking_enclosed) > 0, tidybuilding$parking_enclosed, NA)
-  parking <- ifelse(length(tidybuilding$parking) > 0, tidybuilding$parking, NA)
-  parking_floors <- ifelse(length(tidybuilding$parking_floors) > 0, tidybuilding$parking_floors, NA)
-  parking_bel_grade <- ifelse(length(tidybuilding$parking_bel_grade) > 0, tidybuilding$parking_bel_grade, NA)
-  height <- ifelse(length(tidybuilding$height) > 0, tidybuilding$height, NA)
-  floors <- ifelse(length(tidybuilding$floors) > 0, tidybuilding$floors, NA)
+  parking <- ifelse(length(tidybuilding$parking) > 0, tidybuilding$parking, 0)
+  parking_floors <- ifelse(length(tidybuilding$parking_floors) > 0, tidybuilding$parking_floors, 0)
+  parking_bel_grade <- ifelse(length(tidybuilding$parking_bel_grade) > 0, tidybuilding$parking_bel_grade, FALSE)
+  height <- ifelse(length(tidybuilding$building_height) > 0, tidybuilding$building_height, NA)
+  floors <- ifelse(length(tidybuilding$total_floors) > 0, tidybuilding$total_floors, NA)
   min_unit_size <- ifelse(length(tidybuilding$min_unit_size) > 0, tidybuilding$min_unit_size, NA)
   max_unit_size <- ifelse(length(tidybuilding$max_unit_size) > 0, tidybuilding$max_unit_size, NA)
   far <- fl_area / lot_area
@@ -136,7 +136,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
               for (i in 1:length(constraint_info$min_val[[j]]$expressions)){
                 expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
               }
-              if (conditions_value == TRUE){
+              if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
                 if (constraint_info$min_val[[j]]$select == "min"){
                   constraint_min_val <- min(expressions)
                   break
@@ -162,7 +162,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                   expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[i])))
                 }
 
-                if (conditions_value == TRUE){
+                if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
                   if (constraint_info$min_val[[j]]$select == "min"){
                     constraint_min_val <- min(expressions)
                     break
@@ -187,7 +187,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
             } else{ # no logical_op and no select
               conditions_value <- parse(text = constraint_info$min_val[[j]]$conditions) |>
                 eval()
-              if (conditions_value == TRUE){
+              if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
                 constraint_min_val <- parse(text = constraint_info$min_val[[j]]$expression) |>
                   eval()
                 break
@@ -223,7 +223,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
               for (i in 1:length(constraint_info$max_val[[j]]$expressions)){
                 expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
               }
-              if (conditions_value == TRUE){
+              if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
                 if (constraint_info$max_val[[j]]$select == "min"){
                   constraint_max_val <- min(expressions)
                   break
@@ -249,7 +249,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                   expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[i])))
                 }
 
-                if (conditions_value == TRUE){
+                if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
                   if (constraint_info$max_val[[j]]$select == "min"){
                     constraint_max_val <- min(expressions)
                     break
@@ -274,7 +274,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
             } else{ # no logical_op and no select
               conditions_value <- parse(text = constraint_info$max_val[[j]]$conditions) |>
                 eval()
-              if (conditions_value == TRUE){
+              if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
                 constraint_max_val <- parse(text = constraint_info$max_val[[j]]$expression) |>
                   eval()
                 break

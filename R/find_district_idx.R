@@ -12,6 +12,13 @@
 #' @export
 #'
 find_district_idx <- function(tidyparcel, tidyzoning){
+
+
+  # Try using spatial join instead of contains. Houpu says it will be faster
+
+
+
+
   # lists TRUE/FALSE to indicate which tidyzoning geometries cover the parcel centroid
   contains <- st_contains(st_make_valid(tidyzoning), tail(tidyparcel,1), sparse = F)
   # gives the index of the district that covers the centroid

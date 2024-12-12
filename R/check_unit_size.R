@@ -9,7 +9,8 @@
 #' @export
 #'
 check_unit_size <- function(tidybuilding, tidydistrict){
-  structure_constraints <- fromJSON(tidydistrict$structure_constraints)
+  # structure_constraints <- fromJSON(tidydistrict$structure_constraints)
+  # DONT NEED THIS
 
 
   if (length(tidybuilding$max_unit_size) == 1 & length(tidybuilding$min_unit_size) == 1){
