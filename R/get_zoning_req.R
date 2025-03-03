@@ -183,6 +183,9 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 } else if (constraint_info$min_val[[j]]$select == "max"){
                   constraint_min_val <- max(expressions)
                   break
+                } else if (constraint_info$min_val[[j]]$select == "either"){
+                  constraint_min_val <- expressions
+                  constraint_min_note <- "either"
                 } else{
                   constraint_min_val <- expressions
                   if (is.null(constraint_info$min_val[[j]]$select_info)){
@@ -224,6 +227,9 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                   } else if (constraint_info$min_val[[j]]$select == "max"){
                     constraint_min_val <- max(expressions)
                     break
+                  } else if (constraint_info$min_val[[j]]$select == "either"){
+                    constraint_min_val <- expressions
+                    constraint_min_note <- "either"
                   } else {
                     constraint_min_val <- expressions
                     if (is.null(constraint_info$min_val[[j]]$select_info)){
@@ -252,6 +258,9 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 } else if (constraint_info$min_val[[j]]$select == "max"){
                   constraint_min_val <- max(expressions)
                   break
+                } else if (constraint_info$min_val[[j]]$select == "either"){
+                  constraint_min_val <- expressions
+                  constraint_min_note <- "either"
                 } else {
                   constraint_min_val <- expressions
                   if (is.null(constraint_info$min_val[[j]]$select_info)){
@@ -319,9 +328,12 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 } else if (constraint_info$max_val[[j]]$select == "max"){
                   constraint_max_val <- max(expressions)
                   break
+                } else if (constraint_info$max_val[[j]]$select == "either"){
+                  constraint_max_val <- expressions
+                  constraint_max_note <- "either"
                 } else {
                   constraint_max_val <- expressions
-                  if (is.null(constraint_info$min_val[[j]]$select_info)){
+                  if (is.null(constraint_info$max_val[[j]]$select_info)){
                     constraint_max_note <- "unique requirements not specified"
                     break
                   } else{
@@ -359,9 +371,12 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                   } else if (constraint_info$max_val[[j]]$select == "max"){
                     constraint_max_val <- max(expressions)
                     break
+                  } else if (constraint_info$max_val[[j]]$select == "either"){
+                    constraint_max_val <- expressions
+                    constraint_max_note <- "either"
                   } else {
                     constraint_max_val <- expressions
-                    if (is.null(constraint_info$min_val[[j]]$select_info)){
+                    if (is.null(constraint_info$max_val[[j]]$select_info)){
                       constraint_max_note <- "unique requirements not specified"
                       break
                     } else{
@@ -387,9 +402,12 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                 } else if (constraint_info$max_val[[j]]$select == "max"){
                   constraint_max_val <- max(expressions)
                   break
+                } else if (constraint_info$max_val[[j]]$select == "either"){
+                  constraint_max_val <- expressions
+                  constraint_max_note <- "either"
                 } else {
                   constraint_max_val <- expressions
-                  if (is.null(constraint_info$min_val[[j]]$select_info)){
+                  if (is.null(constraint_info$max_val[[j]]$select_info)){
                     constraint_max_note <- "unique requirements not specified"
                     break
                   } else{
