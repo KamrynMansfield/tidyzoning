@@ -8,42 +8,98 @@
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on total floors.
 #' @export
 #'
-check_floors <- function(tidybuilding, tidydistrict){
+check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
-  if (length(tidybuilding$total_floors) == 1){
-    floors <- tidybuilding$total_floors[[1]]
-  } else if (length(tidybuilding$building_height) == 1){
-    height <- tidybuilding$building_height[[1]]
-    floors <- height / 12
-    warning("Floors approximated based on 12 ft floors")
+  if (!is.null(tidybuilding$bldg_info$stories)){
+    value <- tidybuilding$bldg_info$stories
   } else{
     return(TRUE)
   }
 
-  zoning_req <- get_zoning_req(tidybuilding, tidydistrict)
+  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
 
   if (class(zoning_req) == "character"){
     return(TRUE)
     warning("No zoning requirements recorded for this district")
   }
 
-  if ("floors" %in% zoning_req$constraint_name){
-    min_floors <- zoning_req[zoning_req$constraint_name == "stories", "min_value"]
-    max_floors <- zoning_req[zoning_req$constraint_name == "stories", "max_value"]
+  if ("stories" %in% zoning_req$constraint_name){
+    min_requirement <- zoning_req[zoning_req$constraint_name == "stories", "min_value"][[1]]
+    max_requirement <- zoning_req[zoning_req$constraint_name == "stories", "max_value"][[1]]
 
-    if (is.na(min_floors)){
-      min_floors <- 0
+    if (is.na(min_requirement[[1]])){
+      min_requirement <- 0
     }
 
-    if (is.na(max_floors)){
-      max_floors <- 326 # double the floors of Burj Khalifa
+    if (is.na(max_requirement[[1]])){
+      max_requirement <- 1000
     }
-
-    return(floors >= min_floors & floors <= max_floors)
 
   } else{
     return(TRUE)
   }
+
+  # this tests for the usual case when each min and max requirements have one value
+  if (length(min_requirement) == 1 & length(max_requirement) == 1){
+    return(value >= min_requirement & value <= max_requirement)
+  }
+
+  # assign 2 minimum values
+  min_check_1 <- min(min_requirement) <= min_beds
+  min_check_2 <- max(min_requirement) >= min_beds
+  if (is.null(zoning_req[zoning_req$constraint_name == "stories", "min_val_note"][[1]])){
+    min_val_either <- FALSE
+  } else if(is.na(zoning_req[zoning_req$constraint_name == "stories", "min_val_note"][[1]])){
+    min_val_either <- FALSE
+  } else{
+    min_val_either <- zoning_req[zoning_req$constraint_name == "stories", "min_val_note"][[1]] == "either"
+  }
+
+  # see if the minimum values are met
+  if (min_val_either == TRUE){
+    min_check <- min_check_1 + min_check_2 > 0
+  } else{
+    min_check <- min_check_1 + min_check_2 > 1
+  }
+
+  # assign 2 maximum values
+  max_check_1 <- min(max_requirement) <= max_beds
+  max_check_2 <- max(max_requirement) >= max_beds
+  if (is.null(zoning_req[zoning_req$constraint_name == "stories", "max_val_note"][[1]])){
+    max_val_either <- FALSE
+  } else if(is.na(zoning_req[zoning_req$constraint_name == "stories", "max_val_note"][[1]])){
+    max_val_either <- FALSE
+  } else{
+    max_val_either <- zoning_req[zoning_req$constraint_name == "stories", "max_val_note"][[1]] == "either"
+  }
+
+  # see if the maximum values are met
+  if (max_val_either == TRUE){
+    max_check <- max_check_1 + max_check_2 > 0
+  } else{
+    max_check <- max_check_1 + max_check_2 > 1
+  }
+
+  if (max_check + min_check == 0){
+    return(FALSE)
+  } else if (max_check + min_check == 1){
+    explanation <- c()
+    if (!is.na(zoning_req[zoning_req$constraint_name == "stories", "min_val_note"][[1]])){
+      explanation <- c(explanation,zoning_req[zoning_req$constraint_name == "stories","min_val_note"][[1]])
+    }
+    if (!is.na(zoning_req[zoning_req$constraint_name == "stories", "max_val_note"][[1]])){
+      explanation <- c(explanation,zoning_req[zoning_req$constraint_name == "stories","max_val_note"][[1]])
+    }
+
+    if (length(explanation) > 0){
+      warning(explanation)
+    }
+
+    return("MAYBE")
+  } else{
+    return(TRUE)
+  }
+
 
 }
