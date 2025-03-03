@@ -443,7 +443,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
     }
 
     zoning_constraints[[k]]$min_value <- min_vals
-    zoning_constraints[[k]]$max_val <- max_vals
+    zoning_constraints[[k]]$max_value <- max_vals
     zoning_constraints[[k]]$unit <- units
     zoning_constraints[[k]]$min_val_note <- min_val_notes
     zoning_constraints[[k]]$max_val_note <- max_val_notes
