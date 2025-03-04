@@ -300,7 +300,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
         # loop through each rule
         for (j in 1:length(constraint_info$max_val)){
           rule_items <- names(constraint_info$max_val[[j]])
-          if ("logical_operator" %in% rule_items ){
+          if ("logical_operator" %in% rule_items){
             if (constraint_info$max_val[[j]]$logical_operator == "AND"){
               logical_operator <- "&"
             } else{
@@ -313,11 +313,11 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
 
               expressions <- c()
               if ("expressions" %in% rule_items){
-                for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
-                  expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
+                for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
                 }
               } else{
-                constraint_min_val <- "OZFS Error"
+                constraint_max_val <- "OZFS Error"
                 break
               }
 
@@ -356,11 +356,11 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
 
                 expressions <- c()
                 if ("expressions" %in% rule_items){
-                  for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
-                    expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
+                  for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
+                    expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
                   }
                 } else{
-                  constraint_min_val <- "OZFS Error"
+                  constraint_max_val <- "OZFS Error"
                   break
                 }
 
@@ -388,11 +388,11 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
               } else{ # it is just a select with the expressions
                 expressions <- c()
                 if ("expressions" %in% rule_items){
-                  for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
-                    expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
+                  for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
+                    expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
                   }
                 } else{
-                  constraint_min_val <- "OZFS Error"
+                  constraint_max_val <- "OZFS Error"
                   break
                 }
 
