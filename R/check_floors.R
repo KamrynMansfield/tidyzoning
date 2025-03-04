@@ -41,13 +41,13 @@ check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   }
 
   # this tests for the usual case when each min and max requirements have one value
-  if (length(min_requirement) == 1 & length(max_requirement) == 1){
+  if (length(min_requirement) & length(max_requirement) == 1){
     return(value >= min_requirement & value <= max_requirement)
   }
 
   # assign 2 minimum values
-  min_check_1 <- min(min_requirement) <= min_beds
-  min_check_2 <- max(min_requirement) >= min_beds
+  min_check_1 <- min(min_requirement) <= value
+  min_check_2 <- max(min_requirement) >= value
   if (is.null(zoning_req[zoning_req$constraint_name == "stories", "min_val_note"][[1]])){
     min_val_either <- FALSE
   } else if(is.na(zoning_req[zoning_req$constraint_name == "stories", "min_val_note"][[1]])){
@@ -64,8 +64,8 @@ check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   }
 
   # assign 2 maximum values
-  max_check_1 <- min(max_requirement) <= max_beds
-  max_check_2 <- max(max_requirement) >= max_beds
+  max_check_1 <- min(max_requirement) <= value
+  max_check_2 <- max(max_requirement) >= value
   if (is.null(zoning_req[zoning_req$constraint_name == "stories", "max_val_note"][[1]])){
     max_val_either <- FALSE
   } else if(is.na(zoning_req[zoning_req$constraint_name == "stories", "max_val_note"][[1]])){
