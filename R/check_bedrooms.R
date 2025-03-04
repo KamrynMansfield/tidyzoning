@@ -26,8 +26,8 @@ check_bedrooms <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   }
 
   if ("bedrooms" %in% zoning_req$constraint_name){
-    min_requirement <- zoning_req[zoning_req$constraint_name == "bedrooms", "min_value"]
-    max_requirement <- zoning_req[zoning_req$constraint_name == "bedrooms", "max_value"]
+    min_requirement <- zoning_req[zoning_req$constraint_name == "bedrooms", "min_value"][[1]]
+    max_requirement <- zoning_req[zoning_req$constraint_name == "bedrooms", "max_value"][[1]]
 
     if (is.na(min_requirement)){
       min_requirement <- 0
@@ -51,6 +51,8 @@ check_bedrooms <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   min_check_2 <- max(min_requirement) >= min_beds
   if (is.null(zoning_req[zoning_req$constraint_name == "bedrooms", "min_val_note"][[1]])){
     min_val_either <- FALSE
+  } else if(is.na(zoning_req[zoning_req$constraint_name == "bedrooms", "min_val_note"][[1]])){
+    min_val_either <- FALSE
   } else{
     min_val_either <- zoning_req[zoning_req$constraint_name == "bedrooms", "min_val_note"][[1]] == "either"
   }
@@ -66,6 +68,8 @@ check_bedrooms <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   max_check_1 <- min(max_requirement) <= max_beds
   max_check_2 <- max(max_requirement) >= max_beds
   if (is.null(zoning_req[zoning_req$constraint_name == "bedrooms", "max_val_note"][[1]])){
+    max_val_either <- FALSE
+  } else if(is.na(zoning_req[zoning_req$constraint_name == "bedrooms", "max_val_note"][[1]])){
     max_val_either <- FALSE
   } else{
     max_val_either <- zoning_req[zoning_req$constraint_name == "bedrooms", "max_val_note"][[1]] == "either"
@@ -90,7 +94,7 @@ check_bedrooms <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
     }
 
     if (length(explanation) > 0){
-      warning()
+      warning(explanation)
     }
 
     return("MABYE")
