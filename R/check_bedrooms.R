@@ -48,7 +48,7 @@ check_bedrooms <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
 
   # assign 2 minimum values
   min_check_1 <- min(min_requirement) <= min_beds
-  min_check_2 <- max(min_requirement) >= min_beds
+  min_check_2 <- max(min_requirement) <= min_beds
   if (is.null(zoning_req[zoning_req$constraint_name == "bedrooms", "min_val_note"][[1]])){
     min_val_either <- FALSE
   } else if(is.na(zoning_req[zoning_req$constraint_name == "bedrooms", "min_val_note"][[1]])){
@@ -65,7 +65,7 @@ check_bedrooms <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   }
 
   # assign 2 maximum values
-  max_check_1 <- min(max_requirement) <= max_beds
+  max_check_1 <- min(max_requirement) >= max_beds
   max_check_2 <- max(max_requirement) >= max_beds
   if (is.null(zoning_req[zoning_req$constraint_name == "bedrooms", "max_val_note"][[1]])){
     max_val_either <- FALSE
