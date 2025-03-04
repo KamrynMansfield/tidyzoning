@@ -139,7 +139,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
         units[[i]] <- NA
         min_val_notes[[i]] <- NA
         max_val_notes[[i]] <- NA
-        break
+        next
       }
       constraint_info <- tidydistrict[[name]][[i]][[use_index]]
 
