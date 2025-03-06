@@ -18,7 +18,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                        other_constraints = fromJSON(tidydistrict$other_constraints))
 
   # this will be used later to make sure the expressions are written correctly
-  safe_parse <- possibly(parse, otherwise = NA)
+  safe_parse <- purrr::possibly(parse, otherwise = NA)
 
   # What are the constraints that are recorded?
   # These three dfs will be appended and combined in the end
