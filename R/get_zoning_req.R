@@ -189,7 +189,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                   expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
                 }
               } else{
-                constraint_min_val <- "OZFS Error"
+                constraint_min_val <- NA
+                constraint_min_note <- "OZFS Error"
                 break
               }
 
@@ -242,7 +243,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                     expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
                   }
                 } else{
-                  constraint_min_val <- "OZFS Error"
+                  constraint_min_val <- NA
+                  constraint_min_note <- "OZFS Error"
                   break
                 }
 
@@ -275,7 +277,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                     expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
                   }
                 } else{
-                  constraint_min_val <- "OZFS Error"
+                  constraint_min_val <- NA
+                  constraint_min_note <- "OZFS Error"
                   break
                 }
 
@@ -371,7 +374,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                   expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
                 }
               } else{
-                constraint_max_val <- "OZFS Error"
+                constraint_max_val <- NA
+                constraint_max_note <- "OZFS Error"
                 break
               }
 
@@ -424,7 +428,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                     expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
                   }
                 } else{
-                  constraint_max_val <- "OZFS Error"
+                  constraint_max_val <- NA
+                  constraint_max_note <- "OZFS Error"
                   break
                 }
 
@@ -456,7 +461,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
                     expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
                   }
                 } else{
-                  constraint_max_val <- "OZFS Error"
+                  constraint_max_val <- NA
+                  constraint_max_note <- "OZFS Error"
                   break
                 }
 
