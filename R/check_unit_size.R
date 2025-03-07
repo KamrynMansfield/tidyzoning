@@ -162,8 +162,7 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel){
     }
 
     if (is.na(use_index)){
-      warning("land use not allowed in this district")
-      return(FALSE)
+      return(TRUE)
     }
 
     constraint_info <- structure_constraints$unit_size[[use_index]]

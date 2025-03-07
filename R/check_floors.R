@@ -81,9 +81,11 @@ check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
     max_check <- max_check_1 + max_check_2 > 1
   }
 
-  if (max_check + min_check == 0){
+  if (max_check == FALSE | min_check == FALSE){
     return(FALSE)
-  } else if (max_check + min_check == 1){
+  } else if (max_check == TRUE & min_check == TRUE){
+    return(TRUE)
+  } else{
     explanation <- c()
     if (!is.na(zoning_req[zoning_req$constraint_name == "stories", "min_val_note"][[1]])){
       explanation <- c(explanation,zoning_req[zoning_req$constraint_name == "stories","min_val_note"][[1]])
@@ -97,8 +99,7 @@ check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
     }
 
     return("MAYBE")
-  } else{
-    return(TRUE)
+
   }
 
 
