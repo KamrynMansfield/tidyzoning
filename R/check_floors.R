@@ -58,9 +58,20 @@ check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
 
   # see if the minimum values are met
   if (min_val_either == TRUE){
-    min_check <- min_check_1 + min_check_2 > 0
+    if (min_check_1 == FALSE & min_check_2 == FALSE){
+      min_check <- FALSE
+    } else{
+      min_check <- TRUE
+    }
+
   } else{
-    min_check <- min_check_1 + min_check_2 > 1
+    if (min_check_1 == TRUE & min_check_2 == TRUE){
+      min_check <- TRUE
+    } else if (min_check_1 == FALSE & min_check_2 == FALSE){
+      min_check <- FALSE
+    } else{
+      min_check <- "MAYBE"
+    }
   }
 
   # assign 2 maximum values
@@ -76,9 +87,20 @@ check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
 
   # see if the maximum values are met
   if (max_val_either == TRUE){
-    max_check <- max_check_1 + max_check_2 > 0
+    if (max_check_1 == FALSE & max_check_2 == FALSE){
+      max_check <- FALSE
+    } else{
+      max_check <- TRUE
+    }
+
   } else{
-    max_check <- max_check_1 + max_check_2 > 1
+    if (max_check_1 == TRUE & max_check_2 == TRUE){
+      max_check <- TRUE
+    } else if (max_check_1 == FALSE & max_check_2 == FALSE){
+      max_check <- FALSE
+    } else{
+      max_check <- "MAYBE"
+    }
   }
 
   if (max_check == FALSE | min_check == FALSE){
