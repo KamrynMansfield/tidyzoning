@@ -8,7 +8,7 @@
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on the unit sizes.
 #' @export
 #'
-check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel){
+check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   # get the tidydistrict into a list format
   structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
@@ -96,7 +96,36 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel){
 
   ## CHECKING UNIT SIZE REQUIREMENTS
 
+
   # getting same variables as get_zoning_req
+  bldg_type <- tidybuilding$bldg_info$type
+
+  if (is.null(tidyparcel)){
+    lot_width <- NA
+    lot_depth <- NA
+    lot_area <- NA
+    lot_type <- NA
+  } else{
+    # establish the parcel variables that might be used in the equations
+    front_of_parcel <- tidyparcel |>
+      filter(side == "front")
+    side_of_parcel <- tidyparcel |>
+      filter(side == "Interior side")
+    parcel_without_centroid <- tidyparcel |>
+      filter(!is.na(side)) |>
+      filter(side != "centroid")
+
+    lot_width <- st_length(front_of_parcel) * 3.28084 # converting to ft
+    units(lot_width) <- "ft"
+    lot_depth <- st_length(side_of_parcel[1,]) * 3.28084 # converting to ft
+    units(lot_depth) <- "ft"
+    lot_area <- st_polygonize(st_union(parcel_without_centroid)) |> st_area() * 10.7639 # converting to ft
+    units(lot_area) <- "ft^2"
+    lot_type <- ifelse("Exterior side" %in% tidyparcel$side,"corner","regular")
+
+  }
+
+
   added_tot_bed <- tidybuilding$unit_info |> mutate(tot_bed = bedrooms * qty)
   total_bedrooms <- sum(added_tot_bed$tot_bed)
 
