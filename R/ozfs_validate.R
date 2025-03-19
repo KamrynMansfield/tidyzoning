@@ -187,6 +187,7 @@ ozfs_validate <- function(...){
       cities <- c(cities, ifelse(!is.null(district$properties$dist_info$muni_name),district$properties$dist_info$muni_name, NA))
       counties <- c(counties, ifelse(!is.null(district$properties$dist_info$county_name),district$properties$dist_info$county_name, NA))
       districts <- c(districts, ifelse(!is.null(district$properties$dist_info$dist_abbr),district$properties$dist_info$dist_abbr, NA))
+      land_uses <- c(land_uses, paste(fields[!fields %in% possible_names], collapse = ", "))
     }
 
     ## CHECK EXPRESSIONS AND RULES##
@@ -222,54 +223,68 @@ ozfs_validate <- function(...){
               rules_good <- append(rules_good, TRUE)
               uses <- append(uses, use_name)
             } else{
-              for (n in 1:length(constraint$min_val)){
-                if ("expression" %in% names(constraint$min_val[[n]])){
-                  rule_names <- names(constraint$min_val[[n]])
+              for (n in 1:length(constraint$min_val)){ # loop through the rules
+
+                rule_names <- names(constraint$min_val[[n]])
+                if (sum(rule_names %in% expressions_rule_names1) == length(expressions_rule_names1)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names2) == length(expressions_rule_names2)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names3) == length(expressions_rule_names3)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names4) == length(expressions_rule_names4)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names5) == length(expressions_rule_names5)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names6) == length(expressions_rule_names6)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expression_rule_names1) == length(expression_rule_names1)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expression_rule_names2) == length(expression_rule_names2)){
+                  rule_check <- TRUE
+                } else{
+                  rule_check <- FALSE
+                  errors <- c(errors, paste("Incorrect rules:", names(district$properties[[k]])[[l]]))
+                  cities <- c(cities, ifelse(!is.null(district$properties$dist_info$muni_name),district$properties$dist_info$muni_name, NA))
+                  counties <- c(counties, ifelse(!is.null(district$properties$dist_info$county_name),district$properties$dist_info$county_name, NA))
+                  districts <- c(districts, ifelse(!is.null(district$properties$dist_info$dist_abbr),district$properties$dist_info$dist_abbr, NA))
+                  land_uses <- c(land_uses, use_name)
+
+                  rules_good <- append(rules_good, rule_check)
+                  expressions <- append(expressions, "1 + 1")
+                  location <- append(location, names(district$properties[[k]])[[l]])
+                  uses <- append(uses, use_name)
+                  next
+
+                }
+
+                if ("expression" %in% rule_names){
                   expressions <- append(expressions, constraint$min_val[[n]]$expression)
                   location <- append(location, names(district$properties[[k]])[[l]])
                   uses <- append(uses, use_name)
+                  rules_good <- append(rules_good, TRUE)
 
-                  if (sum(rule_names %in% expression_rule_names1) == length(expression_rule_names1)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expression_rule_names2) == length(expression_rule_names2)){
-                    rule_check <- TRUE
-                  } else{
-                    rule_check <- FALSE
-                    errors <- c(errors, paste("Incorrect rules:", names(district$properties[[k]])[[l]]))
-                    cities <- c(cities, ifelse(!is.null(district$properties$dist_info$muni_name),district$properties$dist_info$muni_name, NA))
-                    counties <- c(counties, ifelse(!is.null(district$properties$dist_info$county_name),district$properties$dist_info$county_name, NA))
-                    districts <- c(districts, ifelse(!is.null(district$properties$dist_info$dist_abbr),district$properties$dist_info$dist_abbr, NA))
-                    land_uses <- c(land_uses, use_name)
+                  if ("conditions" %in% rule_names){
+                    expressions <- append(expressions, constraint$max_val[[n]]$conditions)
+                    location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$max_val[[n]]$conditions)))
+                    rules_good <- append(rules_good, rep(TRUE,length(constraint$max_val[[n]]$conditions)))
+                    uses <- append(uses, rep(use_name,length(constraint$max_val[[n]]$conditions)))
+
                   }
-                  rules_good <- append(rules_good, rule_check)
 
-                } else if ("expressions" %in% names(constraint$min_val[[n]])){
-                  rule_names <- names(constraint$min_val[[n]])
+                } else if ("expressions" %in% rule_names){
                   expressions <- append(expressions, constraint$min_val[[n]]$expressions)
                   location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$min_val[[n]]$expressions)))
-
-                  if (sum(rule_names %in% expressions_rule_names1) == length(expressions_rule_names1)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names2) == length(expressions_rule_names2)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names3) == length(expressions_rule_names3)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names4) == length(expressions_rule_names4)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names5) == length(expressions_rule_names5)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names6) == length(expressions_rule_names6)){
-                    rule_check <- TRUE
-                  } else{
-                    rule_check <- FALSE
-                    errors <- c(errors, paste("Incorrect rules:", names(district$properties[[k]])[[l]]))
-                    cities <- c(cities, ifelse(!is.null(district$properties$dist_info$muni_name),district$properties$dist_info$muni_name, NA))
-                    counties <- c(counties, ifelse(!is.null(district$properties$dist_info$county_name),district$properties$dist_info$county_name, NA))
-                    districts <- c(districts, ifelse(!is.null(district$properties$dist_info$dist_abbr),district$properties$dist_info$dist_abbr, NA))
-                    land_uses <- c(land_uses, use_name)
-                  }
-                  rules_good <- append(rules_good, rep(rule_check,length(constraint$min_val[[n]]$expressions)))
+                  rules_good <- append(rules_good, rep(TRUE,length(constraint$min_val[[n]]$expressions)))
                   uses <- append(uses, rep(use_name,length(constraint$min_val[[n]]$expressions)))
+
+                  if ("conditions" %in% rule_names){
+                    expressions <- append(expressions, constraint$max_val[[n]]$conditions)
+                    location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$max_val[[n]]$conditions)))
+                    rules_good <- append(rules_good, rep(TRUE,length(constraint$max_val[[n]]$conditions)))
+                    uses <- append(uses, rep(use_name,length(constraint$max_val[[n]]$conditions)))
+
+                  }
                 }
               }
             }
@@ -282,54 +297,69 @@ ozfs_validate <- function(...){
               rules_good <- append(rules_good, TRUE)
               uses <- append(uses, use_name)
             } else{
-              for (n in 1:length(constraint$max_val)){
-                if ("expression" %in% names(constraint$max_val[[n]])){
-                  rule_names <- names(constraint$max_val[[n]])
+              for (n in 1:length(constraint$max_val)){ # loop through the rules
+
+                rule_names <- names(constraint$max_val[[n]])
+                if (sum(rule_names %in% expressions_rule_names1) == length(expressions_rule_names1)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names2) == length(expressions_rule_names2)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names3) == length(expressions_rule_names3)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names4) == length(expressions_rule_names4)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names5) == length(expressions_rule_names5)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expressions_rule_names6) == length(expressions_rule_names6)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expression_rule_names1) == length(expression_rule_names1)){
+                  rule_check <- TRUE
+                } else if (sum(rule_names %in% expression_rule_names2) == length(expression_rule_names2)){
+                  rule_check <- TRUE
+                } else{
+                  rule_check <- FALSE
+                  errors <- c(errors, paste("Incorrect rules:", names(district$properties[[k]])[[l]]))
+                  cities <- c(cities, ifelse(!is.null(district$properties$dist_info$muni_name),district$properties$dist_info$muni_name, NA))
+                  counties <- c(counties, ifelse(!is.null(district$properties$dist_info$county_name),district$properties$dist_info$county_name, NA))
+                  districts <- c(districts, ifelse(!is.null(district$properties$dist_info$dist_abbr),district$properties$dist_info$dist_abbr, NA))
+                  land_uses <- c(land_uses, use_name)
+
+                  rules_good <- append(rules_good, rule_check)
+                  expressions <- append(expressions, "1 + 1")
+                  location <- append(location, names(district$properties[[k]])[[l]])
+                  uses <- append(uses, use_name)
+                  next
+
+                }
+
+                if ("expression" %in% rule_names){
                   expressions <- append(expressions, constraint$max_val[[n]]$expression)
                   location <- append(location, names(district$properties[[k]])[[l]])
-
-                  if (sum(rule_names %in% expression_rule_names1) == length(expression_rule_names1)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expression_rule_names2) == length(expression_rule_names2)){
-                    rule_check <- TRUE
-                  } else{
-                    rule_check <- FALSE
-                    errors <- c(errors, paste("Incorrect rules:", names(district$properties[[k]])[[l]]))
-                    cities <- c(cities, ifelse(!is.null(district$properties$dist_info$muni_name),district$properties$dist_info$muni_name, NA))
-                    counties <- c(counties, ifelse(!is.null(district$properties$dist_info$county_name),district$properties$dist_info$county_name, NA))
-                    districts <- c(districts, ifelse(!is.null(district$properties$dist_info$dist_abbr),district$properties$dist_info$dist_abbr, NA))
-                    land_uses <- c(land_uses, use_name)
-                  }
-                  rules_good <- append(rules_good, rule_check)
                   uses <- append(uses, use_name)
+                  rules_good <- append(rules_good, TRUE)
 
-                } else if ("expressions" %in% names(constraint$max_val[[n]])){
-                  rule_names <- names(constraint$max_val[[n]])
+                  if ("conditions" %in% rule_names){
+                    expressions <- append(expressions, constraint$max_val[[n]]$conditions)
+                    location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$max_val[[n]]$conditions)))
+                    rules_good <- append(rules_good, rep(TRUE,length(constraint$max_val[[n]]$conditions)))
+                    uses <- append(uses, rep(use_name,length(constraint$max_val[[n]]$conditions)))
+
+                  }
+
+                } else if ("expressions" %in% rule_names){
                   expressions <- append(expressions, constraint$max_val[[n]]$expressions)
                   location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$max_val[[n]]$expressions)))
-
-                  if (sum(rule_names %in% expressions_rule_names1) == length(expressions_rule_names1)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names2) == length(expressions_rule_names2)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names3) == length(expressions_rule_names3)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names4) == length(expressions_rule_names4)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names5) == length(expressions_rule_names5)){
-                    rule_check <- TRUE
-                  } else if (sum(rule_names %in% expressions_rule_names6) == length(expressions_rule_names6)){
-                    rule_check <- TRUE
-                  } else{
-                    rule_check <- FALSE
-                    errors <- c(errors, paste("Incorrect rules:", names(district$properties[[k]])[[l]]))
-                    cities <- c(cities, ifelse(!is.null(district$properties$dist_info$muni_name),district$properties$dist_info$muni_name, NA))
-                    counties <- c(counties, ifelse(!is.null(district$properties$dist_info$county_name),district$properties$dist_info$county_name, NA))
-                    districts <- c(districts, ifelse(!is.null(district$properties$dist_info$dist_abbr),district$properties$dist_info$dist_abbr, NA))
-                    land_uses <- c(land_uses, use_name)
-                  }
-                  rules_good <- append(rules_good, rep(rule_check,length(constraint$max_val[[n]]$expressions)))
+                  rules_good <- append(rules_good, rep(TRUE,length(constraint$max_val[[n]]$expressions)))
                   uses <- append(uses, rep(use_name,length(constraint$max_val[[n]]$expressions)))
+
+                  if ("conditions" %in% rule_names){
+                    expressions <- append(expressions, constraint$max_val[[n]]$conditions)
+                    location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$max_val[[n]]$conditions)))
+                    rules_good <- append(rules_good, rep(TRUE,length(constraint$max_val[[n]]$conditions)))
+                    uses <- append(uses, rep(use_name,length(constraint$max_val[[n]]$conditions)))
+
+                  }
+
                 }
               }
             }
@@ -375,7 +405,7 @@ ozfs_validate <- function(...){
       } else if (suppressWarnings(is.na(evaluated))){
         expression_df$expression_check[[j]] <- FALSE
         expression_df$note[[j]] <- paste("Unknown variable:",expression_df$constraint[[j]])
-      } else if(class(evaluated) != "numeric"){
+      } else if(class(evaluated) != "numeric" & class(evaluated) != "logical"){
         expression_df$expression_check[[j]] <- FALSE
         expression_df$note[[j]] <- paste("Parse error:",expression_df$constraint[[j]])
       } else{
