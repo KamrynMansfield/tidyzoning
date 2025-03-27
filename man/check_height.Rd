@@ -7,7 +7,7 @@
 check_height(tidybuilding, tidydistrict)
 }
 \arguments{
-\item{tidybuilding}{A tidybuilding object is a special features object representing a building.}
+\item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
 }

@@ -7,11 +7,11 @@
 add_setbacks(tidyparcel, tidydistrict, tidybuilding)
 }
 \arguments{
-\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear).}
+\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
 
-\item{tidybuilding}{A tidybuilding object is a special features object representing a building.}
+\item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 }
 \value{
 Returns the tidyparcel object with a "setbacks" and "units" column added to the end.

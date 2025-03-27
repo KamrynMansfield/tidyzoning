@@ -7,7 +7,7 @@
 check_footprint(tidybuilding, buildable_area, num_rotations = 24)
 }
 \arguments{
-\item{tidybuilding}{A tidybuilding object is a special features object representing a building.}
+\item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
 \item{buildable_area}{A shape depicting the buildable area of a parcel. This is produced by the [get_buildable_area()] function.}
 

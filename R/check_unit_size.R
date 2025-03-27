@@ -5,7 +5,7 @@
 #' @inheritParams add_setbacks
 #'
 #' @return
-#' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on the unit sizes.
+#' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on the unit sizes.
 #' @export
 #'
 check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel = NULL){

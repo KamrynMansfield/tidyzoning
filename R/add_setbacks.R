@@ -3,9 +3,9 @@
 #' `add_setbacks()` returns the tidyparcel object with new columns describing the setback and units of each side.
 #'
 #'
-#' @param tidyparcel A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear).
+#' @param tidyparcel A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
 #' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
-#' @param tidybuilding A tidybuilding object is a special features object representing a building.
+#' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
 #'
 #' @return Returns the tidyparcel object with a "setbacks" and "units" column added to the end.
 #' @export

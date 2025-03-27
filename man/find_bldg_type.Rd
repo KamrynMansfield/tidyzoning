@@ -7,7 +7,7 @@
 find_bldg_type(tidybuilding)
 }
 \arguments{
-\item{tidybuilding}{A tidybuilding object is a special features object representing a building.}
+\item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 }
 \value{
 A string stating the building land use (1_family, 2_family, etc.).
