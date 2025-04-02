@@ -49,13 +49,14 @@ ozfs_add_req <- function(ozfs_file,
     ozfs_list$features[[dist_idx]]$properties$structure_constraints[[constraint]][[land_use_idx]]$use_name <- land_uses
 
   } else if (!is.null(ozfs_list$features[[dist_idx]]$properties$structure_constraints[[constraint]])){
+    land_use_idx <- 0
     for (j in 1:length(constraint_info)){
       if (identical(constraint_info[[j]]$use_nam,land_uses)){
         land_use_idx <- j
       }
     }
 
-    if (!exists("land_use_idx")){
+    if (land_use_idx == 0){
       stop("Could not find land use")
     }
 
