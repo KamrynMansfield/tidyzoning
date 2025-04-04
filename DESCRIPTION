@@ -1,7 +1,7 @@
 Package: tidyzoning
 Type: Package
 Title: Finding housing possibilities using zoning laws
-Version: 0.1.0
+Version: 0.1.1
 Author: Kamryn Mansfield
 Maintainer: Kamryn Mansfield <mansfieldkamryn@gmail.com>
 Description: More about what it does (maybe more than one line)
