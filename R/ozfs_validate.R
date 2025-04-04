@@ -149,6 +149,7 @@ ozfs_validate <- function(...){
   units_4bed <- 1
   total_units <- 1
   fl_area <- 1
+  fl_area_bottom <- 1
   parking_covered <- 1
   parking_uncovered <- 1
   parking_enclosed <- 1
@@ -215,8 +216,12 @@ ozfs_validate <- function(...){
     rules_good <- list()
     uses <- list()
 
+    if (length(district$properties) < 2){ # If there are no constraint sections
+      next
+    }
+
     for (k in 2:length(district$properties)){ # looping through the sections
-      if (length(district$properties[[k]]) == 0){
+      if (length(district$properties[[k]]) == 0){ # If there is not data conected to the constratint section
         next
       }
       for (l in 1:length(district$properties[[k]])){ # looping through the constraints
@@ -273,10 +278,10 @@ ozfs_validate <- function(...){
                   rules_good <- append(rules_good, TRUE)
 
                   if ("conditions" %in% rule_names){
-                    expressions <- append(expressions, constraint$max_val[[n]]$conditions)
-                    location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$max_val[[n]]$conditions)))
-                    rules_good <- append(rules_good, rep(TRUE,length(constraint$max_val[[n]]$conditions)))
-                    uses <- append(uses, rep(use_name,length(constraint$max_val[[n]]$conditions)))
+                    expressions <- append(expressions, constraint$min_val[[n]]$conditions)
+                    location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$min_val[[n]]$conditions)))
+                    rules_good <- append(rules_good, rep(TRUE,length(constraint$min_val[[n]]$conditions)))
+                    uses <- append(uses, rep(use_name,length(constraint$min_val[[n]]$conditions)))
 
                   }
 
@@ -287,10 +292,10 @@ ozfs_validate <- function(...){
                   uses <- append(uses, rep(use_name,length(constraint$min_val[[n]]$expressions)))
 
                   if ("conditions" %in% rule_names){
-                    expressions <- append(expressions, constraint$max_val[[n]]$conditions)
-                    location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$max_val[[n]]$conditions)))
-                    rules_good <- append(rules_good, rep(TRUE,length(constraint$max_val[[n]]$conditions)))
-                    uses <- append(uses, rep(use_name,length(constraint$max_val[[n]]$conditions)))
+                    expressions <- append(expressions, constraint$min_val[[n]]$conditions)
+                    location <- append(location, rep(names(district$properties[[k]])[[l]],length(constraint$min_val[[n]]$conditions)))
+                    rules_good <- append(rules_good, rep(TRUE,length(constraint$min_val[[n]]$conditions)))
+                    uses <- append(uses, rep(use_name,length(constraint$min_val[[n]]$conditions)))
 
                   }
                 }
@@ -428,7 +433,7 @@ ozfs_validate <- function(...){
         cities <- c(cities, ifelse(!is.null(district$properties$dist_info$muni_name),district$properties$dist_info$muni_name, NA))
         counties <- c(counties, ifelse(!is.null(district$properties$dist_info$county_name),district$properties$dist_info$county_name, NA))
         districts <- c(districts, ifelse(!is.null(district$properties$dist_info$dist_abbr),district$properties$dist_info$dist_abbr, NA))
-        land_uses <- c(land_uses, expression_df$land_use[[j]])
+        land_uses <- c(land_uses, expression_df$land_use[!is.na(expression_df$note)][[j]])
       }
     }
 
