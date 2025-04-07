@@ -24,7 +24,7 @@ check_height_eave <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NU
   # establish the constaint we are looking at
   constraint <- "height_eave"
 
-
+  # getting the value from the building's attributes
   # if the height is not recorded, but story count is, we can guess and put a warning
   if (!is.null(tidybuilding$bldg_info$height_eave) & !is.na(tidybuilding$bldg_info$height[[1]])){
     value <- tidybuilding$bldg_info$height_eave[[1]]
