@@ -4,7 +4,12 @@
 \alias{check_floors}
 \title{Compare building floor count and allowed floors}
 \usage{
-check_floors(tidybuilding, tidydistrict, tidyparcel = NULL)
+check_floors(
+  tidybuilding,
+  tidydistrict = NULL,
+  tidyparcel = NULL,
+  zoning_req = NULL
+)
 }
 \arguments{
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}

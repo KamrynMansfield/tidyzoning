@@ -5,22 +5,27 @@
 #' @inheritParams check_height
 #'
 #' @return
-#' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on building height.
+#' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on building height.
 #' @export
 #'
 check_height_eave <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, zoning_req = NULL){
+  # if zoning_req is not given, we need to run the get_zoning_req function
   if (is.null(zoning_req)){
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
   }
 
+  # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
+  # we return maybe with a warning
   if (class(zoning_req) == "character"){
-    return(TRUE)
+    return("MAYBE")
     warning("No zoning requirements recorded for this district")
   }
 
+  # establish the constaint we are looking at
   constraint <- "height_eave"
 
 
+  # if the height is not recorded, but story count is, we can guess and put a warning
   if (!is.null(tidybuilding$bldg_info$height_eave) & !is.na(tidybuilding$bldg_info$height[[1]])){
     value <- tidybuilding$bldg_info$height_eave[[1]]
   } else if (!is.null(tidybuilding$bldg_info$stories) & !is.na(tidybuilding$bldg_info$stories[[1]])){
@@ -32,7 +37,8 @@ check_height_eave <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NU
     warning("No tidybuilding eave height recorded")
   }
 
-
+  # assume min and max values if they are not recorded
+  # if specific constraint we are looking for is not in zoning requirements, we assume any value is allowed
   if (constraint %in% zoning_req$constraint_name){
     min_requirement <- zoning_req[zoning_req$constraint_name == constraint, "min_value"][[1]]
     max_requirement <- zoning_req[zoning_req$constraint_name == constraint, "max_value"][[1]]
@@ -54,6 +60,7 @@ check_height_eave <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NU
     return(value >= min_requirement & value <= max_requirement)
   }
 
+  # this is where multiple values are listed for a unique zoning requirement
   # assign 2 minimum values
   min_check_1 <- min(min_requirement) <= value
   min_check_2 <- max(min_requirement) <= value
@@ -112,6 +119,7 @@ check_height_eave <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NU
     }
   }
 
+  # use both min and max value check to see if it is allowed
   if (max_check == FALSE | min_check == FALSE){
     return(FALSE)
   } else if (max_check == TRUE & min_check == TRUE){
