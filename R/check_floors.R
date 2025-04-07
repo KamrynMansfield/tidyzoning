@@ -8,20 +8,22 @@
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on total floors.
 #' @export
 #'
-check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
+check_floors <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, zoning_req = NULL){
+  if (is.null(zoning_req)){
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+  }
+
+  if (class(zoning_req) == "character"){
+    return(TRUE)
+    warning("No zoning requirements recorded for this district")
+  }
+
   structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
   if (!is.null(tidybuilding$bldg_info$stories)){
     value <- tidybuilding$bldg_info$stories
   } else{
     return(TRUE)
-  }
-
-  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
-
-  if (class(zoning_req) == "character"){
-    return(TRUE)
-    warning("No zoning requirements recorded for this district")
   }
 
   if ("stories" %in% zoning_req$constraint_name){
@@ -126,3 +128,4 @@ check_floors <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
 
 
 }
+
