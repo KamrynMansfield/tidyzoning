@@ -1,17 +1,14 @@
 #' Compare building height and allowed height
 #'
-#' `check_height()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on height.
+#' `check_height_eave()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on eave height.
 #'
-#' @param tidyparcel A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
-#' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
-#' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
-#' @param zoning_req The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.
+#' @inheritParams check_height
 #'
 #' @return
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on building height.
 #' @export
 #'
-check_height <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, zoning_req = NULL){
+check_height_eave <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, zoning_req = NULL){
   if (is.null(zoning_req)){
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
   }
@@ -21,18 +18,18 @@ check_height <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, z
     warning("No zoning requirements recorded for this district")
   }
 
-  constraint <- "height"
+  constraint <- "height_eave"
 
 
-  if (!is.null(tidybuilding$bldg_info$height) & !is.na(tidybuilding$bldg_info$height[[1]])){
-    value <- tidybuilding$bldg_info$height[[1]]
+  if (!is.null(tidybuilding$bldg_info$height_eave) & !is.na(tidybuilding$bldg_info$height[[1]])){
+    value <- tidybuilding$bldg_info$height_eave[[1]]
   } else if (!is.null(tidybuilding$bldg_info$stories) & !is.na(tidybuilding$bldg_info$stories[[1]])){
     floors <- tidybuilding$bldg_info$stories[[1]]
     value <- floors * 12
     warning("Height approximated based on 12 ft floors")
   } else{
     return(TRUE)
-    warning("No tidybuilding height recorded")
+    warning("No tidybuilding eave height recorded")
   }
 
 
