@@ -11,7 +11,7 @@
 #' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
 #' @export
 #'
-get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
+get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel){
   # make tidydistrit a nested list instead of sf object
   tidydistrict <- list(lot_constraints = fromJSON(tidydistrict$lot_constraints),
                        structure_constraints = fromJSON(tidydistrict$structure_constraints),
@@ -40,30 +40,10 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
   # Name the building type
   bldg_type <- tidybuilding$bldg_info$type
 
-  if (is.null(tidyparcel)){
-    lot_width <- NA
-    lot_depth <- NA
-    lot_area <- NA
-    lot_type <- NA
-  } else{
-    # establish the parcel variables that might be used in the equations
-    front_of_parcel <- tidyparcel |>
-      filter(side == "front")
-    side_of_parcel <- tidyparcel |>
-      filter(side == "Interior side")
-    parcel_without_centroid <- tidyparcel |>
-      filter(!is.na(side)) |>
-      filter(side != "centroid")
-
-    lot_width <- st_length(front_of_parcel) * 3.28084 # converting to ft
-    units(lot_width) <- "ft"
-    lot_depth <- st_length(side_of_parcel[1,]) * 3.28084 # converting to ft
-    units(lot_depth) <- "ft"
-    lot_area <- st_polygonize(st_union(parcel_without_centroid)) |> st_area() * 10.7639 # converting to ft
-    units(lot_area) <- "ft^2"
-    lot_type <- ifelse("Exterior side" %in% tidyparcel$side,"corner","regular")
-
-  }
+  # establish the parcel variables that might be used in the equations
+  lot_width <- tidyparcel$lot_width[[1]] # this should be in ft
+  lot_depth <- tidyparcel$lot_depth[[1]] # this should be in ft
+  lot_area <- tidyparcel$lot_area[[1]] # this should be in acres
 
   # establish the building variables that might be used in the equations
   bed_list <- c(units_0bed = 0,
