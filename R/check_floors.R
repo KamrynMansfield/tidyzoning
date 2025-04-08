@@ -18,7 +18,6 @@ check_floors <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, z
     warning("No zoning requirements recorded for this district")
   }
 
-  structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
   if (!is.null(tidybuilding$bldg_info$stories)){
     value <- tidybuilding$bldg_info$stories
