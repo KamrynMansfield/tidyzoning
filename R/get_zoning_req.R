@@ -80,7 +80,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel){
   max_unit_size <- ifelse(length(tidybuilding$unit_info$fl_area) > 0, max(tidybuilding$unit_info$fl_area), NA)
   far <- tidybuilding$bldg_info$gross_fl_area / lot_area
   bldg_width <- ifelse(length(tidybuilding$bldg_info$width) > 0, tidybuilding$bldg_info$width, NA)
-  bldg_dpth <- ifelse(length(tidybuilding$bldg_info$depth) > 0, tidybuilding$bldg_info$depth, NA)
+  bldg_depth <- ifelse(length(tidybuilding$bldg_info$depth) > 0, tidybuilding$bldg_info$depth, NA)
   level_units_table <- tidybuilding$unit_info |> group_by(level) |> summarise(units = sum(qty))
   units_floor1 <- ifelse(length(level_units_table$units[level_units_table$level == 1]) > 0,level_units_table$units[level_units_table$level == 1],0)
   units_floor2 <- ifelse(length(level_units_table$units[level_units_table$level == 2]) > 0,level_units_table$units[level_units_table$level == 2],0)
