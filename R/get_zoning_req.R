@@ -44,6 +44,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel){
   lot_width <- tidyparcel$lot_width[[1]] # this should be in ft
   lot_depth <- tidyparcel$lot_depth[[1]] # this should be in ft
   lot_area <- tidyparcel$lot_area[[1]] # this should be in acres
+  lot_type <- ifelse(tidyparcel$Parcel_label[[1]] == "regular corner parcel", "corner","regular")
 
   # establish the building variables that might be used in the equations
   bed_list <- c(units_0bed = 0,
