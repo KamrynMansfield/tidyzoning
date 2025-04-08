@@ -106,31 +106,10 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel = NULL, zonin
   # getting same variables as get_zoning_req
   bldg_type <- tidybuilding$bldg_info$type
 
-  if (is.null(tidyparcel)){
-    lot_width <- NA
-    lot_depth <- NA
-    lot_area <- NA
-    lot_type <- NA
-  } else{
-    # establish the parcel variables that might be used in the equations
-    front_of_parcel <- tidyparcel |>
-      filter(side == "front")
-    side_of_parcel <- tidyparcel |>
-      filter(side == "Interior side")
-    parcel_without_centroid <- tidyparcel |>
-      filter(!is.na(side)) |>
-      filter(side != "centroid")
-
-    lot_width <- st_length(front_of_parcel) * 3.28084 # converting to ft
-    units(lot_width) <- "ft"
-    lot_depth <- st_length(side_of_parcel[1,]) * 3.28084 # converting to ft
-    units(lot_depth) <- "ft"
-    lot_area <- st_polygonize(st_union(parcel_without_centroid)) |> st_area() * 10.7639 # converting to ft
-    units(lot_area) <- "ft^2"
-    lot_type <- ifelse("Exterior side" %in% tidyparcel$side,"corner","regular")
-
-  }
-
+  # establish the parcel variables that might be used in the equations
+  lot_width <- tidyparcel$lot_width[[1]] # this should be in ft
+  lot_depth <- tidyparcel$lot_depth[[1]] # this should be in ft
+  lot_area <- tidyparcel$lot_area[[1]] # this should be in acres
 
   added_tot_bed <- tidybuilding$unit_info |> mutate(tot_bed = bedrooms * qty)
   total_bedrooms <- sum(added_tot_bed$tot_bed)
@@ -210,6 +189,8 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel = NULL, zonin
       if (length(constraint_info[[min_max_val]][[1]]) == 1){ # this is just a one-line expression for the constraint
         unit_info_df[[min_max_val]] <- safe_parse(text = constraint_info[[min_max_val]][[1]]) |>
           eval()
+
+        constraint_val <- NA
 
       } else if (length(constraint_info[[min_max_val]]) == 0){
         constraint_val <- NA
