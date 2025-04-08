@@ -8,14 +8,20 @@
 #' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on the unit sizes.
 #' @export
 #'
-check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
+check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel = NULL, zoning_req = NULL){
   # get the tidydistrict into a list format
   structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
   safe_parse <- purrr::possibly(parse, otherwise = NA)
 
-  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+  if (is.null(zoning_req)){
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+  }
 
+  if (class(zoning_req) == "character"){
+    return(TRUE)
+    warning("No zoning requirements recorded for this district")
+  }
 
   # if floor areas aren't in tidybuilding, we return TRUE and give a warning.
   if (is.null(tidybuilding$unit_info$fl_area)){
