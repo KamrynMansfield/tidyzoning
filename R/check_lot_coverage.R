@@ -23,7 +23,7 @@ check_lot_coverage <- function(tidybuilding, tidydistrict = NULL, tidyparcel, zo
 
   # establish the constaint we are looking at
   constraint <- "lot_cov_bldg"
-  d
+
   # getting the value from the building's attributes
   # if the fl_area is not recorded
   if (!is.null(tidybuilding$bldg_info$width) & !is.null(tidybuilding$bldg_info$depth)){
