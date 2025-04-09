@@ -12,10 +12,29 @@
 #' @export
 #'
 get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel){
+
+  if (is.na(tidydistrict$lot_constraints)){
+    lot_cons <- "[]"
+  } else{
+    lot_cons <- tidydistrict$lot_constraints
+  }
+
+  if (is.na(tidydistrict$structure_constraints)){
+    structure_cons <- "[]"
+  } else{
+    structure_cons <- tidydistrict$structure_constraints
+  }
+
+  if (is.na(tidydistrict$other_constraints)){
+    other_cons <- "[]"
+  } else{
+    other_cons <- tidydistrict$other_constraints
+  }
+
   # make tidydistrit a nested list instead of sf object
-  tidydistrict <- list(lot_constraints = fromJSON(tidydistrict$lot_constraints),
-                       structure_constraints = fromJSON(tidydistrict$structure_constraints),
-                       other_constraints = fromJSON(tidydistrict$other_constraints))
+  tidydistrict <- list(lot_constraints = fromJSON(lot_cons),
+                       structure_constraints = fromJSON(structure_cons),
+                       other_constraints = fromJSON(other_cons))
 
   # this will be used later to make sure the expressions are written correctly
   safe_parse <- purrr::possibly(parse, otherwise = NA)
