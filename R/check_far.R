@@ -21,8 +21,8 @@ check_far <- function(tidybuilding, tidydistrict = NULL, tidyparcel, zoning_req 
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
   # we return maybe with a warning
   if (class(zoning_req) == "character"){
-    return("MAYBE")
     warning("No zoning requirements recorded for this district")
+    return(TRUE)
   }
 
   # establish the constaint we are looking at

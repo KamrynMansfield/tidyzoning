@@ -14,8 +14,8 @@ check_height <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, z
   }
 
   if (class(zoning_req) == "character"){
-    return(TRUE)
     warning("No zoning requirements recorded for this district")
+    return(TRUE)
   }
 
   constraint <- "height"

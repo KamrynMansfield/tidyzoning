@@ -19,8 +19,8 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel, zoning_req =
   }
 
   if (class(zoning_req) == "character"){
-    return(TRUE)
     warning("No zoning requirements recorded for this district")
+    return(TRUE)
   }
 
   # if floor areas aren't in tidybuilding, we return TRUE and give a warning.

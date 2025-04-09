@@ -17,15 +17,14 @@ check_unit_density <- function(tidybuilding, tidydistrict = NULL, tidyparcel, zo
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
   # we return maybe with a warning
   if (class(zoning_req) == "character"){
-    return("MAYBE")
     warning("No zoning requirements recorded for this district")
+    return(TRUE)
   }
 
-  # establish the constaint we are looking at
+  # establish the constraint we are looking at
   constraint <- "unit_density"
 
   # getting the value from the building's attributes
-  # if the fl_area is not recorded
   if (length(tidybuilding$unit_info$qty) == 1){
     units <- sum(tidybuilding$unit_info$qty)
   } else{

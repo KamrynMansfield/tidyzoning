@@ -9,6 +9,12 @@
 #' @export
 #'
 check_bedrooms <- function(tidybuilding, tidydistrict, tidyparcel = NULL){
+
+  ##################################################
+  ## NO LONGER USING THIS FUNCTION. SHOULD DELETE ##
+  ##################################################
+
+
   structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
   if (!is.null(tidybuilding$unit_info$bedrooms)){
