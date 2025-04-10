@@ -172,13 +172,16 @@ tz_initial_checks <- function(tidybuilding,
     return(do.call(rbind, results))
   }
 
-  end_time <- proc.time()
-  print(end_time - start_time)
-
   if (run_parallel == TRUE){
-    return(check_in_parallel(tidybuilding, tidyzoning, tidyparcel_with_dimensions, func_names))
+    result <- check_in_parallel(tidybuilding, tidyzoning, tidyparcel_with_dimensions, func_names)
+    end_time <- proc.time()
+    print(end_time - start_time)
+    return(result)
   } else{
-    return(perform_checks(tidybuilding, tidyzoning, tidyparcel_with_dimensions, func_names))
+    result <- perform_checks(tidybuilding, tidyzoning, tidyparcel_with_dimensions, func_names)
+    end_time <- proc.time()
+    print(end_time - start_time)
+    return(result)
   }
 
 }
