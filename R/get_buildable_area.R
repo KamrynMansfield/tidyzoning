@@ -8,7 +8,6 @@
 #' Returns a polygon representing the buildable area of the parcel.
 #' @export
 #'
-
 get_buildable_area <- function(tidyparcel_with_setbacks){
   # make tidyparcel a polygon
   polygon <- st_polygonize(st_union(tidyparcel_with_setbacks))
@@ -17,50 +16,50 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
     return(polygon)
   }
 
-  # convert the setback units to meters
-  if (is.na(unique(tidyparcel_with_setbacks$units)[[1]])){
-    units(tidyparcel_with_setbacks$setback) <- unique(tidyparcel_with_setbacks$units)[[2]]
-  } else{
-    units(tidyparcel_with_setbacks$setback) <- unique(tidyparcel_with_setbacks$units)[[1]]
+  # seprate the min and max setbacks
+  tidyparcel_with_setbacks$min_setback <- unlist(lapply(tidyparcel_with_setbacks$setback, min))
+  tidyparcel_with_setbacks$max_setback <- unlist(lapply(tidyparcel_with_setbacks$setback, max))
+
+  # convert feet to meters
+  tidyparcel_with_setbacks <- tidyparcel_with_setbacks |>
+    mutate(min_setback = min_setback * 0.3048,
+           max_setback = max_setback * 0.3048)
+
+  if (identical(tidyparcel_with_setbacks$min_setback,tidyparcel_with_setbacks$max_setback)){ # just one setback for each side
+
+    # put a buffer on each side (need to convert to meters)
+    buffered_sides <- tidyparcel_with_setbacks |>
+      mutate(geometry = st_buffer(geometry,min_setback))
+
+    # make the buffered sides all one polygon
+    buffered_polygon <- st_union(buffered_sides)
+    buildable_area <- st_difference(st_make_valid(polygon),st_make_valid(buffered_polygon)) |> list()
+
+
+  } else{ #multiple setback possibilities
+
+    # put a buffer on each side (need to convert to meters)
+    buffered_sides_relaxed <- tidyparcel_with_setbacks |>
+      mutate(geometry = st_buffer(geometry,min_setback))
+
+    # make the buffered sides all one polygon
+    buffered_polygon_relaxed <- st_union(buffered_sides_relaxed)
+    buildable_area_relaxed <- st_difference(st_make_valid(polygon),st_make_valid(buffered_polygon_relaxed))
+
+    # put a buffer on each side (need to convert to meters)
+    buffered_sides_strict <- tidyparcel_with_setbacks |>
+      mutate(geometry = st_buffer(geometry,max_setback))
+
+    # make the buffered sides all one polygon
+    buffered_polygon_strict <- st_union(buffered_sides_strict)
+    buildable_area_strict <- st_difference(st_make_valid(polygon),st_make_valid(buffered_polygon_strict))
+
+    buildable_area <- list(buildable_area_strict, buildable_area_relaxed)
+
   }
 
-
-  tidyparcel_with_setbacks <- tidyparcel_with_setbacks |>
-    mutate(setback_m = set_units(setback,"m")) |>
-    filter(!is.na(setback))
-
-  # put a buffer on each side (need to convert to meters)
-  buffered_sides <- tidyparcel_with_setbacks |>
-    mutate(geometry = st_buffer(geometry,setback_m,1))
-
-  # make the buffered sides all one polygon
-  buffered_polygon <- st_union(buffered_sides)
-
-
-  # make a new shape the parts not overlapping
-  not_overlapping <- st_sym_difference(st_make_valid(buffered_polygon), st_make_valid(polygon))
-  not_overlapping <- not_overlapping[st_area(not_overlapping) == max(st_area(not_overlapping))]
-
-  # separate the polygons from the multipolygon
-  not_overlapping <- st_cast(not_overlapping, "POLYGON")
-
-  # select the non-overlapping shape that is the buildable area
-  buildable_area <- not_overlapping[2]
-
-  buildable_area
-
-  # this stuff I tried to make it a simpler shape, but it sometimes didn't work.
-
-  # # get only the nodes from buildable area that will creat a smooth, accurate line
-  # parcel_geometries <- tidyparcel_with_setbacks[,"geometry"]
-  # parcel_nodes <- st_cast(parcel_geometries, "POINT")
-  # build_area_nodes <- st_cast(buildable_area, "POINT")
-  # important_nodes <- st_nearest_feature(parcel_nodes, build_area_nodes)
-  #
-  # build_area_nodes[important_nodes] |>
-  #   st_union() |>
-  #   st_cast("MULTILINESTRING") |>
-  #   st_cast("POLYGON")
+  return(buildable_area)
 
 }
+
 
