@@ -60,7 +60,7 @@ tz_initial_checks <- function(tidybuilding,
             errors <- c(errors,check)
             check <- "MAYBE"
           }
-          tidyparcel_df[j, func_name] <- check
+          tidyparcel_df[i, func_name] <- check
         }
 
       }
