@@ -4,7 +4,7 @@
 \alias{check_unit_size}
 \title{Compare unit sizes and allowed unit sizes}
 \usage{
-check_unit_size(tidybuilding, tidydistrict, tidyparcel = NULL)
+check_unit_size(tidybuilding, tidydistrict, tidyparcel, zoning_req = NULL)
 }
 \arguments{
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}

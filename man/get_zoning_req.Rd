@@ -4,7 +4,7 @@
 \alias{get_zoning_req}
 \title{Get district zoning requirements}
 \usage{
-get_zoning_req(tidybuilding, tidydistrict, tidyparcel = NULL)
+get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
 }
 \arguments{
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
