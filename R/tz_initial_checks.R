@@ -131,6 +131,8 @@ tz_initial_checks <- function(tidybuilding,
 
   }
 
+
+
   go_through_checks_function <- function(tidyparcel){
     library(dplyr)
     library(rjson)
@@ -159,7 +161,8 @@ tz_initial_checks <- function(tidybuilding,
                                   "perform_checks",
                                   "tidyzoning",
                                   "tidybuilding",
-                                  "func_names")) # Export your processing function
+                                  "func_names"),
+                  envir = environment(tz_initial_checks)) # Export your processing function
 
     errors <- c()
     # Execute the processing function in parallel
