@@ -33,7 +33,8 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
 
     # make the buffered sides all one polygon
     buffered_polygon <- st_union(buffered_sides)
-    buildable_area <- st_difference(st_make_valid(polygon),st_make_valid(buffered_polygon)) |> list()
+    buildable_area <- st_difference(st_make_valid(polygon),st_make_valid(buffered_polygon)) |>
+      list()
 
 
   } else{ #multiple setback possibilities
