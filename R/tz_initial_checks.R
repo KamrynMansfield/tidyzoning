@@ -155,8 +155,7 @@ tz_initial_checks <- function(tidybuilding,
 
     # Set up parallel computing
     cl <- makeCluster(num_cores)
-    clusterExport(cl, varlist = c("zoning_analysis_all_checks_pipeline",
-                                  "go_through_pipeline_all_checks",
+    clusterExport(cl, varlist = c("go_through_pipeline_all_checks",
                                   "tidyzoning",
                                   "tidybuilding",
                                   "func_names")) # Export your processing function
