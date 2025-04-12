@@ -23,7 +23,7 @@ check_footprint_simple <- function(buildable_area, bldg_width_x, bldg_length_y){
     return(FALSE)
   }
 
-  rot_degrees <- seq(10,90,10)
+  rot_degrees <- seq(15,90,15)
   # do the process and then rotate the buildable_area if it doesn't work
   for (i in 1:(length(rot_degrees) + 1)){
 
