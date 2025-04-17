@@ -10,7 +10,10 @@
 #'
 get_buildable_area <- function(tidyparcel_with_setbacks){
   # make tidyparcel a polygon
-  polygon <- st_polygonize(st_union(tidyparcel_with_setbacks))
+  polygon <- tidyparcel_with_setbacks |>
+    st_union() |>
+    st_polygonize() |>
+    st_collection_extract()
 
   if (nrow(tidyparcel_with_setbacks[!is.na(tidyparcel_with_setbacks$setback),]) == 0){
     return(polygon)
