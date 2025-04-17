@@ -54,8 +54,8 @@ rotate_shape <- function(shape, angle_degrees, center = NULL) {
   # }
 
   # Convert back to the same geometry type
-  new_geom <- st_set_geometry(st_as_sf(shape), st_sfc(st_polygon(list(new_coords))))
-  new_geom <- st_set_crs(new_geom, st_crs(shape))
+  # new_geom <- st_set_geometry(st_as_sf(shape), st_sfc(st_polygon(list(new_coords))))
+  new_geom <- st_set_crs(st_sfc(st_polygon(list(new_coords))), st_crs(shape))
 
   return(new_geom)
 }
