@@ -49,7 +49,7 @@ check_footprint <- function(tidybuilding, buildable_area){
     }
 
     if (j != length(rot_degrees)){
-      buildable_area <- rotate_shape(buildable_area, rot_degrees[j + 1])
+      buildable_area <- rotate_shape(buildable_area, 15)
     }
 
   }
