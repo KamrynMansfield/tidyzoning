@@ -13,8 +13,8 @@
 #' @export
 #'
 check_footprint <- function(tidybuilding, buildable_area){
-  width <- tidybuilding$bldg_info$width
-  depth <- tidybuilding$bldg_info$depth
+  width <- tidybuilding$bldg_info$width * 0.3048
+  depth <- tidybuilding$bldg_info$depth * 0.3048
 
   rot_degrees <- seq(0,75, 15)
   # do the process and then rotate the footprint if it doesn't work
@@ -23,7 +23,7 @@ check_footprint <- function(tidybuilding, buildable_area){
 
     buildable_area_vect <- vect(buildable_area)
 
-    raster_template <- rast(buildable_area_vect, resolution = 0.3048, crs = crs(buildable_area_vect))
+    raster_template <- rast(buildable_area_vect, resolution = 1, crs = crs(buildable_area_vect))
     build_area_raster <- rasterize(buildable_area_vect,
                                    raster_template,
                                    field = 1,
