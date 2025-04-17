@@ -20,16 +20,29 @@ rotate_shape <- function(shape, angle_degrees, center = NULL) {
 
   # If no center is provided, use the centroid
   if (is.null(center)) {
-    center <- st_centroid(shape[,"geometry"])
-    center <- st_coordinates(center)[1, ]
+    if (is.null(names(shape))){
+      center <- st_centroid(shape[,"geometry"])
+      center <- st_coordinates(center)[1, ]
+    } else{
+      center <- st_centroid(shape[,names(shape)[ncol(shape)]])
+      center <- st_coordinates(center)[1, ]
+    }
   }
 
   # Translate shape to origin, apply rotation, then translate back
-  coords <- shape[,"geometry"] |>
-    st_cast("POINT") |>
-    st_coordinates()
-  new_coords <- (sweep(coords, 2, as.vector(center), "-") %*% rotation_matrix) |>
-    sweep(2,as.vector(center),"+")
+  if (is.null(names(shape))){
+    coords <- shape[,"geometry"] |>
+      st_cast("POINT") |>
+      st_coordinates()
+    new_coords <- (sweep(coords, 2, as.vector(center), "-") %*% rotation_matrix) |>
+      sweep(2,as.vector(center),"+")
+  } else{
+    coords <- shape[,names(shape)[ncol(shape)]] |>
+      st_cast("POINT") |>
+      st_coordinates()
+    new_coords <- (sweep(coords, 2, as.vector(center), "-") %*% rotation_matrix) |>
+      sweep(2,as.vector(center),"+")
+  }
 
   # Convert back to the same geometry type
   new_geom <- st_set_geometry(st_as_sf(shape), st_sfc(st_polygon(list(new_coords))))
