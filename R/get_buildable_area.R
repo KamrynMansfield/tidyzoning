@@ -23,6 +23,10 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
   tidyparcel_with_setbacks$min_setback <- unlist(lapply(tidyparcel_with_setbacks$setback, min))
   tidyparcel_with_setbacks$max_setback <- unlist(lapply(tidyparcel_with_setbacks$setback, max))
 
+  tidyparcel_with_setbacks <- tidyparcel_with_setbacks  |>
+    mutate(min_setback = ifelse(is.na(min_setback), 0.1, min_setback),
+           max_setback = ifelse(is.na(max_setback), 0.1, max_setback))
+
   # convert feet to meters
   tidyparcel_with_setbacks <- tidyparcel_with_setbacks |>
     mutate(min_setback = min_setback * 0.3048,
@@ -65,5 +69,3 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
   return(buildable_area)
 
 }
-
-
