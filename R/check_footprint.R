@@ -18,6 +18,11 @@ check_footprint <- function(tidybuilding, buildable_area){
 
   rot_degrees <- seq(0,75, 15)
   # do the process and then rotate the footprint if it doesn't work
+
+  if (length(buildable_area) < 1){
+    return(FALSE)
+  }
+
   for (j in 1:length(rot_degrees)){
 
 
