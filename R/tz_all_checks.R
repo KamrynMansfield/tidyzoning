@@ -84,7 +84,23 @@ tz_all_checks <- function(tidybuilding,
               parcel_with_setbacks <- add_setbacks(tidyparcel_with_side_geom, zoning_req = zoning_req)
               buildable_area <- get_buildable_area(parcel_with_setbacks)
 
-              check <- check_footprint(tidybuilding, buildable_area)
+              if (length(buildable_area) > 1){
+                check_1 <- check_footprint(tidybuilding, buildable_area[[1]])
+
+                if (check_1){
+                  check <- check_1
+                } else{
+                  check_2 <- check_footprint(tidybuilding, buildable_area[[2]])
+                  if (check_2){
+                    check <- "MAYBE"
+                  } else{
+                    check <- FALSE
+                  }
+                }
+
+              } else{
+                check <- check_footprint(tidybuilding, buildable_area[[1]])
+              }
 
               if (check == FALSE){
                 allowed <- c(allowed, FALSE)
