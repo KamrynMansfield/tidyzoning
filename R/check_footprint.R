@@ -2,11 +2,8 @@
 #'
 #' `check_footprint()` takes a building footprint from tidybuilding object and checks to see if it will fit in the provided buildable area. The buildable area can be any shape.
 #'
-#' @inheritParams add_setbacks
-#' @inheritParams check_footprint_simple
-#' @param num_rotations The number of rotations you wish to spin the building footprint. More rotations will be more accurate, but will cost significantly more time.
-#' Ex: if `num_rotations = 4` then the building footprint will be turned 90 degrees each time until it finds where it fits.
-#' Ex: if `num_rotations = 24` then the building footprint will be turned 15 degrees each time until it finds where it fits.
+#' @param tidybuilding A list of data frames with attributes representing a building.
+#' @param buildable_area A geometry. Usually of the parcels buildable area calculated from the setback requirements.
 #'
 #' @return
 #' Returns TRUE of FALSE stating whether or not the building footprint would fit in the buildable area.
