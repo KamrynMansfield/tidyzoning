@@ -168,7 +168,7 @@ tz_all_checks <- function(tidybuilding,
                                   "tidybuilding",
                                   "tidyparcel_with_side_geom",
                                   "func_names"),
-                  envir = environment(tz_initial_checks)) # Export your processing function
+                  envir = environment(tz_all_checks)) # Export your processing function
 
     errors <- c()
     # Execute the processing function in parallel
