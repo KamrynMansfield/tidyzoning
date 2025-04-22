@@ -4,7 +4,13 @@
 \alias{add_setbacks}
 \title{Add setback column to tidyparcel object}
 \usage{
-add_setbacks(tidyparcel, tidydistrict, tidybuilding)
+add_setbacks(
+  tidyparcel,
+  tidydistrict = NULL,
+  tidybuilding,
+  tidyparcel_with_dims = NULL,
+  zoning_req = NULL
+)
 }
 \arguments{
 \item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
