@@ -74,7 +74,7 @@ tz_all_checks <- function(tidybuilding,
         # If the parcel makes it through all the checks,
         # it is MAYBE or TRUE, and we run check_footprint function
         if (j == length(func_names)){
-          if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
+          if (5 > 3){ #check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
             tidyparcel_sides <- tidyparcel_with_side_geom |>
               filter(parcel_id == tidyparcel$parcel_id)
             parcel_with_setbacks <- add_setbacks(tidyparcel_with_side_geom, zoning_req = zoning_req)
@@ -112,6 +112,9 @@ tz_all_checks <- function(tidybuilding,
               allowed <- c(allowed, TRUE)
               reason[[i]] <- "The building is allowed and fits in the parcel"
             }
+          } else{
+            allowed <- c(allowed, FALSE)
+            reason[[i]] <- "check_footprint_area"
           }
 
 
