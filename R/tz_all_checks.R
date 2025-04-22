@@ -182,12 +182,12 @@ tz_all_checks <- function(tidybuilding,
   }
 
   if (run_parallel == TRUE){
-    result <- check_in_parallel(tidybuilding, tidyzoning, tidyparcel_with_dimensions, func_names)
+    result <- check_in_parallel(tidybuilding, tidyzoning, tidyparcel_with_dimensions, tidyparcel_with_side_geom, func_names)
     end_time <- proc.time()
     print(end_time - start_time)
     return(result)
   } else{
-    result <- perform_checks(tidybuilding, tidyzoning, tidyparcel_with_dimensions, func_names)
+    result <- perform_checks(tidybuilding, tidyzoning, tidyparcel_with_dimensions,tidyparcel_with_side_geom, func_names)
     end_time <- proc.time()
     print(end_time - start_time)
     return(result)
