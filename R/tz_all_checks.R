@@ -71,49 +71,50 @@ tz_all_checks <- function(tidybuilding,
           maybe_reasons <- c(maybe_reasons, func_name)
         }
 
-        # If the parcel makes it through all the checks, it will be a MAYBE or TRUE
+        # If the parcel makes it through all the checks,
+        # it is MAYBE or TRUE, and we run check_footprint function
         if (j == length(func_names)){
-          if (length(maybe_reasons) > 0){ #if it is a maybe
-            reason[[i]] <- paste(maybe_reasons, collapse = ",")
-            allowed <- c(allowed, "MAYBE")
-          } else{ # it is allowed and we need to do the footprint check
+          if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
+            tidyparcel_sides <- tidyparcel_with_side_geom |>
+              filter(parcel_id == tidyparcel$parcel_id)
+            parcel_with_setbacks <- add_setbacks(tidyparcel_with_side_geom, zoning_req = zoning_req)
+            buildable_area <- get_buildable_area(parcel_with_setbacks)
 
-            if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
-              tidyparcel_sides <- tidyparcel_with_side_geom |>
-                filter(parcel_id == tidyparcel$parcel_id)
-              parcel_with_setbacks <- add_setbacks(tidyparcel_with_side_geom, zoning_req = zoning_req)
-              buildable_area <- get_buildable_area(parcel_with_setbacks)
+            if (length(buildable_area) > 1){
+              check_1 <- check_footprint(tidybuilding, buildable_area[[1]])
 
-              if (length(buildable_area) > 1){
-                check_1 <- check_footprint(tidybuilding, buildable_area[[1]])
-
-                if (check_1){
-                  check <- check_1
+              if (check_1){
+                check <- check_1
+              } else{
+                check_2 <- check_footprint(tidybuilding, buildable_area[[2]])
+                if (check_2){
+                  check <- "MAYBE"
                 } else{
-                  check_2 <- check_footprint(tidybuilding, buildable_area[[2]])
-                  if (check_2){
-                    check <- "MAYBE"
-                  } else{
-                    check <- FALSE
-                  }
+                  check <- FALSE
                 }
-
-              } else{
-                check <- check_footprint(tidybuilding, buildable_area[[1]])
               }
 
-              if (check == FALSE){
-                allowed <- c(allowed, FALSE)
-                reason[[i]] <- "check_footprint"
-              } else if (check == "MAYBE"){
-                allowed <- c(allowed, "MAYBE")
-                reason[[i]] <- "check_footprint"
-              } else{
-                allowed <- c(allowed, TRUE)
-                reason[[i]] <- "The building is allowed and fits in the parcel"
-              }
+            } else{
+              check <- check_footprint(tidybuilding, buildable_area[[1]])
+            }
+
+            if (check == FALSE){
+              allowed <- c(allowed, FALSE)
+              reason[[i]] <- "check_footprint"
+            } else if (check == "MAYBE"){
+              maybe_reasons <- c(maybe_reasons, "check_footprint")
+              reason[[i]] <- paste(maybe_reasons, collapse = ",")
+              allowed <- c(allowed, "MAYBE")
+            } else if (check == TRUE & length(maybe_reasons) > 0){
+              allowed <- c(allowed, "MAYBE")
+              reason[[i]] <- paste("Building fits, but uncertainties in",paste(maybe_reasons, collapse = ","))
+            } else{
+              allowed <- c(allowed, TRUE)
+              reason[[i]] <- "The building is allowed and fits in the parcel"
             }
           }
+
+
         }
 
 
