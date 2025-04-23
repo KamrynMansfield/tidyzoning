@@ -166,12 +166,12 @@ tz_all_checks <- function(tidybuilding,
 
     # Set up parallel computing
     cl <- makeCluster(num_cores)
-    clusterExport(cl, varlist = c("go_through_checks_function",
-                                  "perform_checks",
-                                  "tidyzoning",
+    clusterExport(cl, varlist = c("tidyzoning",
                                   "tidybuilding",
                                   "tidyparcel_with_side_geom",
-                                  "func_names"),
+                                  "func_names",
+                                  "go_through_checks_function",
+                                  "perform_checks"),
                   envir = environment(tz_all_checks)) # Export your processing function
 
     errors <- c()
