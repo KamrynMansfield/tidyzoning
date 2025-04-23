@@ -160,7 +160,7 @@ tz_initial_checks <- function(tidybuilding,
     cl <- makeCluster(num_cores)
     clusterExport(cl, varlist = c("tidyzoning",
                                   "tidybuilding",
-                                  "func_names",
+                                  # "func_names",
                                   "go_through_checks_function",
                                   "perform_checks"),
                   envir = environment(tz_initial_checks)) # Export your processing function
