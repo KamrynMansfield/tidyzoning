@@ -29,7 +29,6 @@ tz_initial_checks <- function(tidybuilding,
                               run_parallel = FALSE,
                               detailed_check = FALSE){
   start_time <- proc.time()
-  func_names <- func_names
 
   perform_checks <- function(tidybuilding, tidyzoning, tidyparcel_with_dimensions, func_names){
 
@@ -160,10 +159,10 @@ tz_initial_checks <- function(tidybuilding,
     cl <- makeCluster(num_cores)
     clusterExport(cl, varlist = c("tidyzoning",
                                   "tidybuilding",
-                                  # "func_names",
+                                  "func_names",
                                   "go_through_checks_function",
                                   "perform_checks"),
-                  envir = environment(tz_initial_checks)) # Export your processing function
+                  envir = environment(tz_initial_checks))
 
     errors <- c()
     # Execute the processing function in parallel
