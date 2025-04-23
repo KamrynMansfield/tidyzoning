@@ -77,7 +77,7 @@ tz_all_checks <- function(tidybuilding,
           if (5 > 3){ #check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
             tidyparcel_sides <- tidyparcel_with_side_geom |>
               filter(parcel_id == tidyparcel$parcel_id)
-            parcel_with_setbacks <- add_setbacks(tidyparcel_with_side_geom, zoning_req = zoning_req)
+            parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
             buildable_area <- get_buildable_area(parcel_with_setbacks)
 
             if (length(buildable_area) > 1){
