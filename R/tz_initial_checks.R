@@ -29,6 +29,7 @@ tz_initial_checks <- function(tidybuilding,
                               run_parallel = FALSE,
                               detailed_check = FALSE){
   start_time <- proc.time()
+  func_names <- func_names
 
   perform_checks <- function(tidybuilding, tidyzoning, tidyparcel_with_dimensions, func_names){
 

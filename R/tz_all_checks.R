@@ -29,6 +29,7 @@ tz_all_checks <- function(tidybuilding,
                                          "check_unit_qty"),
                           run_parallel = FALSE){
   start_time <- proc.time()
+  func_names <- func_names
 
   perform_checks <- function(tidybuilding, tidyzoning, tidyparcel_with_dimensions, tidyparcel_with_side_geom, func_names){
 
