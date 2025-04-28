@@ -6,7 +6,7 @@
 \usage{
 add_setbacks(
   tidyparcel,
-  tidydistrict = NULL,
+  tidydistrict,
   tidybuilding,
   tidyparcel_with_dims = NULL,
   zoning_req = NULL
