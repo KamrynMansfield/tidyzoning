@@ -131,6 +131,7 @@ ozfs_validate <- function(...){
                       "parking_covered",
                       "parking_uncovered",
                       "parking_on_street",
+                      "parking_avg",
                       "open_space",
                       "swr_connect",
                       "wtr_connect",
