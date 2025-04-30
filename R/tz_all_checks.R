@@ -157,7 +157,7 @@ tz_all_checks <- function(tidybuilding,
   }
 
   # run the check footprint function last
-  if (run_check_footprint & nrow(tidyparcel_df) > 0){
+  if (run_check_footprint & nrow(tidyparcel_df) > 0 & !is.null(tidyparcel_geo)){
     foot_start_time <- proc.time()[[3]]
     for (z in 1:nrow(tidyparcel_df)){
       tidyparcel <- tidyparcel_df[z,]
