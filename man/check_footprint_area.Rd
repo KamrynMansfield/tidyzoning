@@ -4,12 +4,12 @@
 \alias{check_footprint_area}
 \title{Check Footprint Area}
 \usage{
-check_footprint_area(tidybuilding, tidyparcel_with_dims)
+check_footprint_area(tidybuilding, tidyparcel_dims)
 }
 \arguments{
 \item{tidybuilding}{A list of data frames describing a building}
 
-\item{tidyparcel_with_dims}{A data frame with the dimmensions of each parcel}
+\item{tidyparcel_dims}{A data frame with the dimmensions of each parcel}
 }
 \value{
 The tidyparcel data frame with an added column stating whether the area of the building is smaller than the area of the parcel

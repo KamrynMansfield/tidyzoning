@@ -4,14 +4,12 @@
 \alias{get_zoning_req}
 \title{Get district zoning requirements}
 \usage{
-get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
 }
 \arguments{
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
-
-\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
 }
 \value{
 Returns a data frame with the value each zoning requirement for that specific building, parcel, and zoning district.

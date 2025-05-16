@@ -7,7 +7,7 @@
 check_floors(
   tidybuilding,
   tidydistrict = NULL,
-  tidyparcel = NULL,
+  tidyparcel_dims = NULL,
   zoning_req = NULL
 )
 }
@@ -15,8 +15,6 @@ check_floors(
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
-
-\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
 }
 \value{
 Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on total floors.

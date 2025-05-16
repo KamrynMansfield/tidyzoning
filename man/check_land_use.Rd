@@ -4,19 +4,12 @@
 \alias{check_land_use}
 \title{Compare building land use and allowed land uses}
 \usage{
-check_land_use(
-  tidybuilding,
-  tidydistrict,
-  tidyparcel = NULL,
-  zoning_req = NULL
-)
+check_land_use(tidybuilding, tidydistrict)
 }
 \arguments{
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
-
-\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
 }
 \value{
 Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on land use.

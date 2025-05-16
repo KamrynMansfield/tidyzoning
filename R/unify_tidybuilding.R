@@ -7,8 +7,7 @@
 #' @export
 #'
 #' @examples
-#' building_json <- '{"bldg_info":{"height": 45,"width": 35,"depth": 40,"roof_type":"flat"},"unit_info":[{"fl_area": 1563,"bedrooms": 3,"qty": 2}],"level_info":[{"level": 1,"gross_fl_area": 1067},{"level": 2,"gross_fl_area": 1067},{"level": 3,"gross_fl_area": 1066}]}'
-#' unify_tidybuilding(building_json)
+#'
 unify_tidybuilding <- function(file_path = NULL, string = NULL){
 
   if (!is.null(string)){

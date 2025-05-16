@@ -4,16 +4,21 @@
 \alias{check_far}
 \title{Compare building floor area ratio to zoning requirements}
 \usage{
-check_far(tidybuilding, tidydistrict = NULL, tidyparcel, zoning_req = NULL)
+check_far(
+  tidybuilding,
+  tidydistrict = NULL,
+  tidyparcel_dims,
+  zoning_req = NULL
+)
 }
 \arguments{
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
 
-\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
-
 \item{zoning_req}{The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.}
+
+\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
 }
 \value{
 Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on floor area ratio.
