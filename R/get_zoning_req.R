@@ -11,7 +11,7 @@
 #' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
 #' @export
 #'
-get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel){
+get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
 
   if (is.na(tidydistrict$lot_constraints)){
     lot_cons <- "[]"
@@ -60,10 +60,10 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel){
   bldg_type <- tidybuilding$bldg_info$type
 
   # establish the parcel variables that might be used in the equations
-  lot_width <- tidyparcel$lot_width[[1]] # this should be in ft
-  lot_depth <- tidyparcel$lot_depth[[1]] # this should be in ft
-  lot_area <- tidyparcel$lot_area[[1]] # this should be in acres
-  lot_type <- ifelse(tidyparcel$Parcel_label[[1]] == "regular corner parcel", "corner","regular")
+  lot_width <- tidyparcel_dims$lot_width[[1]] # this should be in ft
+  lot_depth <- tidyparcel_dims$lot_depth[[1]] # this should be in ft
+  lot_area <- tidyparcel_dims$lot_area[[1]] # this should be in acres
+  lot_type <- ifelse(tidyparcel_dims$Parcel_label[[1]] == "regular corner parcel", "corner","regular")
 
   # establish the building variables that might be used in the equations
   bed_list <- c(units_0bed = 0,
@@ -523,7 +523,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel){
       min_val_notes[[i]] <- constraint_min_note
       max_val_notes[[i]] <- constraint_max_note
 
-      if (is.na(constraint_min_val[[1]]) & is.na(constraint_max_val[[1]]) & !is.na(constraint_info$unit) & is.null(tidyparcel)){
+      if (is.na(constraint_min_val[[1]]) & is.na(constraint_max_val[[1]]) & !is.na(constraint_info$unit) & is.null(tidyparcel_dims)){
         warnings <- warnings + 1
       }
 

@@ -9,7 +9,7 @@
 #' Note: If there is no recorded land use requirement in zoning code, it returns FALSE
 #' @export
 #'
-check_land_use <- function(tidybuilding, tidydistrict, tidyparcel = NULL, zoning_req = NULL){
+check_land_use <- function(tidybuilding, tidydistrict){
   dist_info_list <- fromJSON(tidydistrict$dist_info)
 
   bldg_type <- tidybuilding$bldg_info$type

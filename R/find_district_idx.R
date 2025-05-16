@@ -11,23 +11,8 @@
 #' Returns NA if there is no district found.
 #' @export
 #'
-find_district_idx <- function(tidyparcel, tidyzoning){
+find_district_idx <- function(tidyparcel_geo, tidyzoning){
 
+# create a function that will get the index of the district the parcel is in
 
-  # Try using spatial join instead of contains. Houpu says it will be faster
-
-
-
-
-  # lists TRUE/FALSE to indicate which tidyzoning geometries cover the parcel centroid
-  contains <- st_contains(st_make_valid(tidyzoning), tail(tidyparcel,1), sparse = F)
-  # gives the index of the district that covers the centroid
-  idx <- as.numeric(row.names(tidyzoning[contains, ]))
-
-  # returns NA if there isn't a unique district covering the parcel centroid
-  if (length(idx) == 1){
-    print(idx)
-  } else {
-    print(NA)
-  }
 }

@@ -1,7 +1,22 @@
-check_unit_qty <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, zoning_req = NULL){
+#' Do total building units meet zoning requirements
+#'
+#' `check_unit_qty` compares the total units in a tidybuilding object
+#'  to the allowable number of units according to the tidyzoning data
+#'  and returns TRUE, FALSE, or MAYBE
+#'
+#' @param tidybuilding
+#' @param tidydistrict
+#' @param tidyparcel_dims
+#' @param zoning_req
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+check_unit_qty <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NULL, zoning_req = NULL){
   # if zoning_req is not given, we need to run the get_zoning_req function
   if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.

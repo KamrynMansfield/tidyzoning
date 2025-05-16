@@ -8,14 +8,14 @@
 #' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on the unit sizes.
 #' @export
 #'
-check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel, zoning_req = NULL){
+check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, zoning_req = NULL){
   # get the tidydistrict into a list format
   structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
   safe_parse <- purrr::possibly(parse, otherwise = NA)
 
   if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
   if (class(zoning_req) == "character"){
@@ -107,10 +107,10 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel, zoning_req =
   bldg_type <- tidybuilding$bldg_info$type
 
   # establish the parcel variables that might be used in the equations
-  lot_width <- tidyparcel$lot_width[[1]] # this should be in ft
-  lot_depth <- tidyparcel$lot_depth[[1]] # this should be in ft
-  lot_area <- tidyparcel$lot_area[[1]] # this should be in acres
-  lot_type <- ifelse(tidyparcel$Parcel_label[[1]] == "regular corner parcel", "corner","regular")
+  lot_width <- tidyparcel_dims$lot_width[[1]] # this should be in ft
+  lot_depth <- tidyparcel_dims$lot_depth[[1]] # this should be in ft
+  lot_area <- tidyparcel_dims$lot_area[[1]] # this should be in acres
+  lot_type <- ifelse(tidyparcel_dims$Parcel_label[[1]] == "regular corner parcel", "corner","regular")
 
   added_tot_bed <- tidybuilding$unit_info |> mutate(tot_bed = bedrooms * qty)
   total_bedrooms <- sum(added_tot_bed$tot_bed)

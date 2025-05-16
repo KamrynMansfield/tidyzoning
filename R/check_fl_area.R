@@ -8,10 +8,10 @@
 #' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on floor area.
 #' @export
 #'
-check_fl_area <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, zoning_req = NULL){
+check_fl_area <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NULL, zoning_req = NULL){
   # if zoning_req is not given, we need to run the get_zoning_req function
   if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.

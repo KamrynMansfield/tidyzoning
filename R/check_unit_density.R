@@ -8,10 +8,10 @@
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on unit density.
 #' @export
 #'
-check_unit_density <- function(tidybuilding, tidydistrict = NULL, tidyparcel, zoning_req = NULL){
+check_unit_density <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims, zoning_req = NULL){
   # if zoning_req is not given, we need to run the get_zoning_req function
   if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
@@ -34,7 +34,7 @@ check_unit_density <- function(tidybuilding, tidydistrict = NULL, tidyparcel, zo
 
   ######## need to double check to make sure I'm calling the lot_area correctly
   ########
-  value <- units / tidyparcel$lot_area
+  value <- units / tidyparcel_dims$lot_area
 
   # assume min and max values if they are not recorded
   # if specific constraint we are looking for is not in zoning requirements, we assume any value is allowed

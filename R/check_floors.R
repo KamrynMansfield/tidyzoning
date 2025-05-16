@@ -8,9 +8,9 @@
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on total floors.
 #' @export
 #'
-check_floors <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, zoning_req = NULL){
+check_floors <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NULL, zoning_req = NULL){
   if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
   if (class(zoning_req) == "character"){

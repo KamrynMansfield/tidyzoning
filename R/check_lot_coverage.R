@@ -8,10 +8,10 @@
 #' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on lot coverage.
 #' @export
 #'
-check_lot_coverage <- function(tidybuilding, tidydistrict = NULL, tidyparcel, zoning_req = NULL){
+check_lot_coverage <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims, zoning_req = NULL){
   # if zoning_req is not given, we need to run the get_zoning_req function
   if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
@@ -33,7 +33,7 @@ check_lot_coverage <- function(tidybuilding, tidydistrict = NULL, tidyparcel, zo
     warning("Not enough building info to calculate building footprint")
   }
 
-  value <- (footprint / (tidyparcel$lot_area * 43560)) * 100
+  value <- (footprint / (tidyparcel_dims$lot_area * 43560)) * 100
 
   # assume min and max values if they are not recorded
   # if specific constraint we are looking for is not in zoning requirements, we assume any value is allowed

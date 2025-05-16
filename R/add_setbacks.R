@@ -11,13 +11,13 @@
 #' @export
 #'
 
-add_setbacks <- function(tidyparcel, tidydistrict, tidybuilding, tidyparcel_with_dims = NULL, zoning_req = NULL){
-  tidyparcel <- tidyparcel[tidyparcel$side != "centroid",]
+add_setbacks <- function(tidyparcel_geo, tidydistrict, tidybuilding, tidyparcel_dims = NULL, zoning_req = NULL){
+  tidyparcel <- tidyparcel_geo[tidyparcel_geo$side != "centroid",]
   tidyparcel <- tidyparcel[!is.na(tidyparcel$side),]
 
   # if zoning_req is not given, we need to run the get_zoning_req function
   if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_with_dims)
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
   if (class(zoning_req) == "character"){

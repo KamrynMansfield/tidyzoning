@@ -4,16 +4,16 @@
 #'
 #' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
 #' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
-#' @param tidyparcel A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
+#' @param tidyparcel_dims A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
 #' @param zoning_req The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.
 #'
 #' @return
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on building height.
 #' @export
 #'
-check_height <- function(tidybuilding, tidydistrict = NULL, tidyparcel = NULL, zoning_req = NULL){
+check_height <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NULL, zoning_req = NULL){
   if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
   if (class(zoning_req) == "character"){

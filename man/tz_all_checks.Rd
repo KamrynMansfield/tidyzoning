@@ -7,12 +7,20 @@
 tz_all_checks(
   tidybuilding,
   tidyzoning,
-  tidyparcel_with_dimensions,
-  tidyparcel_with_side_geom,
-  func_names = c("check_land_use", "check_height", "check_height_eave", "check_floors",
-    "check_unit_size", "check_far", "check_unit_density", "check_lot_coverage",
-    "check_fl_area", "check_unit_qty"),
-  run_parallel = FALSE
+  tidyparcel_dims,
+  tidyparcel_geo = NULL,
+  detailed_check = FALSE,
+  run_check_land_use = TRUE,
+  run_check_height = TRUE,
+  run_check_height_eave = TRUE,
+  run_check_floors = TRUE,
+  run_check_unit_size = TRUE,
+  run_check_far = TRUE,
+  run_check_unit_density = TRUE,
+  run_check_lot_coverage = TRUE,
+  run_check_fl_area = TRUE,
+  run_check_unit_qty = TRUE,
+  run_check_footprint = FALSE
 )
 }
 \arguments{
