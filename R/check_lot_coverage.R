@@ -2,7 +2,7 @@
 #'
 #' `check_lot_coverage()` takes a tidybuilding, tidydistrict, and tidyparcel to see if the district's zoning code allows the tidybuilding based on lot coverage.
 #'
-#' @inheritParams check_height
+#' @inheritParams check_far
 #'
 #' @return
 #' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on lot coverage.

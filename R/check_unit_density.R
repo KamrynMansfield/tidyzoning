@@ -2,7 +2,7 @@
 #'
 #' `check_unit_density()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit density.
 #'
-#' @inheritParams check_height
+#' @inheritParams check_far
 #'
 #' @return
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on unit density.

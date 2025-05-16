@@ -4,10 +4,7 @@
 #'  to the allowable number of units according to the tidyzoning data
 #'  and returns TRUE, FALSE, or MAYBE
 #'
-#' @param tidybuilding
-#' @param tidydistrict
-#' @param tidyparcel_dims
-#' @param zoning_req
+#' @inheritParams check_height
 #'
 #' @returns
 #' @export

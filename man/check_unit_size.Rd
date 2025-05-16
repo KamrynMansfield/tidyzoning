@@ -10,6 +10,8 @@ check_unit_size(tidybuilding, tidydistrict, tidyparcel_dims, zoning_req = NULL)
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
+
+\item{zoning_req}{The data frame result from the `get_zoning_req()` function.}
 }
 \value{
 Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on the unit sizes.

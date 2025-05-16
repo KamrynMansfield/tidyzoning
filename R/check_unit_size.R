@@ -2,7 +2,8 @@
 #'
 #' `check_unit_size()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit sizes.
 #'
-#' @inheritParams add_setbacks
+#' @inheritParams check_far
+#' @param zoning_req The data frame result from the `get_zoning_req()` function.
 #'
 #' @return
 #' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on the unit sizes.

@@ -2,7 +2,7 @@
 #'
 #' `check_floors()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on number of floors.
 #'
-#' @inheritParams add_setbacks
+#' @inheritParams check_height
 #'
 #' @return
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on total floors.
