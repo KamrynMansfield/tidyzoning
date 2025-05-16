@@ -13,11 +13,10 @@
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_height.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_height_eave.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_land_use.html</loc></url>
-<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_land_use_exceptions.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_lot_coverage.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_unit_density.html</loc></url>
+<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_unit_qty.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_unit_size.html</loc></url>
-<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/find_bldg_type.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/find_district_idx.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/get_buildable_area.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/get_zoning_req.html</loc></url>
@@ -31,5 +30,6 @@
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/tidybuilding_4fam_wide.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/tz_all_checks.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/tz_initial_checks.html</loc></url>
+<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/unify_tidybuilding.html</loc></url>
 </urlset>
 
