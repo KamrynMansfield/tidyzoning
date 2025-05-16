@@ -40,12 +40,20 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">tz_all_checks</span><span class="op">(</span></span>
 <span>  <span class="va">tidybuilding</span>,</span>
 <span>  <span class="va">tidyzoning</span>,</span>
-<span>  <span class="va">tidyparcel_with_dimensions</span>,</span>
-<span>  <span class="va">tidyparcel_with_side_geom</span>,</span>
-<span>  func_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"check_land_use"</span>, <span class="st">"check_height"</span>, <span class="st">"check_height_eave"</span>, <span class="st">"check_floors"</span>,</span>
-<span>    <span class="st">"check_unit_size"</span>, <span class="st">"check_far"</span>, <span class="st">"check_unit_density"</span>, <span class="st">"check_lot_coverage"</span>,</span>
-<span>    <span class="st">"check_fl_area"</span>, <span class="st">"check_unit_qty"</span><span class="op">)</span>,</span>
-<span>  run_parallel <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="va">tidyparcel_dims</span>,</span>
+<span>  tidyparcel_geo <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  detailed_check <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  run_check_land_use <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_height <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_height_eave <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_floors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_unit_size <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_far <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_unit_density <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_lot_coverage <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_fl_area <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_unit_qty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_footprint <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
