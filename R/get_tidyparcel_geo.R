@@ -21,9 +21,9 @@ get_tidyparcel_geo <- function(parcels_data){
 
   # filter to just have the side geometry if they are labeled
   parcels_geo <- parcels_sf |>
-    filter(side != "centroid") |>
-    filter(side != "unknown") |>
-    select(parcel_id, side)
+    dplyr::filter(side != "centroid") |>
+    dplyr::filter(side != "unknown") |>
+    dplyr::select(parcel_id, side)
 
   return(parcels_geo)
 }

@@ -20,12 +20,12 @@ rotate_shape <- function(shape, angle_degrees, center = NULL) {
 
   # If no center is provided, use the centroid
   if (is.null(center)) {
-    center <- st_centroid(shape)
-    center <- st_coordinates(center)[1, ]
+    center <- sf::st_centroid(shape)
+    center <- sf::st_coordinates(center)[1, ]
   }
 
   coords <- shape |>
-    st_coordinates()
+    sf::st_coordinates()
 
   coords <- coords[1:nrow(coords),1:2]
 
@@ -33,7 +33,7 @@ rotate_shape <- function(shape, angle_degrees, center = NULL) {
     sweep(2,as.vector(center),"+")
 
   # Convert back to the same geometry type
-  new_geom <- st_set_crs(st_sfc(st_polygon(list(new_coords))), st_crs(shape))
+  new_geom <- sf::st_set_crs(sf::st_sfc(sf::st_polygon(list(new_coords))), sf::st_crs(shape))
 
   return(new_geom)
 }

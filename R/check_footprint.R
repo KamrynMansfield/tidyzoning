@@ -23,10 +23,10 @@ check_footprint <- function(tidybuilding, buildable_area){
   for (j in 1:length(rot_degrees)){
 
 
-    buildable_area_vect <- vect(buildable_area)
+    buildable_area_vect <- terra::vect(buildable_area)
 
-    raster_template <- rast(buildable_area_vect, resolution = 1, crs = crs(buildable_area_vect))
-    build_area_raster <- rasterize(buildable_area_vect,
+    raster_template <- terra::rast(buildable_area_vect, resolution = 1, crs = crs(buildable_area_vect))
+    build_area_raster <- terra::rasterize(buildable_area_vect,
                                    raster_template,
                                    field = 1,
                                    touches = TRUE)

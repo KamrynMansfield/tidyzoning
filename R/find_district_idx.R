@@ -4,7 +4,7 @@
 #' `find_district_idx()` takes in a tidyzoning object and a tidyparcel object.
 #' Returns the row number of the district to which the parcel belongs.
 #'
-#' @inheritParams add_setbacks
+#' @param tidyparcel_geo A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
 #' @param tidyzoning The tidyzoning object is a simple features object with a row for each zoning district and columns holding the geojson formatted zoning requirements of each district.
 #'
 #' @return The row number of the tidyzoning object that contains the disrict to which the parcel belongs.

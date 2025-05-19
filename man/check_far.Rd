@@ -16,9 +16,9 @@ check_far(
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
 
-\item{zoning_req}{The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.}
+\item{tidyparcel_dims}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
 
-\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
+\item{zoning_req}{The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.}
 }
 \value{
 Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on floor area ratio.

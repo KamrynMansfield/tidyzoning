@@ -13,11 +13,15 @@ add_setbacks(
 )
 }
 \arguments{
+\item{tidyparcel_geo}{A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
+
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
 
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
-\item{tidyparcel}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
+\item{tidyparcel_dims}{The simple features object with each parcel centroid and the parcel dimensions}
+
+\item{zoning_req}{The results of the get_zoning_req funcion. If provided, tidyparcel_dims need not be provided.}
 }
 \value{
 Returns the tidyparcel object with a "setbacks" and "units" column added to the end.

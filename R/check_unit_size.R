@@ -149,8 +149,8 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, zoning_
 
   # getting a df with just the min and max of each unit type
   unit_info_df <- tidybuilding$unit_info |>
-    group_by(bedrooms) |>
-    summarise(min = min(fl_area),
+    dplyr::group_by(bedrooms) |>
+    dplyr::summarise(min = min(fl_area),
               max = max(fl_area))
 
   # for those values that don't have requirements in ozfs

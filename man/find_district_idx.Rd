@@ -7,6 +7,8 @@
 find_district_idx(tidyparcel_geo, tidyzoning)
 }
 \arguments{
+\item{tidyparcel_geo}{A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
+
 \item{tidyzoning}{The tidyzoning object is a simple features object with a row for each zoning district and columns holding the geojson formatted zoning requirements of each district.}
 }
 \value{

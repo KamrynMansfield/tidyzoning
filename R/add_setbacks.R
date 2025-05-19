@@ -3,9 +3,11 @@
 #' `add_setbacks()` returns the tidyparcel object with new columns describing the setback and units of each side.
 #'
 #'
-#' @param tidyparcel A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
+#' @param tidyparcel_geo A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
 #' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
 #' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
+#' @param tidyparcel_dims The simple features object with each parcel centroid and the parcel dimensions
+#' @param zoning_req The results of the get_zoning_req funcion. If provided, tidyparcel_dims need not be provided.
 #'
 #' @return Returns the tidyparcel object with a "setbacks" and "units" column added to the end.
 #' @export
@@ -27,8 +29,8 @@ add_setbacks <- function(tidyparcel_geo, tidydistrict, tidybuilding, tidyparcel_
   }
 
   name_key <- c(front = "setback_front",
-                `Interior side` = "setback_side_int",
-                `Exterior side` = "setback_side_ext",
+                `interior side` = "setback_side_int",
+                `exterior side` = "setback_side_ext",
                 rear = "setback_rear")
 
   # loop through each side
@@ -37,7 +39,7 @@ add_setbacks <- function(tidyparcel_geo, tidydistrict, tidybuilding, tidyparcel_
   for (i in 1:nrow(tidyparcel)){
     side_type <- tidyparcel[[i,"side"]]
     filtered_constraints <- zoning_req |>
-      filter(constraint_name == name_key[[side_type]])
+      dplyr::filter(constraint_name == name_key[[side_type]])
 
     if (nrow(filtered_constraints) > 0){
       setback_value[i] <- filtered_constraints[1,"min_value"]
@@ -83,9 +85,9 @@ add_setbacks <- function(tidyparcel_geo, tidydistrict, tidybuilding, tidyparcel_
     # Give it a 5 meter buffer
     # Mark the sides that are completely inside the buffer
     district_lines <- tidydistrict |>
-      st_cast("MULTILINESTRING")
-    buffered_district <- st_buffer(district_lines, 5)
-    close_sides_idx <- st_covered_by(tidyparcel, buffered_district)
+      sf::st_cast("MULTILINESTRING")
+    buffered_district <- sf::st_buffer(district_lines, 5)
+    close_sides_idx <- sf::st_covered_by(tidyparcel, buffered_district)
     border_sides_logical <- lengths(close_sides_idx) > 0
 
     # Adding the column to

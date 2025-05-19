@@ -12,7 +12,7 @@ unify_tidybuilding <- function(file_path = NULL, string = NULL){
 
   if (!is.null(string)){
     listed_json <- tryCatch({
-      fromJSON(string)
+      rjson::fromJSON(string)
     }, error = function(e) {
       stop("The string must be a json")
     })
@@ -23,7 +23,7 @@ unify_tidybuilding <- function(file_path = NULL, string = NULL){
     ext <- split_name[[length(split_name)]]
 
     if (ext == "json" | ext == "JSON"){
-      listed_json <- fromJSON(file = file_path)
+      listed_json <- rjson::fromJSON(file = file_path)
     } else{
       stop("The file must be a json")
     }

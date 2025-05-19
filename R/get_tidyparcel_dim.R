@@ -21,7 +21,7 @@ get_tidyparcel_dim <- function(parcels_data){
 
   # filter to just the centroids so we only have dimensions and one parcel per row
   parcels_dim <- parcels_sf |>
-    filter(side == "centroid")
+    dplyr::filter(side == "centroid")
 
   return(parcels_dim)
 }

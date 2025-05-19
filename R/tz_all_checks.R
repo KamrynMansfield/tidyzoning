@@ -4,10 +4,21 @@
 #'
 #' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
 #' @param tidyzoning A tidyzoning simple features object representing the zoning districts and regulations for an area.
-#' @param tidyparcel_with_dimensions A data frame with each tidyparcel and its information. The zoning_id column in the tidyparcel_with_dimensions must correspond to the row numbers of the tidyzoning object.
-#' @param tidyparcel_with_side_geom A data frame with each parcel side and its geometry
-#' @param func_names A character list of the check functions you want to run.
-#' @param run_parallel Logical. When `TRUE` the code runs on multiple cores (one less than your machine has available). Will save time if processing over 50,000 parcels. Default is `FALSE`
+#' @param tidyparcel_dims A data frame with each tidyparcel and its information. The zoning_id column in the tidyparcel_with_dimensions must correspond to the row numbers of the tidyzoning object.
+#' @param tidyparcel_geo A data frame with each parcel side and its geometry
+#' @param detailed_check When TRUE, every parcel passes through each check no matter the result, and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE
+#' @param run_check_land_use Should the analysis run the check_land_use function
+#' @param run_check_height Should the analysis run the check_height function
+#' @param run_check_height_eave Should the analysis run the check_height_eave function
+#' @param run_check_floors Should the analysis run the check_floors function
+#' @param run_check_unit_size Should the analysis run the check_unit_size function
+#' @param run_check_far Should the analysis run the check_far function
+#' @param run_check_unit_density Should the analysis run the check_unit_density function
+#' @param run_check_lot_coverage Should the analysis run the check_lot_coverage function
+#' @param run_check_fl_area Should the analysis run the check_fl_area function
+#' @param run_check_unit_qty Should the analysis run the check_unit_qty function
+#' @param run_check_footprint Should the analysis run the check_footprint function
+#'
 #'
 #' @returns A data frame with initial check function results.
 #' @export
@@ -37,7 +48,7 @@ tz_all_checks <- function(tidybuilding,
   }
 
   tidyparcel_df <- tidyparcel_dims |>
-    mutate(false_reasons = as.character(NA),
+    dplyr::mutate(false_reasons = as.character(NA),
            maybe_reasons = as.character(NA))
 
 
@@ -55,19 +66,19 @@ tz_all_checks <- function(tidybuilding,
 
     # add a column stating the land_use_check results
     tidyparcel_df <- tidyparcel_df |>
-      mutate(check_land_use = ifelse(zoning_id %in% which(lu_check == TRUE), TRUE, FALSE))
+      dplyr::mutate(check_land_use = ifelse(zoning_id %in% which(lu_check == TRUE), TRUE, FALSE))
 
     if (detailed_check == FALSE){
       # filter the tidyparcels that aren't in those districts and give them a reason
       tidyparcel_false <- tidyparcel_df |>
-        filter(!zoning_id %in% which(lu_check == TRUE))
+        dplyr::filter(!zoning_id %in% which(lu_check == TRUE))
       tidyparcel_false$false_reasons <- "check_land_use"
 
       false_df[[false_df_idx]] <- tidyparcel_false
       false_df_idx <- false_df_idx + 1
 
       tidyparcel_df <- tidyparcel_df |>
-        filter(zoning_id %in% which(lu_check == TRUE))
+        dplyr::filter(zoning_id %in% which(lu_check == TRUE))
     }
 
     time_lapsed <- proc.time()[[3]] - lu_start_time
@@ -165,7 +176,7 @@ tz_all_checks <- function(tidybuilding,
       zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
       if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
         tidyparcel_sides <- tidyparcel_geo |>
-          filter(parcel_id == tidyparcel$parcel_id)
+          dplyr::filter(parcel_id == tidyparcel$parcel_id)
         parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
         buildable_area <- get_buildable_area(parcel_with_setbacks)
 
@@ -209,19 +220,19 @@ tz_all_checks <- function(tidybuilding,
   }
 
 
-  final_df <- bind_rows(false_df, tidyparcel_df)
+  final_df <- dplyr::bind_rows(false_df, tidyparcel_df)
   final_df$has_false <- rowSums(final_df == FALSE, na.rm = T)
   final_df$has_maybe <- rowSums(final_df == "MAYBE", na.rm = T)
   final_df <- final_df |>
-    mutate(allowed = ifelse(has_false > 0, FALSE, ifelse(has_maybe > 0, "MAYBE",TRUE)),
+    dplyr::mutate(allowed = ifelse(has_false > 0, FALSE, ifelse(has_maybe > 0, "MAYBE",TRUE)),
            reason = ifelse(!is.na(maybe_reasons) | !is.na(false_reasons),
                            paste("FALSE encountered:", false_reasons, "- MAYBE encountered:", maybe_reasons),
                            "The building is allowed in the parcel")) |>
-    select(!c("has_false","has_maybe"))
+    dplyr::select(!c("has_false","has_maybe"))
 
   if (detailed_check == FALSE){
     final_df <- final_df |>
-      select(!any_of(c("check_land_use",
+      dplyr::select(!any_of(c("check_land_use",
                        "check_height",
                        "check_height_eave",
                        "check_floors",
@@ -236,7 +247,7 @@ tz_all_checks <- function(tidybuilding,
                        "false_reasons")))
   } else{
     final_df <- final_df |>
-      select(!any_of(c("maybe_reasons",
+      dplyr::select(!any_of(c("maybe_reasons",
                        "false_reasons")))
   }
 

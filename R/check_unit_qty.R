@@ -41,8 +41,8 @@ check_unit_qty <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = 
     units <- sum(tidybuilding$unit_info$qty)
 
     bedrooms_df <- tidybuilding$unit_info |>
-      group_by(bedrooms) |>
-      summarise(qty = sum(qty))
+      dplyr::group_by(bedrooms) |>
+      dplyr::summarise(qty = sum(qty))
 
     units_0bed <- bedrooms_df[bedrooms_df$bedrooms == 0,"qty"][[1]]
     units_1bed <- bedrooms_df[bedrooms_df$bedrooms == 1,"qty"][[1]]

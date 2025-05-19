@@ -28,13 +28,33 @@ tz_all_checks(
 
 \item{tidyzoning}{A tidyzoning simple features object representing the zoning districts and regulations for an area.}
 
-\item{tidyparcel_with_dimensions}{A data frame with each tidyparcel and its information. The zoning_id column in the tidyparcel_with_dimensions must correspond to the row numbers of the tidyzoning object.}
+\item{tidyparcel_dims}{A data frame with each tidyparcel and its information. The zoning_id column in the tidyparcel_with_dimensions must correspond to the row numbers of the tidyzoning object.}
 
-\item{tidyparcel_with_side_geom}{A data frame with each parcel side and its geometry}
+\item{tidyparcel_geo}{A data frame with each parcel side and its geometry}
 
-\item{func_names}{A character list of the check functions you want to run.}
+\item{detailed_check}{When TRUE, every parcel passes through each check no matter the result, and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE}
 
-\item{run_parallel}{Logical. When `TRUE` the code runs on multiple cores (one less than your machine has available). Will save time if processing over 50,000 parcels. Default is `FALSE`}
+\item{run_check_land_use}{Should the analysis run the check_land_use function}
+
+\item{run_check_height}{Should the analysis run the check_height function}
+
+\item{run_check_height_eave}{Should the analysis run the check_height_eave function}
+
+\item{run_check_floors}{Should the analysis run the check_floors function}
+
+\item{run_check_unit_size}{Should the analysis run the check_unit_size function}
+
+\item{run_check_far}{Should the analysis run the check_far function}
+
+\item{run_check_unit_density}{Should the analysis run the check_unit_density function}
+
+\item{run_check_lot_coverage}{Should the analysis run the check_lot_coverage function}
+
+\item{run_check_fl_area}{Should the analysis run the check_fl_area function}
+
+\item{run_check_unit_qty}{Should the analysis run the check_unit_qty function}
+
+\item{run_check_footprint}{Should the analysis run the check_footprint function}
 }
 \value{
 A data frame with initial check function results.

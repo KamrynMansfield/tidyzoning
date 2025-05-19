@@ -10,7 +10,7 @@
 #' @export
 #'
 check_land_use <- function(tidybuilding, tidydistrict){
-  dist_info_list <- fromJSON(tidydistrict$dist_info)
+  dist_info_list <- rjson::fromJSON(tidydistrict$dist_info)
 
   bldg_type <- tidybuilding$bldg_info$type
 

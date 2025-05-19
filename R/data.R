@@ -14,7 +14,7 @@
 #'   \item{geometry}{Building footprint geometry}
 #'
 #' }
-"tidybuilding_4fam_wide"
+# "tidybuilding_4fam_wide"
 
 #' A 4-family residence as a tidyzoning object
 #'
@@ -32,4 +32,4 @@
 #'   \item{geometry}{Building footprint geometry}
 #'
 #' }
-"tidybuilding_4fam_thin"
+# "tidybuilding_4fam_thin"
