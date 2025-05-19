@@ -19,6 +19,7 @@
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_unit_size.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/find_district_idx.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/get_buildable_area.html</loc></url>
+<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/get_raw_zoning_req.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/get_tidyparcel_dim.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/get_tidyparcel_geo.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/get_zoning_req.html</loc></url>
@@ -28,10 +29,7 @@
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/ozfs_validate.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/rotate_shape.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/show_shapes.html</loc></url>
-<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/tidybuilding_4fam_thin.html</loc></url>
-<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/tidybuilding_4fam_wide.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/tz_all_checks.html</loc></url>
-<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/tz_initial_checks.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/unify_tidybuilding.html</loc></url>
 </urlset>
 

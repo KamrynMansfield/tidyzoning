@@ -69,20 +69,60 @@
 <dd><p>A tidyzoning simple features object representing the zoning districts and regulations for an area.</p></dd>
 
 
-<dt id="arg-tidyparcel-with-dimensions">tidyparcel_with_dimensions<a class="anchor" aria-label="anchor" href="#arg-tidyparcel-with-dimensions"></a></dt>
+<dt id="arg-tidyparcel-dims">tidyparcel_dims<a class="anchor" aria-label="anchor" href="#arg-tidyparcel-dims"></a></dt>
 <dd><p>A data frame with each tidyparcel and its information. The zoning_id column in the tidyparcel_with_dimensions must correspond to the row numbers of the tidyzoning object.</p></dd>
 
 
-<dt id="arg-tidyparcel-with-side-geom">tidyparcel_with_side_geom<a class="anchor" aria-label="anchor" href="#arg-tidyparcel-with-side-geom"></a></dt>
+<dt id="arg-tidyparcel-geo">tidyparcel_geo<a class="anchor" aria-label="anchor" href="#arg-tidyparcel-geo"></a></dt>
 <dd><p>A data frame with each parcel side and its geometry</p></dd>
 
 
-<dt id="arg-func-names">func_names<a class="anchor" aria-label="anchor" href="#arg-func-names"></a></dt>
-<dd><p>A character list of the check functions you want to run.</p></dd>
+<dt id="arg-detailed-check">detailed_check<a class="anchor" aria-label="anchor" href="#arg-detailed-check"></a></dt>
+<dd><p>When TRUE, every parcel passes through each check no matter the result, and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE</p></dd>
 
 
-<dt id="arg-run-parallel">run_parallel<a class="anchor" aria-label="anchor" href="#arg-run-parallel"></a></dt>
-<dd><p>Logical. When `TRUE` the code runs on multiple cores (one less than your machine has available). Will save time if processing over 50,000 parcels. Default is `FALSE`</p></dd>
+<dt id="arg-run-check-land-use">run_check_land_use<a class="anchor" aria-label="anchor" href="#arg-run-check-land-use"></a></dt>
+<dd><p>Should the analysis run the check_land_use function</p></dd>
+
+
+<dt id="arg-run-check-height">run_check_height<a class="anchor" aria-label="anchor" href="#arg-run-check-height"></a></dt>
+<dd><p>Should the analysis run the check_height function</p></dd>
+
+
+<dt id="arg-run-check-height-eave">run_check_height_eave<a class="anchor" aria-label="anchor" href="#arg-run-check-height-eave"></a></dt>
+<dd><p>Should the analysis run the check_height_eave function</p></dd>
+
+
+<dt id="arg-run-check-floors">run_check_floors<a class="anchor" aria-label="anchor" href="#arg-run-check-floors"></a></dt>
+<dd><p>Should the analysis run the check_floors function</p></dd>
+
+
+<dt id="arg-run-check-unit-size">run_check_unit_size<a class="anchor" aria-label="anchor" href="#arg-run-check-unit-size"></a></dt>
+<dd><p>Should the analysis run the check_unit_size function</p></dd>
+
+
+<dt id="arg-run-check-far">run_check_far<a class="anchor" aria-label="anchor" href="#arg-run-check-far"></a></dt>
+<dd><p>Should the analysis run the check_far function</p></dd>
+
+
+<dt id="arg-run-check-unit-density">run_check_unit_density<a class="anchor" aria-label="anchor" href="#arg-run-check-unit-density"></a></dt>
+<dd><p>Should the analysis run the check_unit_density function</p></dd>
+
+
+<dt id="arg-run-check-lot-coverage">run_check_lot_coverage<a class="anchor" aria-label="anchor" href="#arg-run-check-lot-coverage"></a></dt>
+<dd><p>Should the analysis run the check_lot_coverage function</p></dd>
+
+
+<dt id="arg-run-check-fl-area">run_check_fl_area<a class="anchor" aria-label="anchor" href="#arg-run-check-fl-area"></a></dt>
+<dd><p>Should the analysis run the check_fl_area function</p></dd>
+
+
+<dt id="arg-run-check-unit-qty">run_check_unit_qty<a class="anchor" aria-label="anchor" href="#arg-run-check-unit-qty"></a></dt>
+<dd><p>Should the analysis run the check_unit_qty function</p></dd>
+
+
+<dt id="arg-run-check-footprint">run_check_footprint<a class="anchor" aria-label="anchor" href="#arg-run-check-footprint"></a></dt>
+<dd><p>Should the analysis run the check_footprint function</p></dd>
 
 </dl></div>
     <div class="section level2">
