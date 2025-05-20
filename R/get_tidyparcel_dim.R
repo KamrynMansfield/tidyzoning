@@ -19,9 +19,18 @@ get_tidyparcel_dim <- function(parcels_data){
     stop("improper input")
   }
 
+  corner_parcels <- parcels_sf |>
+    dplyr::filter(side == "exterior side")
+
   # filter to just the centroids so we only have dimensions and one parcel per row
   parcels_dim <- parcels_sf |>
-    dplyr::filter(side == "centroid")
+    dplyr::filter(side == "centroid") |>
+    dplyr::mutate(lot_type = ifelse(parcel_id %in% corner_parcels$parcel_id, "corner", "regular")) |>
+    dplyr::select(parcel_id, lot_width, lot_depth, lot_area, lot_type)
+
+
+
+  corner_parcels
 
   return(parcels_dim)
 }

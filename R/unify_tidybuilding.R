@@ -73,6 +73,8 @@ unify_tidybuilding <- function(file_path = NULL, string = NULL){
   units_2bed_val <- sum(unit_info_df$qty[unit_info_df$bedrooms == 2])
   units_3bed_val <- sum(unit_info_df$qty[unit_info_df$bedrooms == 3])
   units_4bed_val <- sum(unit_info_df$qty[unit_info_df$bedrooms > 3])
+  min_unit_size_val <- min(unit_info_df$fl_area)
+  max_unit_size_val <- max(unit_info_df$fl_area)
 
   bldg_info_df <- data.frame(height = height_val,
                              width = width_val,
@@ -91,7 +93,9 @@ unify_tidybuilding <- function(file_path = NULL, string = NULL){
                              units_1bed = units_1bed_val,
                              units_2bed = units_2bed_val,
                              units_3bed = units_3bed_val,
-                             units_4bed = units_4bed_val)
+                             units_4bed = units_4bed_val,
+                             min_unit_size = min_unit_size_val,
+                             max_unit_size = max_unit_size_val)
 
   return(bldg_info_df)
 }
