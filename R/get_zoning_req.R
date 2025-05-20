@@ -86,8 +86,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
   height <- ifelse(length(tidybuilding$height) > 0, tidybuilding$height, NA)
   height_eave <- ifelse(length(tidybuilding$height_eave) > 0, tidybuilding$height_eave, NA)
   floors <- ifelse(length(tidybuilding$stories) > 0, tidybuilding$stories, NA)
-  min_unit_size <- ifelse(!is.null(tiybuilding$min_unit_size), tiybuilding$min_unit_size, NA)
-  max_unit_size <- ifelse(!is.null(tiybuilding$max_unit_size), tiybuilding$max_unit_size, NA)
+  min_unit_size <- ifelse(!is.null(tidybuilding$min_unit_size), tidybuilding$min_unit_size, NA)
+  max_unit_size <- ifelse(!is.null(tidybuilding$max_unit_size), tidybuilding$max_unit_size, NA)
   far <- tidybuilding$gross_fl_area / lot_area
   bldg_width <- ifelse(length(tidybuilding$width) > 0, tidybuilding$width, NA)
   bldg_depth <- ifelse(length(tidybuilding$depth) > 0, tidybuilding$depth, NA)
