@@ -1,0 +1,48 @@
+{
+    "bldg_info": {
+        "height": 40,
+        "width": 32,
+        "depth": 60,
+        "roof_type":"flat"
+    },
+    "unit_info": [
+        {
+            "fl_area": 1178,
+            "bedrooms": 2,
+            "qty": 1
+        },
+        {
+            "fl_area": 1178,
+            "bedrooms": 2,
+            "qty": 1
+        },
+        {
+            "fl_area": 1178,
+            "bedrooms": 2,
+            "qty": 1
+        },
+        {
+            "fl_area": 1178,
+            "bedrooms": 2,
+            "qty": 1
+        }
+    ],
+    "level_info": [
+        {
+            "level": -1,
+            "gross_fl_area": 1250
+        },
+        {
+            "level": 1,
+            "gross_fl_area": 1250
+        },
+        {
+            "level": 2,
+            "gross_fl_area": 1250
+        },
+        {
+            "level": 3,
+            "gross_fl_area": 1250
+        }
+    ]
+}

@@ -1,0 +1,30 @@
+{
+    "bldg_info": {
+        "height": 38,
+        "width": 52,
+        "depth": 48,
+        "roof_type":"flat",
+        "parking": 4
+    },
+    "unit_info": [
+        {
+            "fl_area": 1108,
+            "bedrooms": 3,
+            "qty": 4
+        }
+    ],
+    "level_info": [
+        {
+            "level": 1,
+            "gross_fl_area": 1534
+        },
+        {
+            "level": 2,
+            "gross_fl_area": 1533
+        },
+        {
+            "level": 3,
+            "gross_fl_area": 1533
+        }
+    ]
+}

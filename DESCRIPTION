@@ -1,11 +1,12 @@
 Package: tidyzoning
 Type: Package
-Title: Finding housing possibilities using zoning laws
+Title: Zoning Code Analysis
 Version: 0.1.1
 Author: Kamryn Mansfield
 Maintainer: Kamryn Mansfield <mansfieldkamryn@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: The tidyzoning package was built to analyze housing capacity
+    under existing zoning laws. There are three main datasets that it is designed
+    to work with. Tidyozning, tidyparcel, and tidybuilding.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

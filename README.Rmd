@@ -1,0 +1,63 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# tidyzoning <a href="https://kamrynmansfield.github.io/tidyzoning/"><img src="man/figures/logo.png" align="right" height="136" alt="tidyzoning website" /></a>
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The purpose of the tidyzoning package is to analyze housing capacity under current zoning laws. It is designed to read three types of datasets. 
+
+- **tidybuilding:** A json file with attributes to represent a building 
+
+- **tidyzoning:** A geojson file of city zoning codes formatted to follow the Open Zoning Feed Specification
+
+- **tidyparcel:** A geojson of with the city's parcel data with labeled parcel sides (front, side interior, side exterior, rear) and parcel dimensions (lot_width, lot_depth, lot_area)
+
+The functions of tiyzoning allow the user to find which parcels allow the specified building based on the zoning regulations of each parcel. 
+
+## Installation
+
+You can install the development version of tidyzoning from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("KamrynMansfield/tidyzoning")
+```
+
+## Example
+
+
+
+```{r example}
+library(tidyzoning)
+unify_tidybuilding("inst/extdata/bldg_12_fam.json")
+```
+
+What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+
+```{r cars}
+summary(cars)
+```
+
+You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+
+<!-- You can also embed plots, for example: -->
+
+<!-- ```{r pressure, echo = FALSE} -->
+<!-- plot(pressure) -->
+<!-- ``` -->
+
+<!-- In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN. -->
