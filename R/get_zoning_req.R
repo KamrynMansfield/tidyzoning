@@ -32,9 +32,9 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
   }
 
   # make tidydistrit a nested list instead of sf object
-  tidydistrict <- list(lot_constraints = fromJSON(lot_cons),
-                       structure_constraints = fromJSON(structure_cons),
-                       other_constraints = fromJSON(other_cons))
+  tidydistrict <- list(lot_constraints = rjson::fromJSON(lot_cons),
+                       structure_constraints = rjson::fromJSON(structure_cons),
+                       other_constraints = rjson::fromJSON(other_cons))
 
   # this will be used later to make sure the expressions are written correctly
   safe_parse <- purrr::possibly(parse, otherwise = NA)
