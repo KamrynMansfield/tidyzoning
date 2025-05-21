@@ -50,4 +50,6 @@ get_unit_info <- function(file_path = NULL, string = NULL){
                              bedrooms = bedrooms_val,
                              qty = qty_val)
 
+  return(unit_info_df)
+
 }
