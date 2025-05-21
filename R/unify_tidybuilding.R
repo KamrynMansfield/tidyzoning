@@ -18,6 +18,10 @@ unify_tidybuilding <- function(file_path = NULL, string = NULL){
     })
   }
 
+  if (!is.null(file_path) & length(grep(".",file_path,fixed = TRUE)) == 0){
+    stop("Improper file path")
+  }
+
   if (!is.null(file_path)){
     split_name <- strsplit(basename(file_path),".", fixed = TRUE)[[1]]
     ext <- split_name[[length(split_name)]]
@@ -28,6 +32,7 @@ unify_tidybuilding <- function(file_path = NULL, string = NULL){
       stop("The file must be a json")
     }
   }
+
 
 
   if (is.null(listed_json$bldg_info) | is.null(listed_json$unit_info) | is.null(listed_json$level_info)){
