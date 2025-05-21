@@ -33,8 +33,6 @@ unify_tidybuilding <- function(file_path = NULL, string = NULL){
     }
   }
 
-
-
   if (is.null(listed_json$bldg_info) | is.null(listed_json$unit_info) | is.null(listed_json$level_info)){
     stop("Improper format: json must contain bldg_info, unit_info, and level_info sections")
   }
