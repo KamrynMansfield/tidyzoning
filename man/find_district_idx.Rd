@@ -4,18 +4,18 @@
 \alias{find_district_idx}
 \title{Find corresponding tidydistrict}
 \usage{
-find_district_idx(tidyparcel_geo, tidyzoning)
+find_district_idx(parcels_centroids_sf, tidyzoning)
 }
 \arguments{
-\item{tidyparcel_geo}{A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
+\item{parcels_centroids_sf}{An sf object with the parcel centroids}
 
-\item{tidyzoning}{The tidyzoning object is a simple features object with a row for each zoning district and columns holding the geojson formatted zoning requirements of each district.}
+\item{tidyzoning}{A simple features object with a row for each zoning district and columns holding the geojson formatted zoning requirements of each district.}
 }
 \value{
-The row number of the tidyzoning object that contains the disrict to which the parcel belongs.
-Returns NA if there is no district found.
+The same parcels centroids object that was input but with an additional
+column stating the row number of the corresponding tidyzoning district
 }
 \description{
-`find_district_idx()` takes in a tidyzoning object and a tidyparcel object.
-Returns the row number of the district to which the parcel belongs.
+`find_district_idx()` adds a zoning_id column to the parcels data that
+contains the tidyzoning row index of the district the parcel is in
 }

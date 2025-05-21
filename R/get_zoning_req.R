@@ -1,7 +1,11 @@
-#' Get district zoning requirements
+#' List district zoning requirement values
 #'
-#' Because many zoning requirements depend on the proposed building or the parcel of that zoning district, `the get_zoning_req()` function takes a tidybuilding, a tidyparcel, and a tidydistrict and outputs a data frame listing the set zoning requirements that those three objects would create.
-#' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
+#' Because many zoning requirements depend on the proposed building
+#' or the parcel of that zoning district, `the get_zoning_req()` function
+#' takes a tidybuilding, a tidyparcel, and a tidydistrict and outputs a data
+#' frame listing the set zoning requirements that those three objects would create.
+#' If every value is NA, it could indicate that the building
+#' land use is not allowed in the zoning district.
 #'
 #' @inheritParams add_setbacks
 #'
@@ -13,46 +17,16 @@
 #'
 get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
 
-  if (is.na(tidydistrict$lot_constraints)){
-    lot_cons <- "[]"
-  } else{
-    lot_cons <- tidydistrict$lot_constraints
-  }
-
-  if (is.na(tidydistrict$structure_constraints)){
-    structure_cons <- "[]"
-  } else{
-    structure_cons <- tidydistrict$structure_constraints
-  }
-
-  if (is.na(tidydistrict$other_constraints)){
-    other_cons <- "[]"
-  } else{
-    other_cons <- tidydistrict$other_constraints
-  }
-
-  # make tidydistrit a nested list instead of sf object
-  tidydistrict <- list(lot_constraints = rjson::fromJSON(lot_cons),
-                       structure_constraints = rjson::fromJSON(structure_cons),
-                       other_constraints = rjson::fromJSON(other_cons))
-
   # this will be used later to make sure the expressions are written correctly
   safe_parse <- purrr::possibly(parse, otherwise = NA)
 
-  # What are the constraints that are recorded?
-  # These three dfs will be appended and combined in the end
+  tidydistrict_con <- tidydistrict |>
+    sf::st_drop_geometry() |>
+    dplyr::select(!c("dist_name","dist_abbr","planned_dev","overlay","uses_permitted"))
 
-  zoning_constraints <- list()
-  for (i in 1:length(tidydistrict)){
-    if (length(tidydistrict[[i]]) > 0){
-      constraints <- data.frame(constraint_name = names(tidydistrict[[i]]))
+  constraints <- data.frame(constraint_name = names(tidydistrict_con))
 
-      constraint_name <- names(tidydistrict)[[i]]
-      zoning_constraints[[constraint_name]] <- constraints
-    }
-  }
-
-  if (nrow(dplyr::bind_rows(zoning_constraints)) == 0){
+  if (nrow(constraints) == 0){
     return("No zoning requirements recorded for this district")
   }
 
@@ -93,77 +67,133 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
   bldg_depth <- ifelse(length(tidybuilding$depth) > 0, tidybuilding$depth, NA)
 
 
+  # starting empty lists that we will later add to the data frame
+  min_vals <- list()
+  max_vals <- list()
+  min_val_notes <- list()
+  max_val_notes <- list()
+  length(min_vals) <- nrow(constraints)
+  length(max_vals) <- nrow(constraints)
+  length(min_val_notes) <- nrow(constraints)
+  length(max_val_notes) <- nrow(constraints)
+
   # loop through each zoning regulation in the district
-  warnings <- 0 # if tidyparcel == NULL, this will keep track of potential incorrect calculations
-  for (k in 1:length(zoning_constraints)){
-    constraints <- zoning_constraints[[k]]
-
-    # starting empty lists that we will later add to the data frame
-    min_vals <- list()
-    max_vals <- list()
-    units <- list()
-    min_val_notes <- list()
-    max_val_notes <- list()
-    length(min_vals) <- nrow(constraints)
-    length(max_vals) <- nrow(constraints)
-    length(units) <- nrow(constraints)
-    length(min_val_notes) <- nrow(constraints)
-    length(max_val_notes) <- nrow(constraints)
-
-    # listing constraints
-    for (i in 1:nrow(constraints)){
-      name <- names(zoning_constraints)[[k]]
-      constraint_min_note <- NA
-      constraint_max_note <- NA
-      for (j in 1:length(tidydistrict[[name]][[i]])){
-        use_name <- tidydistrict[[name]][[i]][[j]]$use_name
-        if (bldg_type %in% use_name){
-          use_index <- j
-          break
-        }else {
-          use_index <- NA
-        }
+  for (i in 1:nrow(constraints)){
+    name <- constraints$constraint_name[[i]]
+    if (is.na(tidydistrict[[1,name]])){
+      min_vals[[i]] <- NA
+      max_vals[[i]] <- NA
+      min_val_notes[[i]] <- NA
+      max_val_notes[[i]] <- NA
+      next
+    }
+    constraint_list <- rjson::fromJSON(tidydistrict[[1,name]])
+    constraint_min_note <- NA
+    constraint_max_note <- NA
+    for (j in 1:length(constraint_list)){
+      use_name <- constraint_list[[j]]$use_name
+      if (bldg_type %in% use_name){
+        use_index <- j
+        break
+      }else {
+        use_index <- NA
       }
-      if (is.na(use_index)){
+    }
+    if (is.na(use_index)){
+      min_vals[[i]] <- NA
+      max_vals[[i]] <- NA
+      units[[i]] <- NA
+      min_val_notes[[i]] <- NA
+      max_val_notes[[i]] <- NA
+      next
+    }
+    constraint_info <- constraint_list[[use_index]]
+
+    # Looking at possible min values
+    if (length(constraint_info$min_val[[1]]) == 1){ # this is just a one-line expression for the constraint
+      constraint_min_val <- safe_parse(text = constraint_info$min_val[[1]]) |>
+        eval()
+
+      if (is.na(constraint_min_val)){
         min_vals[[i]] <- NA
         max_vals[[i]] <- NA
         units[[i]] <- NA
-        min_val_notes[[i]] <- NA
+        min_val_notes[[i]] <- "OZFS error"
         max_val_notes[[i]] <- NA
         next
       }
-      constraint_info <- tidydistrict[[name]][[i]][[use_index]]
 
-      # Looking at possible min values
-      if (length(constraint_info$min_val[[1]]) == 1){ # this is just a one-line expression for the constraint
-        constraint_min_val <- safe_parse(text = constraint_info$min_val[[1]]) |>
-          eval()
+    } else if (length(constraint_info$min_val) == 0){
+      constraint_min_val <- NA
 
-        if (is.na(constraint_min_val)){
-          min_vals[[i]] <- NA
-          max_vals[[i]] <- NA
-          units[[i]] <- NA
-          min_val_notes[[i]] <- "OZFS error"
-          max_val_notes[[i]] <- NA
-          next
-        }
+    } else{ # this indicates a rule of some kind
+      # loop through each rule
+      for (j in 1:length(constraint_info$min_val)){
+        rule_items <- names(constraint_info$min_val[[j]])
+        if ("logical_operator" %in% rule_items){
+          if (constraint_info$min_val[[j]]$logical_operator == "AND"){
+            logical_operator <- "&"
+          } else{
+            logical_operator <- "|"
+          }
+          if ("select" %in% rule_items){ # there is logical_op and there is a select
+            conditions_value <- safe_parse(text = paste(constraint_info$min_val[[j]]$conditions,
+                                                        collapse = logical_operator)) |>
+              eval()
 
-      } else if (length(constraint_info$min_val) == 0){
-        constraint_min_val <- NA
-
-      } else{ # this indicates a rule of some kind
-        # loop through each rule
-        for (j in 1:length(constraint_info$min_val)){
-          rule_items <- names(constraint_info$min_val[[j]])
-          if ("logical_operator" %in% rule_items){
-            if (constraint_info$min_val[[j]]$logical_operator == "AND"){
-              logical_operator <- "&"
-            } else{
-              logical_operator <- "|"
+            if (is.na(conditions_value)){
+              constraint_min_note <- "OZFS Error"
+              break
             }
-            if ("select" %in% rule_items){ # there is logical_op and there is a select
-              conditions_value <- safe_parse(text = paste(constraint_info$min_val[[j]]$conditions,
-                                                          collapse = logical_operator)) |>
+
+            expressions <- c()
+            if ("expressions" %in% rule_items){
+              for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
+                expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
+              }
+              expressions <- c(min(expressions), max(expressions))
+            } else{
+              constraint_min_val <- NA
+              constraint_min_note <- "OZFS Error"
+              break
+            }
+
+            if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
+              if (constraint_info$min_val[[j]]$select == "min"){
+                constraint_min_val <- min(expressions)
+                break
+              } else if (constraint_info$min_val[[j]]$select == "max"){
+                constraint_min_val <- max(expressions)
+                break
+              } else if (constraint_info$min_val[[j]]$select == "either"){
+                constraint_min_val <- expressions
+                constraint_min_note <- "either"
+              } else{
+                constraint_min_val <- expressions
+                if (is.null(constraint_info$min_val[[j]]$select_info)){
+                  constraint_min_note <- "unique requirements not specified"
+                  break
+                } else{
+                  constraint_min_note <- constraint_info$min_val[[j]]$select_info
+                  break
+                }
+              }
+            }
+          } else{ # there is logical_op and just one expression at end
+            constraint_min_val <- safe_parse(text = constraint_info$min_val[[j]]$expression) |>
+              eval()
+
+            if (is.na(constraint_min_val)){
+              constraint_min_note <- "OZFS Error"
+              break
+            }
+            break
+          }
+        } else{
+          if ("select" %in% rule_items){ # not logical_op, but there is a select
+            if ("conditions" %in% rule_items){ # There is still a condition before selecting
+              # there is a condition and there is a select
+              conditions_value <- safe_parse(text = constraint_info$min_val[[j]]$conditions) |>
                 eval()
 
               if (is.na(conditions_value)){
@@ -183,96 +213,8 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
                 break
               }
 
+
               if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
-                if (constraint_info$min_val[[j]]$select == "min"){
-                  constraint_min_val <- min(expressions)
-                  break
-                } else if (constraint_info$min_val[[j]]$select == "max"){
-                  constraint_min_val <- max(expressions)
-                  break
-                } else if (constraint_info$min_val[[j]]$select == "either"){
-                  constraint_min_val <- expressions
-                  constraint_min_note <- "either"
-                } else{
-                  constraint_min_val <- expressions
-                  if (is.null(constraint_info$min_val[[j]]$select_info)){
-                    constraint_min_note <- "unique requirements not specified"
-                    break
-                  } else{
-                    constraint_min_note <- constraint_info$min_val[[j]]$select_info
-                    break
-                  }
-                }
-              }
-            } else{ # there is logical_op and just one expression at end
-              constraint_min_val <- safe_parse(text = constraint_info$min_val[[j]]$expression) |>
-                eval()
-
-              if (is.na(constraint_min_val)){
-                constraint_min_note <- "OZFS Error"
-                break
-              }
-              break
-            }
-          } else{
-            if ("select" %in% rule_items){ # not logical_op, but there is a select
-              if ("conditions" %in% rule_items){ # There is still a condition before selecting
-                # there is a condition and there is a select
-                conditions_value <- safe_parse(text = constraint_info$min_val[[j]]$conditions) |>
-                  eval()
-
-                if (is.na(conditions_value)){
-                  constraint_min_note <- "OZFS Error"
-                  break
-                }
-
-                expressions <- c()
-                if ("expressions" %in% rule_items){
-                  for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
-                    expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
-                  }
-                  expressions <- c(min(expressions), max(expressions))
-                } else{
-                  constraint_min_val <- NA
-                  constraint_min_note <- "OZFS Error"
-                  break
-                }
-
-
-                if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
-                  if (constraint_info$min_val[[j]]$select == "min"){
-                    constraint_min_val <- min(expressions)
-                    break
-                  } else if (constraint_info$min_val[[j]]$select == "max"){
-                    constraint_min_val <- max(expressions)
-                    break
-                  } else if (constraint_info$min_val[[j]]$select == "either"){
-                    constraint_min_val <- expressions
-                    constraint_min_note <- "either"
-                  } else {
-                    constraint_min_val <- expressions
-                    if (is.null(constraint_info$min_val[[j]]$select_info)){
-                      constraint_min_note <- "unique requirements not specified"
-                      break
-                    } else{
-                      constraint_min_note <- constraint_info$min_val[[j]]$select_info
-                      break
-                    }
-                  }
-                }
-              } else{ # it is just a select with the expressions
-                expressions <- c()
-                if ("expressions" %in% rule_items){
-                  for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
-                    expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
-                  }
-                  expressions <- c(min(expressions), max(expressions))
-                } else{
-                  constraint_min_val <- NA
-                  constraint_min_note <- "OZFS Error"
-                  break
-                }
-
                 if (constraint_info$min_val[[j]]$select == "min"){
                   constraint_min_val <- min(expressions)
                   break
@@ -293,65 +235,153 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
                   }
                 }
               }
-            } else{ # no logical_op and no select
-              conditions_value <- safe_parse(text = constraint_info$min_val[[j]]$conditions) |>
-                eval()
-
-              if (is.na(conditions_value)){
+            } else{ # it is just a select with the expressions
+              expressions <- c()
+              if ("expressions" %in% rule_items){
+                for (l in 1:length(constraint_info$min_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$min_val[[j]]$expressions[l])))
+                }
+                expressions <- c(min(expressions), max(expressions))
+              } else{
+                constraint_min_val <- NA
                 constraint_min_note <- "OZFS Error"
                 break
               }
 
-              if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
-                constraint_min_val <- safe_parse(text = constraint_info$min_val[[j]]$expression) |>
-                  eval()
-
-                if (is.na(constraint_min_val)){
-                  constraint_min_note <- "OZFS Error"
-                  break
-                }
-
+              if (constraint_info$min_val[[j]]$select == "min"){
+                constraint_min_val <- min(expressions)
                 break
-              } else{
-                if (j == length(tidydistrict[[name]][[i]])){
-                  constraint_min_val <- NA
+              } else if (constraint_info$min_val[[j]]$select == "max"){
+                constraint_min_val <- max(expressions)
+                break
+              } else if (constraint_info$min_val[[j]]$select == "either"){
+                constraint_min_val <- expressions
+                constraint_min_note <- "either"
+              } else {
+                constraint_min_val <- expressions
+                if (is.null(constraint_info$min_val[[j]]$select_info)){
+                  constraint_min_note <- "unique requirements not specified"
+                  break
+                } else{
+                  constraint_min_note <- constraint_info$min_val[[j]]$select_info
+                  break
                 }
               }
             }
-          }
+          } else{ # no logical_op and no select
+            conditions_value <- safe_parse(text = constraint_info$min_val[[j]]$conditions) |>
+              eval()
 
+            if (is.na(conditions_value)){
+              constraint_min_note <- "OZFS Error"
+              break
+            }
+
+            if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
+              constraint_min_val <- safe_parse(text = constraint_info$min_val[[j]]$expression) |>
+                eval()
+
+              if (is.na(constraint_min_val)){
+                constraint_min_note <- "OZFS Error"
+                break
+              }
+
+              break
+            } else{
+              if (j == length(tidydistrict[[name]][[i]])){
+                constraint_min_val <- NA
+              }
+            }
+          }
         }
+
+      }
+    }
+
+    # Looking at possible max values
+    if (length(constraint_info$max_val[[1]]) == 1){ # this is just a one-line expression for the constraint
+      constraint_max_val <- safe_parse(text = constraint_info$max_val[[1]]) |>
+        eval()
+
+      if (is.na(constraint_max_val)){
+        min_vals[[i]] <- NA
+        max_vals[[i]] <- NA
+        units[[i]] <- NA
+        min_val_notes[[i]] <- NA
+        max_val_notes[[i]] <- "OZFS error"
+        next
       }
 
-      # Looking at possible max values
-      if (length(constraint_info$max_val[[1]]) == 1){ # this is just a one-line expression for the constraint
-        constraint_max_val <- safe_parse(text = constraint_info$max_val[[1]]) |>
-          eval()
+    } else if (length(constraint_info$max_val) == 0){
+      constraint_max_val <- NA
+    } else{ # this indicates a rule of some kind
+      # loop through each rule
+      for (j in 1:length(constraint_info$max_val)){
+        rule_items <- names(constraint_info$max_val[[j]])
+        if ("logical_operator" %in% rule_items){
+          if (constraint_info$max_val[[j]]$logical_operator == "AND"){
+            logical_operator <- "&"
+          } else{
+            logical_operator <- "|"
+          }
+          if ("select" %in% rule_items){ # there is logical_op and there is a select
+            conditions_value <- safe_parse(text = paste(constraint_info$max_val[[j]]$conditions,
+                                                        collapse = logical_operator)) |>
+              eval()
 
-        if (is.na(constraint_max_val)){
-          min_vals[[i]] <- NA
-          max_vals[[i]] <- NA
-          units[[i]] <- NA
-          min_val_notes[[i]] <- NA
-          max_val_notes[[i]] <- "OZFS error"
-          next
-        }
-
-      } else if (length(constraint_info$max_val) == 0){
-        constraint_max_val <- NA
-      } else{ # this indicates a rule of some kind
-        # loop through each rule
-        for (j in 1:length(constraint_info$max_val)){
-          rule_items <- names(constraint_info$max_val[[j]])
-          if ("logical_operator" %in% rule_items){
-            if (constraint_info$max_val[[j]]$logical_operator == "AND"){
-              logical_operator <- "&"
-            } else{
-              logical_operator <- "|"
+            if (is.na(conditions_value)){
+              constraint_max_note <- "OZFS Error"
+              break
             }
-            if ("select" %in% rule_items){ # there is logical_op and there is a select
-              conditions_value <- safe_parse(text = paste(constraint_info$max_val[[j]]$conditions,
-                                                          collapse = logical_operator)) |>
+
+            expressions <- c()
+            if ("expressions" %in% rule_items){
+              for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
+                expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
+              }
+              expressions <- c(min(expressions), max(expressions))
+            } else{
+              constraint_max_val <- NA
+              constraint_max_note <- "OZFS Error"
+              break
+            }
+
+            if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
+              if (constraint_info$max_val[[j]]$select == "min"){
+                constraint_max_val <- min(expressions)
+                break
+              } else if (constraint_info$max_val[[j]]$select == "max"){
+                constraint_max_val <- max(expressions)
+                break
+              } else if (constraint_info$max_val[[j]]$select == "either"){
+                constraint_max_val <- expressions
+                constraint_max_note <- "either"
+              } else {
+                constraint_max_val <- expressions
+                if (is.null(constraint_info$max_val[[j]]$select_info)){
+                  constraint_max_note <- "unique requirements not specified"
+                  break
+                } else{
+                  constraint_max_note <- constraint_info$max_val[[j]]$select_info
+                  break
+                }
+              }
+            }
+          } else{ # there is logical_op and just one expression at end
+            constraint_max_val <- safe_parse(text = constraint_info$max_val[[j]]$expression) |>
+              eval()
+
+            if (is.na(constraint_max_val)){
+              constraint_max_note <- "OZFS Error"
+              break
+            }
+            break
+          }
+        } else{
+          if ("select" %in% rule_items){ # not logical_op, but there is a select
+            if ("conditions" %in% rule_items){ # There is still a condition before selecting
+              # there is logical_op and there is a select
+              conditions_value <- safe_parse(text = constraint_info$max_val[[j]]$conditions) |>
                 eval()
 
               if (is.na(conditions_value)){
@@ -392,7 +422,49 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
                   }
                 }
               }
-            } else{ # there is logical_op and just one expression at end
+            } else{ # it is just a select with the expressions
+              expressions <- c()
+              if ("expressions" %in% rule_items){
+                for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
+                  expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
+                }
+                expressions <- c(min(expressions), max(expressions))
+              } else{
+                constraint_max_val <- NA
+                constraint_max_note <- "OZFS Error"
+                break
+              }
+
+              if (constraint_info$max_val[[j]]$select == "min"){
+                constraint_max_val <- min(expressions)
+                break
+              } else if (constraint_info$max_val[[j]]$select == "max"){
+                constraint_max_val <- max(expressions)
+                break
+              } else if (constraint_info$max_val[[j]]$select == "either"){
+                constraint_max_val <- expressions
+                constraint_max_note <- "either"
+              } else {
+                constraint_max_val <- expressions
+                if (is.null(constraint_info$max_val[[j]]$select_info)){
+                  constraint_max_note <- "unique requirements not specified"
+                  break
+                } else{
+                  constraint_max_note <- constraint_info$max_val[[j]]$select_info
+                  break
+                }
+              }
+            }
+          } else{ # no logical_op and no select
+            conditions_value <- safe_parse(text = constraint_info$max_val[[j]]$conditions) |>
+              eval()
+
+            if (is.na(conditions_value)){
+              constraint_max_note <- "OZFS Error"
+              break
+            }
+
+            if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
               constraint_max_val <- safe_parse(text = constraint_info$max_val[[j]]$expression) |>
                 eval()
 
@@ -402,132 +474,23 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
               }
               break
             }
-          } else{
-            if ("select" %in% rule_items){ # not logical_op, but there is a select
-              if ("conditions" %in% rule_items){ # There is still a condition before selecting
-                # there is logical_op and there is a select
-                conditions_value <- safe_parse(text = constraint_info$max_val[[j]]$conditions) |>
-                  eval()
-
-                if (is.na(conditions_value)){
-                  constraint_max_note <- "OZFS Error"
-                  break
-                }
-
-                expressions <- c()
-                if ("expressions" %in% rule_items){
-                  for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
-                    expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
-                  }
-                  expressions <- c(min(expressions), max(expressions))
-                } else{
-                  constraint_max_val <- NA
-                  constraint_max_note <- "OZFS Error"
-                  break
-                }
-
-                if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
-                  if (constraint_info$max_val[[j]]$select == "min"){
-                    constraint_max_val <- min(expressions)
-                    break
-                  } else if (constraint_info$max_val[[j]]$select == "max"){
-                    constraint_max_val <- max(expressions)
-                    break
-                  } else if (constraint_info$max_val[[j]]$select == "either"){
-                    constraint_max_val <- expressions
-                    constraint_max_note <- "either"
-                  } else {
-                    constraint_max_val <- expressions
-                    if (is.null(constraint_info$max_val[[j]]$select_info)){
-                      constraint_max_note <- "unique requirements not specified"
-                      break
-                    } else{
-                      constraint_max_note <- constraint_info$max_val[[j]]$select_info
-                      break
-                    }
-                  }
-                }
-              } else{ # it is just a select with the expressions
-                expressions <- c()
-                if ("expressions" %in% rule_items){
-                  for (l in 1:length(constraint_info$max_val[[j]]$expressions)){
-                    expressions <- c(expressions, eval(parse(text = constraint_info$max_val[[j]]$expressions[l])))
-                  }
-                  expressions <- c(min(expressions), max(expressions))
-                } else{
-                  constraint_max_val <- NA
-                  constraint_max_note <- "OZFS Error"
-                  break
-                }
-
-                if (constraint_info$max_val[[j]]$select == "min"){
-                  constraint_max_val <- min(expressions)
-                  break
-                } else if (constraint_info$max_val[[j]]$select == "max"){
-                  constraint_max_val <- max(expressions)
-                  break
-                } else if (constraint_info$max_val[[j]]$select == "either"){
-                  constraint_max_val <- expressions
-                  constraint_max_note <- "either"
-                } else {
-                  constraint_max_val <- expressions
-                  if (is.null(constraint_info$max_val[[j]]$select_info)){
-                    constraint_max_note <- "unique requirements not specified"
-                    break
-                  } else{
-                    constraint_max_note <- constraint_info$max_val[[j]]$select_info
-                    break
-                  }
-                }
-              }
-            } else{ # no logical_op and no select
-              conditions_value <- safe_parse(text = constraint_info$max_val[[j]]$conditions) |>
-                eval()
-
-              if (is.na(conditions_value)){
-                constraint_max_note <- "OZFS Error"
-                break
-              }
-
-              if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
-                constraint_max_val <- safe_parse(text = constraint_info$max_val[[j]]$expression) |>
-                  eval()
-
-                if (is.na(constraint_max_val)){
-                  constraint_max_note <- "OZFS Error"
-                  break
-                }
-                break
-              }
-            }
           }
-
         }
+
       }
-
-      min_vals[[i]] <- constraint_min_val
-      max_vals[[i]] <- constraint_max_val
-      min_val_notes[[i]] <- constraint_min_note
-      max_val_notes[[i]] <- constraint_max_note
-
-      if (is.na(constraint_min_val[[1]]) & is.na(constraint_max_val[[1]]) & !is.na(constraint_info$unit) & is.null(tidyparcel_dims)){
-        warnings <- warnings + 1
-      }
-
     }
 
-    zoning_constraints[[k]]$min_value <- min_vals
-    zoning_constraints[[k]]$max_value <- max_vals
-    zoning_constraints[[k]]$min_val_note <- min_val_notes
-    zoning_constraints[[k]]$max_val_note <- max_val_notes
+    min_vals[[i]] <- constraint_min_val
+    max_vals[[i]] <- constraint_max_val
+    min_val_notes[[i]] <- constraint_min_note
+    max_val_notes[[i]] <- constraint_max_note
+
   }
 
+  constraints$min_value <- min_vals
+  constraints$max_value <- max_vals
+  constraints$min_val_note <- min_val_notes
+  constraints$max_val_note <- max_val_notes
 
-  if (warnings > 0){
-    warning("Some values my be inaccurate because they rely on parcel dimmensions")
-    return(dplyr::bind_rows(zoning_constraints))
-  } else{
-    return(dplyr::bind_rows(zoning_constraints))
-  }
-
+  return(constraints)
 }

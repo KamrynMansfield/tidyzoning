@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_zoning_req.R
 \name{get_zoning_req}
 \alias{get_zoning_req}
-\title{Get district zoning requirements}
+\title{List district zoning requirement values}
 \usage{
 get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
 }
@@ -19,6 +19,10 @@ NA values indicate the requirement isn't recorded in that district.
 If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
 }
 \description{
-Because many zoning requirements depend on the proposed building or the parcel of that zoning district, `the get_zoning_req()` function takes a tidybuilding, a tidyparcel, and a tidydistrict and outputs a data frame listing the set zoning requirements that those three objects would create.
-If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
+Because many zoning requirements depend on the proposed building
+or the parcel of that zoning district, `the get_zoning_req()` function
+takes a tidybuilding, a tidyparcel, and a tidydistrict and outputs a data
+frame listing the set zoning requirements that those three objects would create.
+If every value is NA, it could indicate that the building
+land use is not allowed in the zoning district.
 }

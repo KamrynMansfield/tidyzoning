@@ -1,3 +1,30 @@
+#' Complete analysis to find where the building fits
+#'
+#' `zoning_analysis_pipline()` runs through all of the zoning checks to see which parcels
+#' allow a certain building.
+#'
+#' @param bldg_file The path to the json file representing a building
+#' @param parcels_file The path to the geojson file representing the parcels
+#' @param ozfs_zoning_file The path to the geojson file with the ozfs zoning codes.
+#' @param detailed_check When TRUE, every parcel passes through each check no matter the result, and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE
+#' @param run_check_land_use Should the analysis run the check_land_use function? (logical)
+#' @param run_check_height Should the analysis run the check_height function? (logical)
+#' @param run_check_height_eave Should the analysis run the check_height_eave function? (logical)
+#' @param run_check_floors Should the analysis run the check_floors function? (logical)
+#' @param run_check_unit_size Should the analysis run the check_unit_size function? (logical)
+#' @param run_check_far Should the analysis run the check_far function? (logical)
+#' @param run_check_unit_density Should the analysis run the check_unit_density function? (logical)
+#' @param run_check_lot_coverage Should the analysis run the check_lot_coverage function? (logical)
+#' @param run_check_fl_area Should the analysis run the check_fl_area function? (logical)
+#' @param run_check_unit_qty Should the analysis run the check_unit_qty function? (logical)
+#' @param run_check_footprint Should the analysis run the check_footprint function? (logical)
+#'
+#' @returns a simple features data frame with the centroid of each parcel with a column
+#' stating building allowance on the parcel and a column stating the reason
+#' why certain parcels don't allow the building.
+#' @export
+#'
+#' @examples
 zoning_analysis_pipline <- function(bldg_file,
                                     parcels_file,
                                     ozfs_zoning_file,
