@@ -3,17 +3,20 @@
 #' `check_unit_size()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit sizes.
 #'
 #' @inheritParams check_far
+#' @param building_json The file path or json string of the json representing the building.
 #' @param zoning_req The data frame result from the `get_zoning_req()` function.
 #'
 #' @return
 #' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on the unit sizes.
 #' @export
 #'
-check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, zoning_req = NULL){
+check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, building_json, zoning_req = NULL){
   # get the tidydistrict into a list format
-  structure_constraints <- fromJSON(tidydistrict$structure_constraints)
+  ####### structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
   safe_parse <- purrr::possibly(parse, otherwise = NA)
+
+  unit_info <- get_unit_info(building_json)
 
   if (is.null(zoning_req)){
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
@@ -25,21 +28,21 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, zoning_
   }
 
   # if floor areas aren't in tidybuilding, we return TRUE and give a warning.
-  if (is.null(tidybuilding$unit_info$fl_area)){
+  if (is.null(unit_info$fl_area)){
     warning("No unit sizes recorded in the tidybuilding")
     return(TRUE)
   }
 
-  # if no bedrooms area recorded, we return TRUE, give a warning, and assume 2 beds per unit.
-  if (is.null(tidybuilding$unit_info$bedrooms)){
+  # if no bedrooms area recorded, give a warning, and assume 2 beds per unit.
+  if (is.null(unit_info$bedrooms)){
     warning("No bedroom qty recorded in the tidybuilding. Results may be innacurate")
-    tidybuilding$unit_info$bedrooms <- 2
+    unit_info$bedrooms <- 2
   }
 
 
 
   ## CHECKING AVERAGE UNIT SIZE REQUIREMENTS
-  if (is.null(structure_constraints$unit_size_avg)){
+  if (!"unit_size_avg" %in% zoning_req$constraint_name){
     min_unit_size_avg <- 0
     max_unit_size_avg <- 100000
   } else{
@@ -55,7 +58,7 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, zoning_
     }
   }
 
-  unit_size_avg <- mean(tidybuilding$unit_info$fl_area)
+  unit_size_avg <- mean(unit_info$fl_area)
 
   if (length(min_unit_size_avg) > 1){
     min_unit_avg_check_1 <- unit_size_avg >= min_unit_size_avg[[1]]
@@ -104,72 +107,65 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, zoning_
   ## CHECKING UNIT SIZE REQUIREMENTS
 
 
-  # getting same variables as get_zoning_req
-  bldg_type <- tidybuilding$bldg_info$type
+  # Name the building type
+  bldg_type <- tidybuilding$type
 
   # establish the parcel variables that might be used in the equations
   lot_width <- tidyparcel_dims$lot_width[[1]] # this should be in ft
   lot_depth <- tidyparcel_dims$lot_depth[[1]] # this should be in ft
   lot_area <- tidyparcel_dims$lot_area[[1]] # this should be in acres
-  lot_type <- ifelse(tidyparcel_dims$Parcel_label[[1]] == "regular corner parcel", "corner","regular")
+  lot_type <- ifelse(!is.null(tidyparcel_dims$lot_type), tidyparcel_dims$lot_type, NA)
 
-  added_tot_bed <- tidybuilding$unit_info |> mutate(tot_bed = bedrooms * qty)
-  total_bedrooms <- sum(added_tot_bed$tot_bed)
 
-  units_bed_type <- tidybuilding$unit_info |> mutate(bed_type = ifelse(bedrooms < 4,paste0("units_",bedrooms,"bed"), "units_4bed"))
-  bed_type_totals <- units_bed_type |> group_by(bed_type) |> summarise(total = sum(qty))
+  # establish the building variables that might be used in the equations
+  bed_list <- c(units_0bed = 0,
+                units_1bed = 1,
+                units_2bed = 2,
+                units_3bed = 3,
+                units_4bed = 4)
 
-  units_0bed <- ifelse("units_0bed" %in% bed_type_totals$bed_type, bed_type_totals$total[bed_type_totals$bed_type == "units_0bed"], 0)
-  units_1bed <- ifelse("units_1bed" %in% bed_type_totals$bed_type, bed_type_totals$total[bed_type_totals$bed_type == "units_1bed"], 0)
-  units_2bed <- ifelse("units_2bed" %in% bed_type_totals$bed_type, bed_type_totals$total[bed_type_totals$bed_type == "units_2bed"], 0)
-  units_3bed <- ifelse("units_3bed" %in% bed_type_totals$bed_type, bed_type_totals$total[bed_type_totals$bed_type == "units_3bed"], 0)
-  units_4bed <- ifelse("units_4bed" %in% bed_type_totals$bed_type, bed_type_totals$total[bed_type_totals$bed_type == "units_4bed"], 0)
-  total_units <- ifelse(length(tidybuilding$unit_info$qty) > 0,sum(tidybuilding$unit_info$qty),NA)
-  fl_area <- ifelse(length(tidybuilding$bldg_info$gross_fl_area) > 0,tidybuilding$bldg_info$gross_fl_area,NA)
-  parking_covered <- sum(tidybuilding$parking_info$stalls[tidybuilding$parking_info$type == "covered"])
-  parking_uncovered <- sum(tidybuilding$parking_info$stalls[tidybuilding$parking_info$type == "uncovered"])
+
+  total_bedrooms <- tidybuilding$total_bedrooms
+  units_0bed <- ifelse("units_0bed" %in% names(tidybuilding), tidybuilding$units_0bed, 0)
+  units_1bed <- ifelse("units_1bed" %in% names(tidybuilding), tidybuilding$units_1bed, 0)
+  units_2bed <- ifelse("units_2bed" %in% names(tidybuilding), tidybuilding$units_2bed, 0)
+  units_3bed <- ifelse("units_3bed" %in% names(tidybuilding), tidybuilding$units_3bed, 0)
+  units_4bed <- ifelse("units_4bed" %in% names(tidybuilding), tidybuilding$units_4bed, 0)
+  total_units <- ifelse(!is.null(tidybuilding$total_units), tidybuilding$total_units, NA)
+  fl_area <- ifelse(length(tidybuilding$gross_fl_area) > 0,tidybuilding$gross_fl_area,NA)
   parking_enclosed <- sum(tidybuilding$parking_info$stalls[tidybuilding$parking_info$type == "enclosed"])
-  parking_floors <- ifelse(length(tidybuilding$parking_info$level) > 0 ,length(unique(tidybuilding$parking_info$level)), 0)
-  parking_bel_grade <- ifelse(nrow(tidybuilding$parking_info[tidybuilding$parking_info$level < 0,]) > 0, "yes","no")
-  garage_entry <- ifelse(unique(tidybuilding$parking_info$entry[!is.na(tidybuilding$parking_info$entry)]) > 0,unique(tidybuilding$parking_info$entry[!is.na(tidybuilding$parking_info$entry)]),NA)
-  height <- ifelse(length(tidybuilding$bldg_info$height) > 0, tidybuilding$bldg_info$height, NA)
-  height_eave <- ifelse(length(tidybuilding$bldg_info$height_eave) > 0, tidybuilding$bldg_info$height_eave, NA)
-  floors <- ifelse(length(tidybuilding$bldg_info$stories) > 0, tidybuilding$bldg_info$stories, NA)
-  min_unit_size <- ifelse(length(tidybuilding$unit_info$fl_area) > 0, min(tidybuilding$unit_info$fl_area), NA)
-  max_unit_size <- ifelse(length(tidybuilding$unit_info$fl_area) > 0, max(tidybuilding$unit_info$fl_area), NA)
-  far <- tidybuilding$bldg_info$gross_fl_area / lot_area
-  bldg_width <- ifelse(length(tidybuilding$bldg_info$width) > 0, tidybuilding$bldg_info$width, NA)
-  bldg_depth <- ifelse(length(tidybuilding$bldg_info$depth) > 0, tidybuilding$bldg_info$depth, NA)
-  level_units_table <- tidybuilding$unit_info |> group_by(level) |> summarise(units = sum(qty))
-  units_floor1 <- ifelse(length(level_units_table$units[level_units_table$level == 1]) > 0,level_units_table$units[level_units_table$level == 1],0)
-  units_floor2 <- ifelse(length(level_units_table$units[level_units_table$level == 2]) > 0,level_units_table$units[level_units_table$level == 2],0)
-  units_floor3 <- ifelse(length(level_units_table$units[level_units_table$level == 3]) > 0,level_units_table$units[level_units_table$level == 3],0)
+  height <- ifelse(length(tidybuilding$height) > 0, tidybuilding$height, NA)
+  height_eave <- ifelse(length(tidybuilding$height_eave) > 0, tidybuilding$height_eave, NA)
+  floors <- ifelse(length(tidybuilding$stories) > 0, tidybuilding$stories, NA)
+  min_unit_size <- ifelse(!is.null(tidybuilding$min_unit_size), tidybuilding$min_unit_size, NA)
+  max_unit_size <- ifelse(!is.null(tidybuilding$max_unit_size), tidybuilding$max_unit_size, NA)
+  far <- tidybuilding$gross_fl_area / lot_area
+  bldg_width <- ifelse(length(tidybuilding$width) > 0, tidybuilding$width, NA)
+  bldg_depth <- ifelse(length(tidybuilding$depth) > 0, tidybuilding$depth, NA)
 
 
 
   # getting a df with just the min and max of each unit type
-  unit_info_df <- tidybuilding$unit_info |>
+  unit_info_df <- unit_info |>
     dplyr::group_by(bedrooms) |>
     dplyr::summarise(min = min(fl_area),
-              max = max(fl_area))
+                     max = max(fl_area))
 
   # for those values that don't have requirements in ozfs
   unit_info_df$min_val <- 0
   unit_info_df$max_val <- 100000
 
+  # check_to see if there is even a value for unit_size
+  if (is.null(tidydistrict[[1,"unit_size"]])){
+    constraint_info <- list()
+  } else if (is.na(tidydistrict[[1,"unit_size"]])){
+    constraint_info <- list()
+  } else{
+    constraint_list <- rjson::fromJSON(tidydistrict[[1,"unit_size"]])
 
-  # loop through each row and find the zoning requirement for each unit type in the ozfs data
-  max_vals <- list()
-  min_vals <- list()
-  for (i in 1:nrow(unit_info_df)){
-
-    if (!is.null(tidybuilding$unit_info$bedrooms)){
-      bedrooms <- unit_info_df$bedrooms[[i]]
-    }
-
-    for (j in 1:length(structure_constraints$unit_size)){
-      use_name <- structure_constraints$unit_size[[j]]$use_name
-      if (tidybuilding$bldg_info$type %in% use_name){
+    for (j in 1:length(constraint_list)){
+      use_name <- constraint_list[[j]]$use_name
+      if (bldg_type %in% use_name){
         use_index <- j
         break
       }else {
@@ -178,10 +174,23 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, zoning_
     }
 
     if (is.na(use_index)){
-      return(TRUE)
+      # something here
     }
 
-    constraint_info <- structure_constraints$unit_size[[use_index]]
+    constraint_info <- constraint_list[[use_index]]
+  }
+
+
+  # loop through each row and find the zoning requirement for each unit type in the ozfs data
+  max_vals <- list()
+  min_vals <- list()
+  for (i in 1:nrow(unit_info_df)){
+
+
+    if (!is.null(unit_info$bedrooms)){
+      bedrooms <- unit_info_df$bedrooms[[i]]
+    }
+
 
     min_max_values <- c("min_val","max_val")
     for (k in 1:length(min_max_values)){
