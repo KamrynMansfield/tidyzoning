@@ -14,23 +14,25 @@ check_lot_coverage <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dim
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
+  # establish the constaint we are looking at
+  constraint <- "lot_cov_bldg"
+
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
   # we return maybe with a warning
   if (class(zoning_req) == "character"){
     warning("No zoning requirements recorded for this district")
     return(TRUE)
+  } else if (!constraint %in% zoning_req$constraint_name){
+    return(TRUE)
   }
-
-  # establish the constaint we are looking at
-  constraint <- "lot_cov_bldg"
 
   # getting the value from the building's attributes
   # if the fl_area is not recorded
-  if (!is.null(tidybuilding$bldg_info$width) & !is.null(tidybuilding$bldg_info$depth)){
-    footprint <- tidybuilding$bldg_info$width[[1]] * tidybuilding$bldg_info$depth[[1]]
+  if (!is.null(tidybuilding$width) & !is.null(tidybuilding$depth)){
+    footprint <- tidybuildingo$width * tidybuilding$depth
   } else{
-    return(FALSE)
-    warning("Not enough building info to calculate building footprint")
+    warning("building data missing width or depth")
+    return("MAYBE")
   }
 
   value <- (footprint / (tidyparcel_dims$lot_area * 43560)) * 100

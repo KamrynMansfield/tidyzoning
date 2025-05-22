@@ -21,8 +21,10 @@ check_unit_density(
 \item{zoning_req}{The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.}
 }
 \value{
-Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on unit density.
+Returns TRUE or FALSE stating whether or not the building would be
+allowed in the district based on unit density.
 }
 \description{
-`check_unit_density()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit density.
+`check_unit_density()` takes a tidybuilding and a tidydistrict to see if
+the district's zoning code allows the tidybuilding based on unit density.
 }

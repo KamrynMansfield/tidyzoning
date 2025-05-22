@@ -13,7 +13,7 @@ add_setbacks(
 )
 }
 \arguments{
-\item{tidyparcel_geo}{A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
+\item{tidyparcel_geo}{A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, interior side, exterior side, rear, centroid).}
 
 \item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
 

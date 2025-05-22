@@ -16,23 +16,21 @@ check_height <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NU
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
+  constraint <- "height"
+
   if (class(zoning_req) == "character"){
     warning("No zoning requirements recorded for this district")
     return(TRUE)
+  } else if (!constraint %in% zoning_req$constraint_name){
+    return(TRUE)
   }
 
-  constraint <- "height"
 
-
-  if (!is.null(tidybuilding$bldg_info$height) & !is.na(tidybuilding$bldg_info$height[[1]])){
-    value <- tidybuilding$bldg_info$height[[1]]
-  } else if (!is.null(tidybuilding$bldg_info$stories) & !is.na(tidybuilding$bldg_info$stories[[1]])){
-    floors <- tidybuilding$bldg_info$stories[[1]]
-    value <- floors * 12
-    warning("Height approximated based on 12 ft floors")
+  if (!is.null(tidybuilding$height)){
+    value <- tidybuilding$height
   } else{
-    return(TRUE)
-    warning("No tidybuilding height recorded")
+    warning("improper building data")
+    return("MAYBE")
   }
 
 

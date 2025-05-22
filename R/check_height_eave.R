@@ -14,27 +14,28 @@ check_height_eave <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
+  # establish the constaint we are looking at
+  constraint <- "height_eave"
+
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
   # we return maybe with a warning
   if (class(zoning_req) == "character"){
     warning("No zoning requirements recorded for this district")
     return(TRUE)
+  } else if (!constraint %in% zoning_req$constraint_name){
+    return(TRUE)
   }
-
-  # establish the constaint we are looking at
-  constraint <- "height_eave"
 
   # getting the value from the building's attributes
   # if the height is not recorded, but story count is, we can guess and put a warning
-  if (!is.null(tidybuilding$bldg_info$height_eave) & !is.na(tidybuilding$bldg_info$height[[1]])){
-    value <- tidybuilding$bldg_info$height_eave[[1]]
-  } else if (!is.null(tidybuilding$bldg_info$stories) & !is.na(tidybuilding$bldg_info$stories[[1]])){
-    floors <- tidybuilding$bldg_info$stories[[1]]
-    value <- floors * 12
-    warning("Height approximated based on 12 ft floors")
+  if (!is.null(tidybuilding$height_eave)){
+    value <- tidybuilding$height_eave
+  } else if (!is.null(tidybuilding$height)){
+    warning("No eave height recorded. Using height instead")
+    value <- tidybuilding$height
   } else{
-    return(TRUE)
-    warning("No tidybuilding eave height recorded")
+    warning("Imrpoper building info")
+    return("MAYBE")
   }
 
   # assume min and max values if they are not recorded

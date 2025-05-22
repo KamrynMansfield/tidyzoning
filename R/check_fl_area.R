@@ -14,26 +14,24 @@ check_fl_area <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = N
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
+  # establish the constaint we are looking at
+  constraint <- "fl_area"
+
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
   # we return maybe with a warning
   if (class(zoning_req) == "character"){
     warning("No zoning requirements recorded for this district")
     return(TRUE)
+  } else if (!constraint %in% zoning_req$constraint_name){
+    return(TRUE)
   }
 
-  # establish the constaint we are looking at
-  constraint <- "fl_area"
-
   # getting the value from the building's attributes
-  # if the fl_area is not recorded
-  if (length(tidybuilding$bldg_info$gross_fl_area) == 1){
-    value <- tidybuilding$bldg_info$gross_fl_area[[1]]
-  } else if (length(tidybuilding$unit_info$fl_area) == 1){
-    value <- sum(tidybuilding$unit_info$fl_area * tidybuilding$unit_info$qty)
-    warning("gross_fl_area calculated by summing unit fl_areas")
+  if (length(tidybuilding$gross_fl_area) == 1){
+    value <- tidybuilding$gross_fl_area[[1]]
   } else{
-    return(FALSE)
-    warning("No floor area found in tidybuilding")
+    warning("Improper building data")
+    return("MAYBE")
   }
 
 

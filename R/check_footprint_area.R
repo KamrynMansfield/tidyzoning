@@ -8,7 +8,7 @@
 #'
 #' @examples
 check_footprint_area <- function(tidybuilding, tidyparcel_dims){
-  tidyparcel_dims$bldg_area <- tidybuilding$bldg_info$width * tidybuilding$bldg_info$depth
+  tidyparcel_dims$bldg_area <- tidybuilding$width * tidybuilding$depth
 
   tidyparcel_dims |>
     dplyr::mutate(check_footprint_area = bldg_area < (lot_area * 43560))

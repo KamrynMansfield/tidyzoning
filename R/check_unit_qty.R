@@ -5,12 +5,13 @@
 #'  and returns TRUE, FALSE, or MAYBE
 #'
 #' @inheritParams check_height
+#' @param building_json The file path or json string of the json representing the building.
 #'
 #' @returns
 #' @export
 #'
 #' @examples
-check_unit_qty <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NULL, zoning_req = NULL){
+check_unit_qty <- function(tidybuilding = NULL, tidydistrict = NULL, tidyparcel_dims = NULL, building_json, zoning_req = NULL){
   # if zoning_req is not given, we need to run the get_zoning_req function
   if (is.null(zoning_req)){
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
@@ -23,24 +24,35 @@ check_unit_qty <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = 
     return(TRUE)
   }
 
+
+
+  ### before this maybe check to see if there is only "unit_qty"
+  ### because that is usually the case.
   unit_qty_df <- zoning_req[zoning_req$constraint_name %in% c("unit_qty",
                                                               "pct_units_0bed",
                                                               "pct_units_1bed",
                                                               "pct_units_2bed",
                                                               "pct_units_3bed",
-                                                              "pct_units_4bed"), ]
+                                                              "pct_units_4bed",
+                                                              "unit_0bed_qty",
+                                                              "unit_1bed_qty",
+                                                              "unit_2bed_qty",
+                                                              "unit_3bed_qty",
+                                                              "unit_4bed_qty"), ]
 
   if (nrow(unit_qty_df) == 0){
     return(TRUE)
+  } else if (nrow(unit_qty_df) == 1 & "unit_qty" %in% unit_qty_df$constraint_name){
+
   }
 
-
+  unit_info <- get_unit_info(building_json)
 
   # getting the value from the building's attributes
-  if (length(tidybuilding$unit_info$qty) == 1 & length(tidybuilding$unit_info$bedrooms) == 1){
-    units <- sum(tidybuilding$unit_info$qty)
+  if (length(unit_info$qty) > 0 & length(unit_info$bedrooms) > 0){
+    units <- sum(unit_info$qty)
 
-    bedrooms_df <- tidybuilding$unit_info |>
+    bedrooms_df <- unit_info |>
       dplyr::group_by(bedrooms) |>
       dplyr::summarise(qty = sum(qty))
 
@@ -49,6 +61,7 @@ check_unit_qty <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = 
     units_2bed <- bedrooms_df[bedrooms_df$bedrooms == 2,"qty"][[1]]
     units_3bed <- bedrooms_df[bedrooms_df$bedrooms == 3,"qty"][[1]]
     units_4bed <- bedrooms_df[bedrooms_df$bedrooms == 4,"qty"][[1]]
+
 
     pct_0bed <- units_0bed / units
     pct_1bed <- units_1bed / units
@@ -61,20 +74,30 @@ check_unit_qty <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = 
                 pct_units_1bed = pct_1bed,
                 pct_units_2bed = pct_2bed,
                 pct_units_3bed = pct_3bed,
-                pct_units_4bed = pct_4bed)
+                pct_units_4bed = pct_4bed,
+                unit_0bed_qty = units_0bed,
+                unit_1bed_qty = units_1bed,
+                unit_2bed_qty = units_2bed,
+                unit_3bed_qty = units_3bed,
+                unit_4bed_qty = units_4bed)
 
-  } else if(length(tidybuilding$unit_info$qty) == 1){
-    units <- sum(tidybuilding$unit_info$qty)
+  } else if(length(unit_info$qty) > 1){
+    units <- sum(unit_info$qty)
 
     values <- c(unit_qty = units,
                 pct_units_0bed = 0,
                 pct_units_1bed = 0,
                 pct_units_2bed = 0,
                 pct_units_3bed = 0,
-                pct_units_4bed = 0)
+                pct_units_4bed = 0,
+                unit_0bed_qty = 0,
+                unit_1bed_qty = 0,
+                unit_2bed_qty = 0,
+                unit_3bed_qty = 0,
+                unit_4bed_qty = 0)
   } else{
-    return(FALSE)
-    warning("No unit count found in tidybuilding")
+    return("MAYBE")
+    warning("Improper building data")
   }
 
   allowed <- c()
@@ -199,9 +222,11 @@ check_unit_qty <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = 
     return(FALSE)
   } else if (length(allowed[allowed == TRUE]) == nrow(unit_qty_df)){
     return(TRUE)
-  } else{
-    warning(warnings)
+  } else if ("MAYBE" %in% allowed){
+    warning(paste(warnings, collapse = ", "))
     return("MAYBE")
+  } else{
+    return(FALSE)
   }
 
 

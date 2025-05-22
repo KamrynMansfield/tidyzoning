@@ -1,11 +1,13 @@
 #' Compare building's unit density and allowed unit_density
 #'
-#' `check_unit_density()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit density.
+#' `check_unit_density()` takes a tidybuilding and a tidydistrict to see if
+#' the district's zoning code allows the tidybuilding based on unit density.
 #'
 #' @inheritParams check_far
 #'
 #' @return
-#' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on unit density.
+#' Returns TRUE or FALSE stating whether or not the building would be
+#' allowed in the district based on unit density.
 #' @export
 #'
 check_unit_density <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims, zoning_req = NULL){
@@ -14,22 +16,24 @@ check_unit_density <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dim
     zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
   }
 
+  # establish the constraint we are looking at
+  constraint <- "unit_density"
+
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
   # we return maybe with a warning
   if (class(zoning_req) == "character"){
     warning("No zoning requirements recorded for this district")
     return(TRUE)
+  } else if (!constraint %in% zoning_req$constraint_name){
+    return(TRUE)
   }
 
-  # establish the constraint we are looking at
-  constraint <- "unit_density"
-
   # getting the value from the building's attributes
-  if (length(tidybuilding$unit_info$qty) == 1){
-    units <- sum(tidybuilding$unit_info$qty)
+  if (length(tidybuilding$total_units) == 1){
+    units <- tidybuilding$total_units
   } else{
-    return(FALSE)
-    warning("No unit count found in tidybuilding")
+    warning("Building data missing total_units")
+    return("MAYBE")
   }
 
   ######## need to double check to make sure I'm calling the lot_area correctly

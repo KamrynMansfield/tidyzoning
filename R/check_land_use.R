@@ -10,19 +10,17 @@
 #' @export
 #'
 check_land_use <- function(tidybuilding, tidydistrict){
-  dist_info_list <- rjson::fromJSON(tidydistrict$dist_info)
-
-  bldg_type <- tidybuilding$bldg_info$type
+  bldg_type <- tidybuilding$type
 
   if (is.null(bldg_type)){
     return(FALSE)
-    warning("Unable to find building type. Results may not be accurate")
+    warning("Building data lacking bldg_type")
   }
 
-  if (length(dist_info_list$uses_permitted$uses_value) == 0){
-    return(FALSE)
+  if (length(tidydistrict$uses_permitted[[1]]) == 0){
     warning("Can't find permitted land uses. Assumed FALSE")
+    return(FALSE)
   } else{
-    return(bldg_type %in% dist_info_list$uses_permitted$uses_value)
+    return(bldg_type %in% tidydistrict$uses_permitted[[1]])
   }
 }

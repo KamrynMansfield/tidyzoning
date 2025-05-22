@@ -3,7 +3,7 @@
 #' `add_setbacks()` returns the tidyparcel object with new columns describing the setback and units of each side.
 #'
 #'
-#' @param tidyparcel_geo A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
+#' @param tidyparcel_geo A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, interior side, exterior side, rear, centroid).
 #' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
 #' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
 #' @param tidyparcel_dims The simple features object with each parcel centroid and the parcel dimensions
@@ -123,18 +123,18 @@ add_setbacks <- function(tidyparcel_geo, tidydistrict, tidybuilding, tidyparcel_
     # Now look to see if setback_side_sum is a constraint and make updates
     if ("setback_side_sum" %in% extra_setback_info){
       # get idx of just the rows with side edges
-      just_sides <- which(tidyparcel$side %in% c("Interior side","Exterior side"))
+      just_sides <- which(tidyparcel$side %in% c("interior side","exterior side"))
 
       # if there are less than 2, we can't calculate the sum of the sides
       if (length(just_sides) < 2){
         warning("setback_side_sum cannot be calculated due to lack of parcel edges")
       } else{
-        # get idx of just Interior side edges
-        # get idx of just Exterior side edges
-        int_idxs <- which(tidyparcel$side == "Interior side")
-        ext_idxs <- which(tidyparcel$side == "Exterior side")
+        # get idx of just interior side edges
+        # get idx of just exterior side edges
+        int_idxs <- which(tidyparcel$side == "interior side")
+        ext_idxs <- which(tidyparcel$side == "exterior side")
 
-        # Assign a side_1 and side_2 making sure the Exterior side is side_1 when applicable
+        # Assign a side_1 and side_2 making sure the exterior side is side_1 when applicable
         if (length(int_idxs) > 0 & length(ext_idxs) > 0){
           side_1_idx <- ext_idxs[[1]]
           side_2_idx <- int_idxs[[1]]

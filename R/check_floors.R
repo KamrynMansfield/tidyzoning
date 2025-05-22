@@ -16,13 +16,16 @@ check_floors <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NU
   if (class(zoning_req) == "character"){
     warning("No zoning requirements recorded for this district")
     return(TRUE)
+  } else if(!"stories" %in% zoning_req$constraint_name){
+    return(TRUE)
   }
 
 
-  if (!is.null(tidybuilding$bldg_info$stories)){
-    value <- tidybuilding$bldg_info$stories
+  if (!is.null(tidybuilding$stories)){
+    value <- tidybuilding$stories
   } else{
-    return(TRUE)
+    warning("improper building data")
+    return("MAYBE")
   }
 
   if ("stories" %in% zoning_req$constraint_name){
