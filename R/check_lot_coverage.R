@@ -29,7 +29,7 @@ check_lot_coverage <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dim
   # getting the value from the building's attributes
   # if the fl_area is not recorded
   if (!is.null(tidybuilding$width) & !is.null(tidybuilding$depth)){
-    footprint <- tidybuildingo$width * tidybuilding$depth
+    footprint <- tidybuilding$width * tidybuilding$depth
   } else{
     warning("building data missing width or depth")
     return("MAYBE")

@@ -25,7 +25,7 @@ check_footprint <- function(tidybuilding, buildable_area){
 
     buildable_area_vect <- terra::vect(buildable_area)
 
-    raster_template <- terra::rast(buildable_area_vect, resolution = 1, crs = crs(buildable_area_vect))
+    raster_template <- terra::rast(buildable_area_vect, resolution = 1, crs = terra::crs(buildable_area_vect))
     build_area_raster <- terra::rasterize(buildable_area_vect,
                                    raster_template,
                                    field = 1,
