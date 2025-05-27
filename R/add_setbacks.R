@@ -1,6 +1,6 @@
 #' Add setback column to tidyparcel object
 #'
-#' `add_setbacks()` returns the tidyparcel object with new columns describing the setback and units of each side.
+#' `add_setbacks()` returns the tidyparcel object with a new setback column
 #'
 #'
 #' @param tidyparcel_geo A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, interior side, exterior side, rear, centroid).
@@ -9,7 +9,7 @@
 #' @param tidyparcel_dims The simple features object with each parcel centroid and the parcel dimensions
 #' @param zoning_req The results of the get_zoning_req funcion. If provided, tidyparcel_dims need not be provided.
 #'
-#' @return Returns the tidyparcel object with a "setbacks" and "units" column added to the end.
+#' @return Returns the tidyparcel object with a "setbacks" column added to the end.
 #' @export
 #'
 
@@ -24,7 +24,6 @@ add_setbacks <- function(tidyparcel_geo, tidydistrict, tidybuilding, tidyparcel_
 
   if (class(zoning_req) == "character"){
     tidyparcel$setback <- NA
-    tidyparcel$units <- NA
     return(tidyparcel)
   }
 
@@ -35,7 +34,6 @@ add_setbacks <- function(tidyparcel_geo, tidydistrict, tidybuilding, tidyparcel_
 
   # loop through each side
   setback_value <- list()
-  units_value <- c()
   for (i in 1:nrow(tidyparcel)){
     side_type <- tidyparcel[[i,"side"]]
     filtered_constraints <- zoning_req |>
@@ -43,15 +41,12 @@ add_setbacks <- function(tidyparcel_geo, tidydistrict, tidybuilding, tidyparcel_
 
     if (nrow(filtered_constraints) > 0){
       setback_value[i] <- filtered_constraints[1,"min_value"]
-      units_value <- c(units_value, filtered_constraints[1,"unit"])
     } else {
       setback_value[i] <- NA
-      units_value <- c(units_value, NA)
     }
   }
 
   tidyparcel$setback <- I(setback_value)
-  tidyparcel$units <- units_value
 
 
   ## EVERYTHING BELOW HAS BEEN ADDED TO ACCOMODATE EXTRA SETBACK RULES ##

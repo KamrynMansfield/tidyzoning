@@ -102,7 +102,6 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
     if (is.na(use_index)){
       min_vals[[i]] <- NA
       max_vals[[i]] <- NA
-      units[[i]] <- NA
       min_val_notes[[i]] <- NA
       max_val_notes[[i]] <- NA
       next
@@ -117,7 +116,6 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
       if (is.na(constraint_min_val)){
         min_vals[[i]] <- NA
         max_vals[[i]] <- NA
-        units[[i]] <- NA
         min_val_notes[[i]] <- "OZFS error"
         max_val_notes[[i]] <- NA
         next
@@ -306,7 +304,6 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
       if (is.na(constraint_max_val)){
         min_vals[[i]] <- NA
         max_vals[[i]] <- NA
-        units[[i]] <- NA
         min_val_notes[[i]] <- NA
         max_val_notes[[i]] <- "OZFS error"
         next
