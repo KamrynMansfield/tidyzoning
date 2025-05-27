@@ -49,7 +49,7 @@ zoning_analysis_pipline <- function(bldg_file,
 
   ## TIDYZONING ##
   # get the ozfs data as an sf data frame
-  ###########uncomment soon######### tidyzoning_full <- sf::st_read(ozfs_zoning_file, quiet = TRUE)
+  tidyzoning_full <- sf::st_read(ozfs_zoning_file, quiet = TRUE)
   # just the overlay districts with geometry
   overlays <- tidyzoning_full |>
     dplyr::filter(!sf::st_is_empty(geometry)) |>
@@ -394,3 +394,42 @@ zoning_analysis_pipline <- function(bldg_file,
 
 }
 
+ggplot2::ggplot(final_df) +
+  ggplot2::geom_sf(ggplot2::aes(color = allowed)) +
+  ggplot2::geom_sf(data = tidyparcel_geo)
+
+df <- zoning_analysis_pipline(bldg_file,
+                               parcels_file,
+                               ozfs_zoning_file,
+                               detailed_check = TRUE,
+                               run_check_land_use = FALSE,
+                               run_check_height = FALSE,
+                               run_check_height_eave = FALSE,
+                               run_check_floors = FALSE,
+                               run_check_unit_size = FALSE,
+                               run_check_far = FALSE,
+                               run_check_unit_density = FALSE,
+                               run_check_lot_coverage = FALSE,
+                               run_check_fl_area = FALSE,
+                               run_check_unit_qty = FALSE,
+                               run_check_footprint = TRUE)
+
+
+type_list <- list()
+length(type_list) <- nrow(tidyparcel_df)
+for (z in 1:nrow(tidyparcel_df)){
+  tidyparcel <- tidyparcel_df[z,]
+  tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
+  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+  if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
+    tidyparcel_sides <- tidyparcel_geo |>
+      dplyr::filter(parcel_id == tidyparcel$parcel_id)
+    parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
+    buildable_area <- get_buildable_area(parcel_with_setbacks)
+
+    type_list[[z]] <- class(buildable_area)
+
+
+  }
+}
+unique(type_list)
