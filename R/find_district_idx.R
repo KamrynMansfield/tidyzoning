@@ -11,11 +11,11 @@
 #' column stating the row number of the corresponding tidyzoning district
 #' @export
 #'
-find_district_idx <- function(parcels_centroids_sf, tidyzoning){
+find_district_idx <- function(parcels_centroids_sf, tidyzoning, idx_col_name = "zoning_id"){
 
-  tidyzoning$zoning_id <- 1:nrow(tidyzoning)
+  tidyzoning[[idx_col_name]] <- 1:nrow(tidyzoning)
 
-  parcels_with_zoning_id <- sf::st_join(parcels_centroids_sf, tidyzoning["zoning_id"])
+  parcels_with_zoning_id <- sf::st_join(parcels_centroids_sf, tidyzoning[idx_col_name])
 
   # in the future, I may have to account for the rare case where
   # there is a parcel in two base districts
