@@ -1,4 +1,8 @@
 #
+# bldg_file <- "inst/extdata/bldg_2_fam.json"
+# parcels_file <- "inst/extdata/Cockrell_Hill_parcels.geojson"
+# ozfs_zoning_file <- "inst/extdata/Cockrell_Hill_zoning.geojson"
+#
 # parcels_path <- "inst/extdata/Cockrell_Hill_parcels.geojson"
 # zoning_path <- "inst/extdata/Cockrell_Hill_zoning.geojson"
 # building_path <- "inst/extdata/bldg_12_fam.json"
@@ -15,3 +19,11 @@
 # check_land_use(tbldg,zoning[1,])
 # check_height(tbldg, zoning[4,],tidyparcel_dims)
 #
+#
+# zon_req <- get_zoning_req(tbldg, tidyzoning, tidyparcel_dims)
+#
+# inputs <- list(tidybuilding = tbldg, zon_req)
+# do.call(check_height,inputs)
+#
+# bldg_file_path <- "inst/extdata/bldg_12_fam.json"
+# ozfs_file_path <- "inst/extdata/Cockrell_Hill_zoning.geojson"
