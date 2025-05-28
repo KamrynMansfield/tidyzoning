@@ -54,7 +54,8 @@ allow a certain building.</p>
 <span>  run_check_lot_coverage <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  run_check_fl_area <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  run_check_unit_qty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  run_check_footprint <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  run_check_footprint <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  crs_m <span class="op">=</span> <span class="fl">3081</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -121,6 +122,10 @@ and it take more time. When FALSE, subsequent checks are skipped as soon as one 
 
 <dt id="arg-run-check-footprint">run_check_footprint<a class="anchor" aria-label="anchor" href="#arg-run-check-footprint"></a></dt>
 <dd><p>Should the analysis run the check_footprint function? (logical)</p></dd>
+
+
+<dt id="arg-crs-m">crs_m<a class="anchor" aria-label="anchor" href="#arg-crs-m"></a></dt>
+<dd><p>Projected Coordinate Reference System (in meters) for your study area.</p></dd>
 
 </dl></div>
     <div class="section level2">

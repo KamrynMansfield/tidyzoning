@@ -36,7 +36,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_footprint</span><span class="op">(</span><span class="va">tidybuilding</span>, <span class="va">buildable_area</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_footprint</span><span class="op">(</span><span class="va">tidybuilding</span>, <span class="va">buildable_area</span>, crs <span class="op">=</span> <span class="fl">3081</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -49,6 +49,10 @@
 
 <dt id="arg-buildable-area">buildable_area<a class="anchor" aria-label="anchor" href="#arg-buildable-area"></a></dt>
 <dd><p>A geometry. Usually of the parcels buildable area calculated from the setback requirements.</p></dd>
+
+
+<dt id="arg-crs">crs<a class="anchor" aria-label="anchor" href="#arg-crs"></a></dt>
+<dd><p>The projected Coordinate Reference System for the study area. Must be in meters.</p></dd>
 
 </dl></div>
     <div class="section level2">
