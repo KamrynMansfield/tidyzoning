@@ -16,7 +16,7 @@ get_buildable_area <- function(tidyparcel_with_setbacks){
     sf::st_collection_extract()
 
   if (nrow(tidyparcel_with_setbacks[!is.na(tidyparcel_with_setbacks$setback),]) == 0){
-    return(polygon)
+    return(list(polygon))
   }
 
   # seprate the min and max setbacks

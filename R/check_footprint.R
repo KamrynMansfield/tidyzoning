@@ -4,17 +4,20 @@
 #'
 #' @param tidybuilding A list of data frames with attributes representing a building.
 #' @param buildable_area A geometry. Usually of the parcels buildable area calculated from the setback requirements.
-#'
+#' @param crs The projected Coordinate Reference System for the study area. Must be in meters.
 #' @return
 #' Returns TRUE of FALSE stating whether or not the building footprint would fit in the buildable area.
 #' @export
 #'
-check_footprint <- function(tidybuilding, buildable_area){
+check_footprint <- function(tidybuilding, buildable_area, crs = 3081){
   width <- tidybuilding$width * 0.3048
   depth <- tidybuilding$depth * 0.3048
 
   rot_degrees <- seq(0,75, 15)
   # do the process and then rotate the footprint if it doesn't work
+
+  # put it into the correct crs
+  buildable_area <- sf::st_transform(buildable_area, crs)
 
   if (length(buildable_area) < 1){
     return(FALSE)

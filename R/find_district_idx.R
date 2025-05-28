@@ -1,11 +1,12 @@
 #' Find corresponding tidydistrict
 #'
 #' @description
-#' `find_district_idx()` adds a zoning_id column to the parcels data that
+#' `find_district_idx()` adds a new column to the parcels data that
 #' contains the tidyzoning row index of the district the parcel is in
 #'
 #' @param parcels_centroids_sf An sf object with the parcel centroids
 #' @param tidyzoning A simple features object with a row for each zoning district and columns holding the geojson formatted zoning requirements of each district.
+#' @param idx_col_name The name of the new column that will be added with the district index
 #'
 #' @return The same parcels centroids object that was input but with an additional
 #' column stating the row number of the corresponding tidyzoning district

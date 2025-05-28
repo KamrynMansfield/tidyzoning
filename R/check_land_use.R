@@ -17,10 +17,10 @@ check_land_use <- function(tidybuilding, tidydistrict){
     warning("Building data lacking bldg_type")
   }
 
-  if (length(tidydistrict$uses_permitted[[1]]) == 0){
+  if (length(tidydistrict$res_uses[[1]]) == 0){
     warning("Can't find permitted land uses. Assumed FALSE")
     return(FALSE)
   } else{
-    return(bldg_type %in% tidydistrict$uses_permitted[[1]])
+    return(bldg_type %in% tidydistrict$res_uses[[1]])
   }
 }

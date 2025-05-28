@@ -4,12 +4,14 @@
 \alias{check_footprint}
 \title{Check if footprint fits in buildable area}
 \usage{
-check_footprint(tidybuilding, buildable_area)
+check_footprint(tidybuilding, buildable_area, crs = 3081)
 }
 \arguments{
 \item{tidybuilding}{A list of data frames with attributes representing a building.}
 
 \item{buildable_area}{A geometry. Usually of the parcels buildable area calculated from the setback requirements.}
+
+\item{crs}{The projected Coordinate Reference System for the study area. Must be in meters.}
 }
 \value{
 Returns TRUE of FALSE stating whether or not the building footprint would fit in the buildable area.

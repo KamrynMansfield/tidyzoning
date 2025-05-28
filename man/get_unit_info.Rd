@@ -6,6 +6,11 @@
 \usage{
 get_unit_info(file_path = NULL, string = NULL)
 }
+\arguments{
+\item{file_path}{a json file with ozfs building attributes}
+
+\item{string}{a json string with ozfs building attributes}
+}
 \value{
 a data frame with information for each unit in the building
 }
