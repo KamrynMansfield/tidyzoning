@@ -22,7 +22,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
 
   tidydistrict_con <- tidydistrict |>
     sf::st_drop_geometry() |>
-    dplyr::select(!c("dist_name","dist_abbr","planned_dev","overlay","uses_permitted"))
+    dplyr::select(!c("dist_name","dist_abbr","planned_dev","overlay","res_uses"))
 
   constraints <- data.frame(constraint_name = names(tidydistrict_con))
 
