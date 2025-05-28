@@ -115,14 +115,14 @@ zoning_analysis_pipline <- function(bldg_file,
   if (!is.null(tidyparcel_df$pd_id)){ #find the parcels that have an index for a planned development district
     tidyparcel_df <- tidyparcel_df |>
       dplyr::mutate(check_pd = ifelse(is.na(pd_id), TRUE, FALSE),
-                    false_reasons = ifelse(is.na(pd_id), NA, "in planned development"))
+                    false_reasons = ifelse(is.na(pd_id), false_reasons, ifelse(!is.na(false_reasons),paste(false_reasons, "in planned development district", sep = ", "),"in planned development district")))
 
     # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
     # we filter the tidyparcel_df to have just the TRUEs and MAYBEs
     # so it will be smalle for the next checks
     if (detailed_check == FALSE){
       tidyparcel_false <- tidyparcel_df |>
-        dplyr::filter(check_pd == TRUE)
+        dplyr::filter(check_pd == FALSE)
       # Add the tidyparcel_false to the false_df list
       false_df[[false_df_idx]] <- tidyparcel_false
       false_df_idx <- false_df_idx + 1
@@ -146,7 +146,7 @@ zoning_analysis_pipline <- function(bldg_file,
       lu_check <- c(lu_check,check_land_use(tidybuilding, tidydistrict))
     }
 
-    # add a column stating the land_use_check results
+    # add a column stating the land_use_check results and any false reasons
     tidyparcel_df <- tidyparcel_df |>
       dplyr::mutate(check_land_use = ifelse(zoning_id %in% which(lu_check == TRUE), TRUE, FALSE),
                     false_reasons = ifelse(zoning_id %in% which(lu_check == TRUE), false_reasons, ifelse(!is.na(false_reasons),paste(false_reasons, "check_land_use", sep = ", "),"check_land_use")))
@@ -154,9 +154,9 @@ zoning_analysis_pipline <- function(bldg_file,
 
     # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
     # we filter the tidyparcel_df to have just the TRUEs and MAYBEs
-    # so it will be smalle for the next checks
+    # so it will be smaller for the next checks
     if (detailed_check == FALSE){
-      # filter the tidyparcels that aren't in those districts and give them a reason
+      # filter the tidyparcels that don't allow the land use
       tidyparcel_false <- tidyparcel_df |>
         dplyr::filter(check_land_use == FALSE)
       # Add the tidyparcel_false to the false_df list
@@ -164,7 +164,7 @@ zoning_analysis_pipline <- function(bldg_file,
       false_df_idx <- false_df_idx + 1
 
       tidyparcel_df <- tidyparcel_df |>
-        dplyr::filter(zoning_id %in% which(lu_check == TRUE))
+        dplyr::filter(check_land_use == TRUE)
     }
 
     time_lapsed <- proc.time()[[3]] - lu_start_time
@@ -288,6 +288,7 @@ zoning_analysis_pipline <- function(bldg_file,
       dplyr::filter(!parcel_id %in% parcels_with_sides)
 
     false_df[[false_df_idx]] <- tidyparcel_no_sides
+    false_df_idx <- false_df_idx + 1
 
     tidyparcel_df <- tidyparcel_df |>
       dplyr::filter(parcel_id %in% parcels_with_sides)
@@ -424,6 +425,10 @@ zoning_analysis_pipline <- function(bldg_file,
   return(final_df)
 
 }
+
+# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_2_fam.json"
+# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Garland_parcels.geojson"
+# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Garland.geojson"
 #
 # ggplot2::ggplot(final_df) +
 #   ggplot2::geom_sf(ggplot2::aes(color = allowed)) +
