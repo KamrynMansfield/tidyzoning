@@ -29,7 +29,8 @@ zoning_analysis_pipline(
 
 \item{ozfs_zoning_file}{The path to the geojson file with the ozfs zoning codes.}
 
-\item{detailed_check}{When TRUE, every parcel passes through each check no matter the result, and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE}
+\item{detailed_check}{When TRUE, every parcel passes through each check no matter the result,
+and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE}
 
 \item{run_check_land_use}{Should the analysis run the check_land_use function? (logical)}
 

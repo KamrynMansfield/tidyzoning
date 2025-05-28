@@ -24,8 +24,8 @@ add_setbacks(
 \item{zoning_req}{The results of the get_zoning_req funcion. If provided, tidyparcel_dims need not be provided.}
 }
 \value{
-Returns the tidyparcel object with a "setbacks" and "units" column added to the end.
+Returns the tidyparcel object with a "setbacks" column added to the end.
 }
 \description{
-`add_setbacks()` returns the tidyparcel object with new columns describing the setback and units of each side.
+`add_setbacks()` returns the tidyparcel object with a new setback column
 }

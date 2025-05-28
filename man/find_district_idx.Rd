@@ -4,7 +4,7 @@
 \alias{find_district_idx}
 \title{Find corresponding tidydistrict}
 \usage{
-find_district_idx(parcels_centroids_sf, tidyzoning)
+find_district_idx(parcels_centroids_sf, tidyzoning, idx_col_name = "zoning_id")
 }
 \arguments{
 \item{parcels_centroids_sf}{An sf object with the parcel centroids}

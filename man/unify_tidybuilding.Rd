@@ -4,12 +4,18 @@
 \alias{unify_tidybuilding}
 \title{Get summarized building info in one table}
 \usage{
-unify_tidybuilding(file_path = NULL, string = NULL)
+unify_tidybuilding(
+  bldg_data_file = NULL,
+  ozfs_data_file = NULL,
+  bldg_data_string = NULL
+)
 }
 \arguments{
-\item{file_path}{a json file with ozfs building attributes see "insert hyperlink here"}
+\item{bldg_data_file}{a json file with ozfs building attributes see "insert hyperlink here"}
 
-\item{string}{a json string with ozfs building attributes see "insert hyperlink here"}
+\item{ozfs_data_file}{the path to the}
+
+\item{bldg_data_string}{a json bldg_data_string with ozfs building attributes see "insert hyperlink here"}
 }
 \value{
 a one-row data frame with values describing the building.

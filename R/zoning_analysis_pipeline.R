@@ -41,24 +41,27 @@ zoning_analysis_pipline <- function(bldg_file,
                                     run_check_fl_area = TRUE,
                                     run_check_unit_qty = TRUE,
                                     run_check_footprint = FALSE){
+  # track the start time to give a time stamp at end
   total_start_time <- proc.time()[[3]]
 
+  ########---- START DATA PREP----########
   ## TIDYBUILDING ##
   # get building summary data frame with unify_tidybuilding
   tidybuilding <- unify_tidybuilding(bldg_file, ozfs_zoning_file)
 
   ## TIDYZONING ##
-  # get the ozfs data as an sf data frame
+  # get the full ozfs data as an sf data frame
   tidyzoning_full <- sf::st_read(ozfs_zoning_file, quiet = TRUE)
-  # just the overlay districts with geometry
+  # get just the overlay districts with geometry
   overlays <- tidyzoning_full |>
     dplyr::filter(!sf::st_is_empty(geometry)) |>
     dplyr::filter(overlay == TRUE)
-  # just the pd_districts with geometry
+  # get just the pd_districts with geometry
   pd_districts <- tidyzoning_full |>
     dplyr::filter(!sf::st_is_empty(geometry)) |>
     dplyr::filter(planned_dev == TRUE)
-  # just the base districts with geometry
+  # get just the base districts with geometry
+  # this is the one I will use for most of the checks
   tidyzoning <- tidyzoning_full |>
     dplyr::filter(!sf::st_is_empty(geometry)) |>
     dplyr::filter(overlay == FALSE) |>
@@ -66,10 +69,12 @@ zoning_analysis_pipline <- function(bldg_file,
 
 
   ## TIDYPARCELS ##
-  # separate the parcel data into two sf data frames
-  tidyparcel_geo <- get_tidyparcel_geo(parcels_file)
-  tidyparcel_dims <- get_tidyparcel_dim(parcels_file)
+  # separate the parcel data into two special feature data frames
+  tidyparcel_geo <- get_tidyparcel_geo(parcels_file) # parcels with side labels
+  tidyparcel_dims <- get_tidyparcel_dim(parcels_file) # parcels with centroid and dimensions
 
+
+  ## GET DISTRICT INDICES ##
   # use the base zoning districts to add zoning_id to tidyparcel_dims
   tidyparcel_dims <- find_district_idx(tidyparcel_dims, tidyzoning, "zoning_id")
 
@@ -83,30 +88,36 @@ zoning_analysis_pipline <- function(bldg_file,
     tidyparcel_dims <- find_district_idx(tidyparcel_dims, overlays, "overlay_id")
   }
 
-  # Make a new df for false and maybe reasons that we will loop through later
+  # add false_reasons and maybe_reasons columns to tidyparcel_dims (for tracking maybs and falses)
+  # this tidyparcel_df is what we will use for most of the calculations
   tidyparcel_df <- tidyparcel_dims |>
     dplyr::mutate(false_reasons = as.character(NA),
                   maybe_reasons = as.character(NA))
 
 
-  # Now we have
-  # - tidyparcel_geo: this is used for the buildable area calculation later
+  ## VARIABLES WE HAVE ##
   # - tidyparcel_df: this is used in all the check functions
   # - tidybuilding: this is used in all the check functions
   # - tidyzoning: this is used in all the check functions
+  # - tidyparcel_geo: this is used for the buildable area calculation later
 
-  # start a list to store the false data frames of the check functions
+
+  # start a list that will store the false data frames of the check functions
   false_df <- list()
   false_df_idx <- 1
+  ########----END DATA PREP----########
 
+  ########----START CHECKS----########
   # PLANNED DEVELOPMENT CHECK
   # if parcels are in a planned development, the building is automatically not allowed
-  if (!is.null(tidyparcel_df$pd_id)){
+  if (!is.null(tidyparcel_df$pd_id)){ #find the parcels that have an index for a planned development district
     tidyparcel_df <- tidyparcel_df |>
       dplyr::mutate(check_pd = ifelse(is.na(pd_id), TRUE, FALSE),
                     false_reasons = ifelse(is.na(pd_id), NA, "in planned development"))
 
-
+    # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
+    # we filter the tidyparcel_df to have just the TRUEs and MAYBEs
+    # so it will be smalle for the next checks
     if (detailed_check == FALSE){
       tidyparcel_false <- tidyparcel_df |>
         dplyr::filter(check_pd == TRUE)
@@ -125,6 +136,9 @@ zoning_analysis_pipline <- function(bldg_file,
     lu_start_time <- proc.time()[[3]]
     # land use for each district
     lu_check <- c()
+
+    # for this one, we just need to loop through each district to check the land use.
+    # then any parcels in those unacceptable districts will be marked FALSE
     for (k in 1:nrow(tidyzoning)){
       tidydistrict <- tidyzoning[k, ]
       lu_check <- c(lu_check,check_land_use(tidybuilding, tidydistrict))
@@ -135,6 +149,10 @@ zoning_analysis_pipline <- function(bldg_file,
       dplyr::mutate(check_land_use = ifelse(zoning_id %in% which(lu_check == TRUE), TRUE, FALSE),
                     false_reasons = ifelse(zoning_id %in% which(lu_check == TRUE), false_reasons, ifelse(!is.na(false_reasons),paste(false_reasons, "check_land_use", sep = ", "),"check_land_use")))
 
+
+    # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
+    # we filter the tidyparcel_df to have just the TRUEs and MAYBEs
+    # so it will be smalle for the next checks
     if (detailed_check == FALSE){
       # filter the tidyparcels that aren't in those districts and give them a reason
       tidyparcel_false <- tidyparcel_df |>
@@ -158,24 +176,7 @@ zoning_analysis_pipline <- function(bldg_file,
   # INITIAL CHECKS
   # perform all the initial checks
 
-  # tidybuilding
-  # tidydistrict
-  # tidyparcel
-  # zoning_req
-  # bldg_file
-
-
-  func_names <- c("check_height",
-                  "check_height_eave",
-                  "check_floors",
-                  "check_unit_size",
-                  "check_far",
-                  "check_unit_density",
-                  "check_lot_coverage",
-                  "check_fl_area",
-                  "check_unit_qty")
-
-
+  # We will use this variable to loop through each check function that is marked TRUE
   check_functions <- c(run_check_height,
                        run_check_height_eave,
                        run_check_floors,
@@ -186,13 +187,15 @@ zoning_analysis_pipline <- function(bldg_file,
                        run_check_fl_area,
                        run_check_unit_qty)
 
+  # start empty variables to store potential errors and warnings
   errors <- c()
   warnings <- c()
-  for (j in 1:length(check_functions)){
+  for (j in 1:length(check_functions)){ # loop through each check function
     if (check_functions[[j]]){ #if the function is marked true, then it will run the function
 
-      func_start_time <- proc.time()[[3]]
+      func_start_time <- proc.time()[[3]] #start time for function time stamps
 
+      # if there are no more parcels to check, it will exit the loop
       if (nrow(tidyparcel_df) == 0){
         break
       }
@@ -202,6 +205,8 @@ zoning_analysis_pipline <- function(bldg_file,
         tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
         zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
 
+        # this variable stores the function and its inputs
+        # that allows me to use do.call() function to run the correct check function
         funcs <- list(list("check_height",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
                            list("check_height_eave",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
                            list("check_floors",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
@@ -236,6 +241,8 @@ zoning_analysis_pipline <- function(bldg_file,
 
         tidyparcel_df[i, func_name] <- as.character(check)
 
+        # if the check returns FALSE or MAYBE,
+        # then write the function name in the reasons column
         if (check == "MAYBE"){
           tidyparcel_df[i,"maybe_reasons"] <- ifelse(is.na(tidyparcel_df[[i,"maybe_reasons"]]), func_name, paste(tidyparcel_df[[i,"maybe_reasons"]], func_name, sep = ", "))
         }
@@ -245,6 +252,10 @@ zoning_analysis_pipline <- function(bldg_file,
         }
       }
 
+
+      # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
+      # we filter the tidyparcel_df to have just the TRUEs and MAYBEs
+      # so it will be smalle for the next checks
       if (detailed_check == FALSE){
         tidyparcel_false <- tidyparcel_df[tidyparcel_df[,func_name][[1]] == FALSE,]
         tidyparcel_df <- tidyparcel_df[tidyparcel_df[,func_name][[1]] %in% c(TRUE, "MAYBE"),]
@@ -253,6 +264,7 @@ zoning_analysis_pipline <- function(bldg_file,
         false_df_idx <- false_df_idx + 1
       }
 
+      # print out info about the function run
       time_lapsed <- proc.time()[[3]] - func_start_time
       cat(paste0("_____",func_name,"_____\n"))
       cat(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)\n"))
@@ -318,6 +330,8 @@ zoning_analysis_pipline <- function(bldg_file,
 
       tidyparcel_df[z, "check_footprint"] <- as.character(check)
 
+      # if the check returns FALSE or MAYBE,
+      # then write the function name in the reasons column
       if (check == "MAYBE"){
         tidyparcel_df[z,"maybe_reasons"] <- ifelse(is.na(tidyparcel_df[[z,"maybe_reasons"]]), "check_footprint", paste(tidyparcel_df[[z,"maybe_reasons"]], "check_footprint", sep = ", "))
       }
@@ -335,6 +349,7 @@ zoning_analysis_pipline <- function(bldg_file,
       false_df_idx <- false_df_idx + 1
     }
 
+    # print out info about the function run
     time_lapsed <- proc.time()[[3]] - foot_start_time
     print(paste0("_____","check_footprint","_____"))
     print(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)"))
@@ -350,10 +365,10 @@ zoning_analysis_pipline <- function(bldg_file,
       dplyr::mutate(check_overlay = ifelse(is.na(overlay_id),TRUE, "MAYBE"),
                     maybe_reasons = ifelse(is.na(overlay_id), maybe_reasons, ifelse(!is.na(maybe_reasons),paste(maybe_reasons, "parcel in overlay district", sep = ", "),"parcel in overlay district")))
   }
+  ########----END CHECKS----########
 
 
-  # FINALIZING THINGS
-
+  ########----FINALIZING THINGS----########
   final_df <- dplyr::bind_rows(false_df, tidyparcel_df)
   final_without_geom <- sf::st_drop_geometry(final_df)
   final_df$has_false <- rowSums(final_without_geom == FALSE, na.rm = T)
@@ -390,46 +405,48 @@ zoning_analysis_pipline <- function(bldg_file,
   cat(paste(length(which(final_df$allowed == TRUE)), "/", nrow(final_df), "parcels allow the building\n"))
   cat(paste(length(which(final_df$allowed == "MAYBE")), "/", nrow(final_df), "parcels might allow the building\n"))
 
+  # Return the final data frame
+  # It will contain every parcel with an "allowed" column and a "reason" column
   return(final_df)
 
 }
 
-ggplot2::ggplot(final_df) +
-  ggplot2::geom_sf(ggplot2::aes(color = allowed)) +
-  ggplot2::geom_sf(data = tidyparcel_geo)
-
-df <- zoning_analysis_pipline(bldg_file,
-                               parcels_file,
-                               ozfs_zoning_file,
-                               detailed_check = TRUE,
-                               run_check_land_use = FALSE,
-                               run_check_height = FALSE,
-                               run_check_height_eave = FALSE,
-                               run_check_floors = FALSE,
-                               run_check_unit_size = FALSE,
-                               run_check_far = FALSE,
-                               run_check_unit_density = FALSE,
-                               run_check_lot_coverage = FALSE,
-                               run_check_fl_area = FALSE,
-                               run_check_unit_qty = FALSE,
-                               run_check_footprint = TRUE)
-
-
-type_list <- list()
-length(type_list) <- nrow(tidyparcel_df)
-for (z in 1:nrow(tidyparcel_df)){
-  tidyparcel <- tidyparcel_df[z,]
-  tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
-  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
-  if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
-    tidyparcel_sides <- tidyparcel_geo |>
-      dplyr::filter(parcel_id == tidyparcel$parcel_id)
-    parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
-    buildable_area <- get_buildable_area(parcel_with_setbacks)
-
-    type_list[[z]] <- class(buildable_area)
-
-
-  }
-}
-unique(type_list)
+# ggplot2::ggplot(final_df) +
+#   ggplot2::geom_sf(ggplot2::aes(color = allowed)) +
+#   ggplot2::geom_sf(data = tidyparcel_geo)
+#
+# df <- zoning_analysis_pipline(bldg_file,
+#                                parcels_file,
+#                                ozfs_zoning_file,
+#                                detailed_check = TRUE,
+#                                run_check_land_use = FALSE,
+#                                run_check_height = FALSE,
+#                                run_check_height_eave = FALSE,
+#                                run_check_floors = FALSE,
+#                                run_check_unit_size = FALSE,
+#                                run_check_far = FALSE,
+#                                run_check_unit_density = FALSE,
+#                                run_check_lot_coverage = FALSE,
+#                                run_check_fl_area = FALSE,
+#                                run_check_unit_qty = FALSE,
+#                                run_check_footprint = TRUE)
+#
+#
+# type_list <- list()
+# length(type_list) <- nrow(tidyparcel_df)
+# for (z in 1:nrow(tidyparcel_df)){
+#   tidyparcel <- tidyparcel_df[z,]
+#   tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
+#   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+#   if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
+#     tidyparcel_sides <- tidyparcel_geo |>
+#       dplyr::filter(parcel_id == tidyparcel$parcel_id)
+#     parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
+#     buildable_area <- get_buildable_area(parcel_with_setbacks)
+#
+#     type_list[[z]] <- class(buildable_area)
+#
+#
+#   }
+# }
+# unique(type_list)
