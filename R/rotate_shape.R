@@ -25,7 +25,25 @@ rotate_shape <- function(shape, angle_degrees, center = NULL) {
   }
 
   coords <- shape |>
+    sf::st_union() |>
+    sf::st_cast("POLYGON") |>
     sf::st_coordinates()
+
+  # this checks to see if there are any holes in the polygon
+  # if so, it will chosse the polygon with with most coordinates as
+  # the main polygon to rotate
+  if (length(unique(coords[,"L2"])) > 1){
+    l2_val <- c()
+    len <- c()
+    for (i in unique(coords[,"L2"])){
+      l2_val <- c(l2_val, i)
+      len <- c(len, nrow(coords[coords[,"L2"] == i,]))
+    }
+
+    val <- l2_val[which(len == max(len))]
+    coords <-coords[coords[,"L2"] == val,]
+  }
+
 
   coords <- coords[1:nrow(coords),1:2]
 
