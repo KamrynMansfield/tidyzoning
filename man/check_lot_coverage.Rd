@@ -18,11 +18,11 @@ check_lot_coverage(
 
 \item{tidyparcel_dims}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
 
-\item{zoning_req}{The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.}
+\item{zoning_req}{The data frame result from the \code{get_zoning_req()} function. If provided, the tidydistrict and parccel need not be provided.}
 }
 \value{
 Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on lot coverage.
 }
 \description{
-`check_lot_coverage()` takes a tidybuilding, tidydistrict, and tidyparcel to see if the district's zoning code allows the tidybuilding based on lot coverage.
+\code{check_lot_coverage()} takes a tidybuilding, tidydistrict, and tidyparcel to see if the district's zoning code allows the tidybuilding based on lot coverage.
 }

@@ -18,5 +18,5 @@ Default is null,  When NULL, rotation is about the centroid.}
 Returns the simple feature shape object with rotated geometry
 }
 \description{
-The `rotate_shape()` function takes a one-row special feature object and rotates the geometry about the centroid or a specified point.
+The \code{rotate_shape()} function takes a one-row special feature object and rotates the geometry about the centroid or a specified point.
 }

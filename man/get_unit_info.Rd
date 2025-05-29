@@ -15,6 +15,6 @@ get_unit_info(file_path = NULL, string = NULL)
 a data frame with information for each unit in the building
 }
 \description{
-`get_unit_info()` takes a json representing a building and
+\code{get_unit_info()} takes a json representing a building and
 returns a data frame with data for each unit in the building.
 }

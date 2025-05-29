@@ -18,6 +18,6 @@ The same parcels centroids object that was input but with an additional
 column stating the row number of the corresponding tidyzoning district
 }
 \description{
-`find_district_idx()` adds a new column to the parcels data that
+\code{find_district_idx()} uses \code{\link[sf:st_join]{sf::st_join()}} to adds a new column to the parcels data that
 contains the tidyzoning row index of the district the parcel is in
 }

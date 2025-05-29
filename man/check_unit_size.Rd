@@ -21,11 +21,11 @@ check_unit_size(
 
 \item{building_json}{The file path or json string of the json representing the building.}
 
-\item{zoning_req}{The data frame result from the `get_zoning_req()` function.}
+\item{zoning_req}{The data frame result from the \code{get_zoning_req()} function.}
 }
 \value{
 Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on the unit sizes.
 }
 \description{
-`check_unit_size()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit sizes.
+\code{check_unit_size()} takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit sizes.
 }

@@ -13,5 +13,5 @@ ozfs_validate(...)
 A data frame with info on where the errors were found.
 }
 \description{
-`ozfs_validate()` lists any errors in the formatting of the OZFS data
+\code{ozfs_validate()} lists any errors in the formatting of the OZFS data
 }

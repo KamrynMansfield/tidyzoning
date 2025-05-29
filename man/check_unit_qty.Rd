@@ -21,10 +21,10 @@ check_unit_qty(
 
 \item{building_json}{The file path or json string of the json representing the building.}
 
-\item{zoning_req}{The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.}
+\item{zoning_req}{The data frame result from the \code{get_zoning_req()} function. If provided, the tidydistrict and parccel need not be provided.}
 }
 \description{
-`check_unit_qty` compares the total units in a tidybuilding object
- to the allowable number of units according to the tidyzoning data
- and returns TRUE, FALSE, or MAYBE
+\code{check_unit_qty} compares the total units in a tidybuilding object
+to the allowable number of units according to the tidyzoning data
+and returns TRUE, FALSE, or MAYBE
 }

@@ -7,7 +7,7 @@
 get_buildable_area(tidyparcel_with_setbacks)
 }
 \arguments{
-\item{tidyparcel_with_setbacks}{A tidyparcel object that has setback infomration added. tidyparcel_with_setbacks is the output of the [add_setbacks()] function.}
+\item{tidyparcel_with_setbacks}{A tidyparcel object that has setback infomration added. tidyparcel_with_setbacks is the output of the \code{\link[=add_setbacks]{add_setbacks()}} function.}
 }
 \value{
 Returns a polygon representing the buildable area of the parcel.

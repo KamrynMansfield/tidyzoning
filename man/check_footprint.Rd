@@ -17,5 +17,5 @@ check_footprint(tidybuilding, buildable_area, crs = 3081)
 Returns TRUE of FALSE stating whether or not the building footprint would fit in the buildable area.
 }
 \description{
-`check_footprint()` takes a building footprint from tidybuilding object and checks to see if it will fit in the provided buildable area. The buildable area can be any shape.
+\code{check_footprint()} takes a building footprint from tidybuilding object and checks to see if it will fit in the provided buildable area. The buildable area can be any shape.
 }

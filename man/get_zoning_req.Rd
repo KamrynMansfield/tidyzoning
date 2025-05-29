@@ -20,7 +20,7 @@ If every value is NA, it could indicate that the building land use is not allowe
 }
 \description{
 Because many zoning requirements depend on the proposed building
-or the parcel of that zoning district, `the get_zoning_req()` function
+or the parcel of that zoning district, \verb{the get_zoning_req()} function
 takes a tidybuilding, a tidyparcel, and a tidydistrict and outputs a data
 frame listing the set zoning requirements that those three objects would create.
 If every value is NA, it could indicate that the building

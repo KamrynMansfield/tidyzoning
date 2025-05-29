@@ -60,5 +60,5 @@ tz_all_checks(
 A data frame with initial check function results.
 }
 \description{
-`tz_initial_checks()` runs the initial tidyzoning check functions to see if certain attributes of the building are allowed in the parcel.
+\code{tz_initial_checks()} runs the initial tidyzoning check functions to see if certain attributes of the building are allowed in the parcel.
 }

@@ -13,5 +13,5 @@ ozfs_is_valid(...)
 TRUE or FALSE stating whether data is in valid OZFS format or not
 }
 \description{
-`ozfs_is_valid()` State the validity of the ozfs data
+\code{ozfs_is_valid()} State the validity of the ozfs data
 }

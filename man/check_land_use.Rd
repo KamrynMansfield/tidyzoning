@@ -16,5 +16,5 @@ Returns TRUE or FALSE stating whether or not the building would be allowed in th
 Note: If there is no recorded land use requirement in zoning code, it returns FALSE
 }
 \description{
-`check_land_use()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on land use.
+\code{check_land_use()} takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on land use.
 }

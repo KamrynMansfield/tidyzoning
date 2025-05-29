@@ -63,6 +63,6 @@ stating building allowance on the parcel and a column stating the reason
 why certain parcels don't allow the building.
 }
 \description{
-`zoning_analysis_pipline()` runs through all of the zoning checks to see which parcels
+\code{zoning_analysis_pipline()} runs through all of the zoning checks to see which parcels
 allow a certain building.
 }

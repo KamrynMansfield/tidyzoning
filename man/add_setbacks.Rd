@@ -27,5 +27,5 @@ add_setbacks(
 Returns the tidyparcel object with a "setbacks" column added to the end.
 }
 \description{
-`add_setbacks()` returns the tidyparcel object with a new setback column
+\code{add_setbacks()} returns the tidyparcel object with a new setback column
 }
