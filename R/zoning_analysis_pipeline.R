@@ -41,6 +41,8 @@ zoning_analysis_pipline <- function(bldg_file,
                                     run_check_lot_coverage = TRUE,
                                     run_check_fl_area = TRUE,
                                     run_check_unit_qty = TRUE,
+                                    run_check_lot_size = TRUE,
+                                    run_check_parking_enclosed = TRUE,
                                     run_check_footprint = FALSE,
                                     crs_m = 3081){
   # track the start time to give a time stamp at end
@@ -182,7 +184,9 @@ zoning_analysis_pipline <- function(bldg_file,
                        run_check_unit_density,
                        run_check_lot_coverage,
                        run_check_fl_area,
-                       run_check_unit_qty)
+                       run_check_unit_qty,
+                       run_check_lot_size,
+                       run_check_parking_enclosed)
 
   # start empty variables to store potential errors and warnings
   errors <- c()
@@ -205,14 +209,16 @@ zoning_analysis_pipline <- function(bldg_file,
         # this variable stores the function and its inputs
         # that allows me to use do.call() function to run the correct check function
         funcs <- list(list("check_height",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
-                           list("check_height_eave",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
-                           list("check_floors",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
-                           list("check_unit_size",list(tidybuilding = tidybuilding, tidydistrict = tidydistrict, tidyparcel_dims = tidyparcel, building_json = bldg_file, zoning_req = zoning_req)),
-                           list("check_far",list(tidybuilding = tidybuilding, tidyparcel_dims = tidyparcel, zoning_req = zoning_req)),
-                           list("check_unit_density",list(tidybuilding = tidybuilding, tidyparcel_dims = tidyparcel, zoning_req = zoning_req)),
-                           list("check_lot_coverage",list(tidybuilding = tidybuilding, tidyparcel_dims = tidyparcel, zoning_req = zoning_req)),
-                           list("check_fl_area",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
-                           list("check_unit_qty",list(building_json = bldg_file, zoning_req = zoning_req)))
+                      list("check_height_eave",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
+                      list("check_floors",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
+                      list("check_unit_size",list(tidybuilding = tidybuilding, tidydistrict = tidydistrict, tidyparcel_dims = tidyparcel, building_json = bldg_file, zoning_req = zoning_req)),
+                      list("check_far",list(tidybuilding = tidybuilding, tidyparcel_dims = tidyparcel, zoning_req = zoning_req)),
+                      list("check_unit_density",list(tidybuilding = tidybuilding, tidyparcel_dims = tidyparcel, zoning_req = zoning_req)),
+                      list("check_lot_coverage",list(tidybuilding = tidybuilding, tidyparcel_dims = tidyparcel, zoning_req = zoning_req)),
+                      list("check_fl_area",list(tidybuilding = tidybuilding, zoning_req = zoning_req)),
+                      list("check_unit_qty",list(building_json = bldg_file, zoning_req = zoning_req)),
+                      list("check_lot_size",list(tidyparcel_dims = tidyparcel, zoning_req = zoning_req)),
+                      list("check_parking_enclosed",list(tidybuilding = tidybuilding, zoning_req = zoning_req)))
 
         func_name <- funcs[[j]][[1]]
 
@@ -358,9 +364,9 @@ zoning_analysis_pipline <- function(bldg_file,
 
     # print out info about the function run
     time_lapsed <- proc.time()[[3]] - foot_start_time
-    print(paste0("_____","check_footprint","_____"))
-    print(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)"))
-    print(paste(length(which(tidyparcel_df[,"check_footprint"][[1]] %in% c(TRUE, 'MAYBE'))),"parcels are TRUE or MAYBE"))
+    cat(paste0("_____","check_footprint","_____\n"))
+    cat(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)\n"))
+    cat(paste(length(which(tidyparcel_df[,"check_footprint"][[1]] %in% c(TRUE, 'MAYBE'))),"parcels are TRUE or MAYBE\n"))
   }
 
   # OVERLAY CHECK
@@ -490,70 +496,70 @@ zoning_analysis_pipline <- function(bldg_file,
   return(final_df)
 
 }
-#
-# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_2_fam.json"
-# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Rowlett_parcels.geojson"
-# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Rowlett.geojson"
-# detailed_check <- FALSE
-# run_check_land_use <- TRUE
-# run_check_height <- TRUE
-# run_check_height_eave <- TRUE
-# run_check_floors <- TRUE
-# run_check_unit_size <- TRUE
-# run_check_far <- TRUE
-# run_check_unit_density <- TRUE
-# run_check_lot_coverage <- TRUE
-# run_check_fl_area <- TRUE
-# run_check_unit_qty <- TRUE
-# run_check_footprint <- FALSE
-# crs_m <- 3081
-#
-#
-#
-# ggplot2::ggplot(final_df) +
-#   ggplot2::geom_sf(ggplot2::aes(color = allowed)) +
-#   ggplot2::geom_sf(data = tidyparcel_geo)
-#
-# ggplot2::ggplot(tidyzoning) +
-#   ggplot2::geom_sf(ggplot2::aes(fill = dist_abbr),alpha = .6) +
-#   ggplot2::geom_sf(data = tidyparcel_geo) +
-#   ggplot2::geom_sf(data = final_df, ggplot2::aes(color = allowed))
-#
-# df <- zoning_analysis_pipline(bldg_file,
-#                                parcels_file,
-#                                ozfs_zoning_file,
-#                                detailed_check = FALSE,
-#                                run_check_land_use = TRUE,
-#                                run_check_height = TRUE,
-#                                run_check_height_eave = TRUE,
-#                                run_check_floors = TRUE,
-#                                run_check_unit_size = TRUE,
-#                                run_check_far = TRUE,
-#                                run_check_unit_density = TRUE,
-#                                run_check_lot_coverage = TRUE,
-#                                run_check_fl_area = TRUE,
-#                                run_check_unit_qty = TRUE,
-#                                run_check_footprint = FALSE)
-#
-# ggplot2::ggplot(df) +
-#   ggplot2::geom_sf(ggplot2::aes(color = allowed))
-#
-#
-# type_list <- list()
-# length(type_list) <- nrow(tidyparcel_df)
-# for (z in 1:nrow(tidyparcel_df)){
-#   tidyparcel <- tidyparcel_df[z,]
-#   tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
-#   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
-#   if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
-#     tidyparcel_sides <- tidyparcel_geo |>
-#       dplyr::filter(parcel_id == tidyparcel$parcel_id)
-#     parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
-#     buildable_area <- get_buildable_area(parcel_with_setbacks)
-#
-#     type_list[[z]] <- class(buildable_area)
-#
-#
-#   }
-# }
-# unique(type_list)
+
+bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_2_fam.json"
+parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Rowlett_parcels.geojson"
+ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Rowlett.geojson"
+detailed_check <- FALSE
+run_check_land_use <- TRUE
+run_check_height <- TRUE
+run_check_height_eave <- TRUE
+run_check_floors <- TRUE
+run_check_unit_size <- TRUE
+run_check_far <- TRUE
+run_check_unit_density <- TRUE
+run_check_lot_coverage <- TRUE
+run_check_fl_area <- TRUE
+run_check_unit_qty <- TRUE
+run_check_footprint <- FALSE
+crs_m <- 3081
+
+
+
+ggplot2::ggplot(final_df) +
+  ggplot2::geom_sf(ggplot2::aes(color = allowed)) +
+  ggplot2::geom_sf(data = tidyparcel_geo)
+
+ggplot2::ggplot(tidyzoning) +
+  ggplot2::geom_sf(ggplot2::aes(fill = dist_abbr),alpha = .6) +
+  ggplot2::geom_sf(data = tidyparcel_geo) +
+  ggplot2::geom_sf(data = final_df, ggplot2::aes(color = allowed))
+
+df <- zoning_analysis_pipline(bldg_file,
+                               parcels_file,
+                               ozfs_zoning_file,
+                               detailed_check = FALSE,
+                               run_check_land_use = TRUE,
+                               run_check_height = TRUE,
+                               run_check_height_eave = TRUE,
+                               run_check_floors = TRUE,
+                               run_check_unit_size = TRUE,
+                               run_check_far = TRUE,
+                               run_check_unit_density = TRUE,
+                               run_check_lot_coverage = TRUE,
+                               run_check_fl_area = TRUE,
+                               run_check_unit_qty = TRUE,
+                               run_check_footprint = FALSE)
+
+ggplot2::ggplot(df) +
+  ggplot2::geom_sf(ggplot2::aes(color = allowed))
+
+
+type_list <- list()
+length(type_list) <- nrow(tidyparcel_df)
+for (z in 1:nrow(tidyparcel_df)){
+  tidyparcel <- tidyparcel_df[z,]
+  tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
+  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+  if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
+    tidyparcel_sides <- tidyparcel_geo |>
+      dplyr::filter(parcel_id == tidyparcel$parcel_id)
+    parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
+    buildable_area <- get_buildable_area(parcel_with_setbacks)
+
+    type_list[[z]] <- class(buildable_area)
+
+
+  }
+}
+unique(type_list)
