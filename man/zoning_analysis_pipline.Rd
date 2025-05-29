@@ -19,6 +19,8 @@ zoning_analysis_pipline(
   run_check_lot_coverage = TRUE,
   run_check_fl_area = TRUE,
   run_check_unit_qty = TRUE,
+  run_check_lot_size = TRUE,
+  run_check_parking_enclosed = TRUE,
   run_check_footprint = FALSE,
   crs_m = 3081
 )
@@ -52,6 +54,10 @@ and it take more time. When FALSE, subsequent checks are skipped as soon as one 
 \item{run_check_fl_area}{Should the analysis run the check_fl_area function? (logical)}
 
 \item{run_check_unit_qty}{Should the analysis run the check_unit_qty function? (logical)}
+
+\item{run_check_lot_size}{Should the analysis run the check_lot_size function? (logical)}
+
+\item{run_check_parking_enclosed}{Should the analysis run the check_parking_enclosed function? (logical)}
 
 \item{run_check_footprint}{Should the analysis run the check_footprint function? (logical)}
 
