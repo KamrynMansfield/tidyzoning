@@ -1,7 +1,7 @@
 #' Find corresponding tidydistrict
 #'
 #' @description
-#' `find_district_idx()` adds a new column to the parcels data that
+#' `find_district_idx()` uses [sf::st_join()] to adds a new column to the parcels data that
 #' contains the tidyzoning row index of the district the parcel is in
 #'
 #' @param parcels_centroids_sf An sf object with the parcel centroids
@@ -18,10 +18,6 @@ find_district_idx <- function(parcels_centroids_sf, tidyzoning, idx_col_name = "
   tidyzoning[[idx_col_name]] <- 1:nrow(tidyzoning)
 
   parcels_with_zoning_id <- sf::st_join(sf::st_make_valid(parcels_centroids_sf), tidyzoning[idx_col_name])
-
-  # in the future, I may have to account for the rare case where
-  # there is a parcel in two base districts
-
 
   return(parcels_with_zoning_id)
 
