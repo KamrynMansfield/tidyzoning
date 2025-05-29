@@ -2,10 +2,14 @@
 #'
 #' `check_height()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on height.
 #'
-#' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
-#' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
-#' @param tidyparcel_dims A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
-#' @param zoning_req The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.
+#' @param tidybuilding A dataframe with fields to represent a building.
+#' Created from the function [unify_tiduybuilding].
+#' @param tidydistrict The tidydistrict corresponding to the tidyparcel.
+#' A tidydistrict object is one row from a tidyzoning simple features object.
+#' @param tidyparcel_dims A tidyparcel object is an simple features object
+#' depicting each parcel and its its dimentions.
+#' @param zoning_req The data frame result from the `get_zoning_req()` function.
+#' If provided, the tidydistrict and parccel need not be provided.
 #'
 #' @return
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on building height.
