@@ -3,7 +3,7 @@
 #' `check_height()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on height.
 #'
 #' @param tidybuilding A dataframe with fields to represent a building.
-#' Created from the function [unify_tiduybuilding].
+#' Created from the function [unify_tidybuilding].
 #' @param tidydistrict The tidydistrict corresponding to the tidyparcel.
 #' A tidydistrict object is one row from a tidyzoning simple features object.
 #' @param tidyparcel_dims A tidyparcel object is an simple features object

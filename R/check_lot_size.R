@@ -1,7 +1,7 @@
 #' Compare lot size to zonign requirements
 #'
 #' @param tidybuilding A dataframe with fields to represent a building.
-#' Created from the function [unify_tiduybuilding].
+#' Created from the function [unify_tidybuilding].
 #' @param tidydistrict The tidydistrict corresponding to the tidyparcel.
 #' A tidydistrict object is one row from a tidyzoning simple features object.
 #' @param tidyparcel_dims A tidyparcel object is an simple features object
