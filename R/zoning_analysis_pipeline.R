@@ -177,24 +177,33 @@ zoning_analysis_pipline <- function(bldg_file,
   # INITIAL CHECKS
   # perform all the initial checks
 
-  # We will use this variable to loop through each check function that is marked TRUE
-  check_functions <- c(run_check_height,
-                       run_check_height_eave,
-                       run_check_floors,
-                       run_check_unit_size,
-                       run_check_far,
-                       run_check_unit_density,
-                       run_check_lot_coverage,
-                       run_check_fl_area,
-                       run_check_unit_qty,
-                       run_check_lot_size,
-                       run_check_parking_enclosed)
+  # this list has the run_check_function variable alongside
+  # the ozfs fields that are analyzed with that function
+  # it is used to find out which functions to run and which functions to skip
+  # in the following initial checks loop
+  check_functions <- list(list(run_check_height, list("height")),
+                       list(run_check_height_eave, list("height_eave")),
+                       list(run_check_floors, list("stories")),
+                       list(run_check_unit_size, list("unit_size",	"unit_size_avg")),
+                       list(run_check_far, list("far")),
+                       list(run_check_unit_density, list("unit_density")),
+                       list(run_check_lot_coverage, list("lot_cov_bldg")),
+                       list(run_check_fl_area, list("fl_area",	"fl_area_first",	"fl_area_top")),
+                       list(run_check_unit_qty, list("unit_qty",	"unit_pct_0bed",	"unit_pct_1bed",	"unit_pct_2bed",	"unit_pct_3bed",	"unit_pct_4bed",	"unit_0bed_qty",	"unit_1bed_qty",	"unit_2bed_qty",	"unit_3bed_qty",	"unit_4bed_qty")),
+                       list(run_check_lot_size, list("lot_size")),
+                       list(run_check_parking_enclosed, list("parking_enclosed")))
 
   # start empty variables to store potential errors and warnings
   errors <- c()
   warnings <- c()
   for (j in 1:length(check_functions)){ # loop through each check function
-    if (check_functions[[j]]){ #if the function is marked true, then it will run the function
+
+    if (sum(check_functions[[j]][[2]] %in% names(tidyzoning)) == 0){
+      # if the fields analylzed in the function are not found in the ozfs,
+      # then it is just skipped entirely
+      next
+    }
+    if (check_functions[[j]][[1]]){ #if the function is marked true, then it will run the function
 
       func_start_time <- proc.time()[[3]] #start time for function time stamps
 
@@ -315,7 +324,8 @@ zoning_analysis_pipline <- function(bldg_file,
         tidyparcel_sides <- tidyparcel_geo |>
           dplyr::filter(parcel_id == tidyparcel$parcel_id)
         parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
-        buildable_area <- get_buildable_area(parcel_with_setbacks)
+        buildable_area <- get_buildable_area(parcel_with_setbacks) |>
+          sf::st_make_valid()
 
         # if two buildable areas were recorded, we need to test for both
         if (length(buildable_area) > 1){
@@ -498,7 +508,7 @@ zoning_analysis_pipline <- function(bldg_file,
   return(final_df)
 
 }
-#
+
 # bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_2_fam.json"
 # parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Rowlett_parcels.geojson"
 # ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Rowlett.geojson"
@@ -513,6 +523,8 @@ zoning_analysis_pipline <- function(bldg_file,
 # run_check_lot_coverage <- TRUE
 # run_check_fl_area <- TRUE
 # run_check_unit_qty <- TRUE
+# run_check_lot_size <- TRUE
+# run_check_parking_enclosed <- TRUE
 # run_check_footprint <- FALSE
 # crs_m <- 3081
 #
@@ -565,3 +577,10 @@ zoning_analysis_pipline <- function(bldg_file,
 #   }
 # }
 # unique(type_list)
+#
+#
+#
+#
+#
+#
+#
