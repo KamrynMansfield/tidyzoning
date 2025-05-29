@@ -80,16 +80,6 @@ zoning_analysis_pipline <- function(bldg_file,
   # use the base zoning districts to add zoning_id to tidyparcel_dims
   tidyparcel_dims <- find_district_idx(tidyparcel_dims, tidyzoning, "zoning_id")
 
-  # if there are pd_districts, add their zoning id in a pd_id column
-  if (nrow(pd_districts) > 0){
-    tidyparcel_dims <- find_district_idx(tidyparcel_dims, pd_districts, "pd_id")
-  }
-
-  # if there are overlay districts, add their zoning id in an overlay_id column
-  if (nrow(overlays) > 0){
-    tidyparcel_dims <- find_district_idx(tidyparcel_dims, overlays, "overlay_id")
-  }
-
   # add false_reasons and maybe_reasons columns to tidyparcel_dims (for tracking maybs and falses)
   # this tidyparcel_df is what we will use for most of the calculations
   tidyparcel_df <- tidyparcel_dims |>
@@ -112,10 +102,16 @@ zoning_analysis_pipline <- function(bldg_file,
   ########----START CHECKS----########
   # PLANNED DEVELOPMENT CHECK
   # if parcels are in a planned development, the building is automatically not allowed
-  if (!is.null(tidyparcel_df$pd_id)){ #find the parcels that have an index for a planned development district
+  if (nrow(pd_districts) > 0){ # if there are pd_districts
+    # make a new df with the pd district indexes
+    tidyparcel_pd <- find_district_idx(tidyparcel_dims, pd_districts, "pd_id") |>
+      dplyr::filter(!is.na(pd_id))
+
+    pd_parcels <- unique(tidyparcel_pd$parcel_id)
+
     tidyparcel_df <- tidyparcel_df |>
-      dplyr::mutate(check_pd = ifelse(is.na(pd_id), TRUE, FALSE),
-                    false_reasons = ifelse(is.na(pd_id), false_reasons, ifelse(!is.na(false_reasons),paste(false_reasons, "in planned development district", sep = ", "),"in planned development district")))
+      dplyr::mutate(check_pd = ifelse(parcel_id %in% pd_parcels, FALSE, TRUE),
+                    false_reasons = ifelse(parcel_id %in% pd_parcels, ifelse(!is.na(false_reasons),paste(false_reasons, "in planned development district", sep = ", "),"in planned development district"), false_reasons))
 
     # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
     # we filter the tidyparcel_df to have just the TRUEs and MAYBEs
@@ -128,7 +124,7 @@ zoning_analysis_pipline <- function(bldg_file,
       false_df_idx <- false_df_idx + 1
 
       tidyparcel_df <- tidyparcel_df |>
-        dplyr::filter(is.na(pd_id))
+        dplyr::filter(check_pd == TRUE)
     }
   }
 
@@ -370,11 +366,16 @@ zoning_analysis_pipline <- function(bldg_file,
   # OVERLAY CHECK
   # of the parcels that pass all the checks,
   # the ones in an overlay district will be marked as "MAYBE"
+  if (nrow(overlays) > 0){ # if there are pd_districts
+    # make a new df with the overlay district indexes
+    tidyparcel_overlays <- find_district_idx(tidyparcel_dims, overlays, "overlay_id") |>
+      dplyr::filter(!is.na(overlay_id))
 
-  if (!is.null(tidyparcel_df$overlay_id)){ # make sure there are overlays
+    overlay_parcels <- unique(tidyparcel_overlays$parcel_id)
+
     tidyparcel_df <- tidyparcel_df |>
-      dplyr::mutate(check_overlay = ifelse(is.na(overlay_id),TRUE, "MAYBE"),
-                    maybe_reasons = ifelse(is.na(overlay_id), maybe_reasons, ifelse(!is.na(maybe_reasons),paste(maybe_reasons, "parcel in overlay district", sep = ", "),"parcel in overlay district")))
+      dplyr::mutate(check_overlay = ifelse(parcel_id %in% overlay_parcels,"MAYBE", TRUE),
+                    maybe_reasons = ifelse(parcel_id %in% overlay_parcels, ifelse(!is.na(maybe_reasons),paste(maybe_reasons, "parcel in overlay district", sep = ", "),"parcel in overlay district"), maybe_reasons))
   }
   ########----END CHECKS----########
 
@@ -413,6 +414,66 @@ zoning_analysis_pipline <- function(bldg_file,
                               "overlay_id")))
   }
 
+
+  ## DEALING WITH DUPLICATE PARCEL_IDs ##
+  # these are the few parcels that had two districts overlapping
+
+  # get duplicate parcel_id names
+  duplicates <- unique(final_df$parcel_id[duplicated(final_df$parcel_id)])
+
+  # loop through each duplicated parcel_id
+  new_dfs <- list()
+  length(new_dfs) <- length(duplicates)
+  for (i in 1:length(duplicates)){
+    id <- duplicates[[i]]
+
+    # filter to just the first duplicate ids
+    new_df <- final_df |>
+      dplyr::filter(parcel_id == id)
+
+    # make a vector of all the allowed values
+    allowed_vals <- new_df$allowed
+
+    # if all duplicates are TRUE, then it is still TRUE
+    # if all duplicates are FALSE, then it is still FALSE
+    # if any other combination, it is MABYE
+    if (sum(allowed_vals == TRUE) == length(allowed_vals)){
+      val <- TRUE
+    } else if (sum(allowed_vals == FALSE) == length(allowed_vals)){
+      val <- FALSE
+    } else{
+      val <- "MAYBE"
+    }
+
+    # this just groups the rows so I can combine the reason
+    updated <- new_df |>
+      dplyr::group_by(parcel_id) |>
+      dplyr::summarise(allowed = val,
+                       reason = paste(reason,collapse = " ---||--- "))
+
+    new_reason <- updated$reason
+
+    # make a new df with just one row for the parcel_id
+    updated_df <- new_df[1,]
+    updated_df[1,"allowed"] <- as.character(val)
+    updated_df[1,"reason"] <- new_reason
+    # add that df to a list of the combined parcel_id dfs
+    new_dfs[[i]] <- updated_df
+
+  }
+
+  # make one df out of all the combined parcel_id dfs
+  combined_duplicates <- dplyr::bind_rows(new_dfs)
+
+  # take out the old duplicated parcel_id rows
+  final_df <- final_df |>
+    dplyr::filter(!parcel_id %in% duplicates)
+
+  # add the new combined parcel_id rows
+  final_df <- rbind(final_df, combined_duplicates)
+
+
+  ## CODE RUN STATISTICS ##
   # report total runtime and other statistics
   total_time <- proc.time()[[3]] - total_start_time
   cat("_____summary_____\n")
@@ -454,6 +515,9 @@ zoning_analysis_pipline <- function(bldg_file,
 #                                run_check_fl_area = TRUE,
 #                                run_check_unit_qty = TRUE,
 #                                run_check_footprint = FALSE)
+#
+# ggplot2::ggplot(df) +
+#   ggplot2::geom_sf(ggplot2::aes(color = allowed))
 #
 #
 # type_list <- list()
