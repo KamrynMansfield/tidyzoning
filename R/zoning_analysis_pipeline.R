@@ -537,23 +537,23 @@ zoning_analysis_pipline <- function(bldg_file,
 #
 # ggplot2::ggplot(df) +
 #   ggplot2::geom_sf(ggplot2::aes(color = allowed))
-
-
-type_list <- list()
-length(type_list) <- nrow(tidyparcel_df)
-for (z in 1:nrow(tidyparcel_df)){
-  tidyparcel <- tidyparcel_df[z,]
-  tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
-  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
-  if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
-    tidyparcel_sides <- tidyparcel_geo |>
-      dplyr::filter(parcel_id == tidyparcel$parcel_id)
-    parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
-    buildable_area <- get_buildable_area(parcel_with_setbacks)
-
-    type_list[[z]] <- class(buildable_area)
-
-
-  }
-}
-unique(type_list)
+#
+#
+# type_list <- list()
+# length(type_list) <- nrow(tidyparcel_df)
+# for (z in 1:nrow(tidyparcel_df)){
+#   tidyparcel <- tidyparcel_df[z,]
+#   tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
+#   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+#   if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
+#     tidyparcel_sides <- tidyparcel_geo |>
+#       dplyr::filter(parcel_id == tidyparcel$parcel_id)
+#     parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
+#     buildable_area <- get_buildable_area(parcel_with_setbacks)
+#
+#     type_list[[z]] <- class(buildable_area)
+#
+#
+#   }
+# }
+# unique(type_list)
