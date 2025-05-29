@@ -54,6 +54,8 @@ allow a certain building.</p>
 <span>  run_check_lot_coverage <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  run_check_fl_area <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  run_check_unit_qty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_lot_size <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_check_parking_enclosed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  run_check_footprint <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  crs_m <span class="op">=</span> <span class="fl">3081</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -118,6 +120,14 @@ and it take more time. When FALSE, subsequent checks are skipped as soon as one 
 
 <dt id="arg-run-check-unit-qty">run_check_unit_qty<a class="anchor" aria-label="anchor" href="#arg-run-check-unit-qty"></a></dt>
 <dd><p>Should the analysis run the check_unit_qty function? (logical)</p></dd>
+
+
+<dt id="arg-run-check-lot-size">run_check_lot_size<a class="anchor" aria-label="anchor" href="#arg-run-check-lot-size"></a></dt>
+<dd><p>Should the analysis run the check_lot_size function? (logical)</p></dd>
+
+
+<dt id="arg-run-check-parking-enclosed">run_check_parking_enclosed<a class="anchor" aria-label="anchor" href="#arg-run-check-parking-enclosed"></a></dt>
+<dd><p>Should the analysis run the check_parking_enclosed function? (logical)</p></dd>
 
 
 <dt id="arg-run-check-footprint">run_check_footprint<a class="anchor" aria-label="anchor" href="#arg-run-check-footprint"></a></dt>

@@ -14,6 +14,8 @@
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_height_eave.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_land_use.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_lot_coverage.html</loc></url>
+<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_lot_size.html</loc></url>
+<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_parking_enclosed.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_unit_density.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_unit_qty.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/check_unit_size.html</loc></url>
@@ -29,7 +31,6 @@
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/ozfs_validate.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/rotate_shape.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/show_shapes.html</loc></url>
-<url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/tz_all_checks.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/unify_tidybuilding.html</loc></url>
 <url><loc>https://kamrynmansfield.github.io/tidyzoning/reference/zoning_analysis_pipline.html</loc></url>
 </urlset>
