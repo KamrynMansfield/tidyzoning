@@ -382,6 +382,8 @@ zoning_analysis_pipline <- function(bldg_file,
 
   ########----FINALIZING THINGS----########
   # combind all the false_df and the tidyparcel_df
+  class(tidyparcel_df$false_reasons) <- "character"
+  class(tidyparcel_df$maybe_reasons) <- "character"
   final_df <- dplyr::bind_rows(false_df, tidyparcel_df)
   final_without_geom <- sf::st_drop_geometry(final_df)
   final_df$has_false <- rowSums(final_without_geom == FALSE, na.rm = T)
@@ -421,59 +423,61 @@ zoning_analysis_pipline <- function(bldg_file,
   # get duplicate parcel_id names
   duplicates <- unique(final_df$parcel_id[duplicated(final_df$parcel_id)])
 
-  # loop through each duplicated parcel_id
-  new_dfs <- list()
-  length(new_dfs) <- length(duplicates)
-  for (i in 1:length(duplicates)){
-    id <- duplicates[[i]]
+  if (length(duplicates) > 0){
+    # loop through each duplicated parcel_id
+    new_dfs <- list()
+    length(new_dfs) <- length(duplicates)
+    for (i in 1:length(duplicates)){
+      id <- duplicates[[i]]
 
-    # filter to just the first duplicate ids
-    new_df <- final_df |>
-      dplyr::filter(parcel_id == id)
+      # filter to just the first duplicate ids
+      new_df <- final_df |>
+        dplyr::filter(parcel_id == id)
 
-    # make a vector of all the allowed values
-    allowed_vals <- new_df$allowed
+      # make a vector of all the allowed values
+      allowed_vals <- new_df$allowed
 
-    # if all duplicates are TRUE, then it is still TRUE
-    # if all duplicates are FALSE, then it is still FALSE
-    # if any other combination, it is MABYE
-    if (sum(allowed_vals == TRUE) == length(allowed_vals)){
-      val <- TRUE
-    } else if (sum(allowed_vals == FALSE) == length(allowed_vals)){
-      val <- FALSE
-    } else{
-      val <- "MAYBE"
+      # if all duplicates are TRUE, then it is still TRUE
+      # if all duplicates are FALSE, then it is still FALSE
+      # if any other combination, it is MABYE
+      if (sum(allowed_vals == TRUE) == length(allowed_vals)){
+        val <- TRUE
+      } else if (sum(allowed_vals == FALSE) == length(allowed_vals)){
+        val <- FALSE
+      } else{
+        val <- "MAYBE"
+      }
+
+      # this just groups the rows so I can combine the reason
+      updated <- new_df |>
+        dplyr::group_by(parcel_id) |>
+        dplyr::summarise(allowed = val,
+                         reason = paste(reason,collapse = " ---||--- "))
+
+      new_reason <- updated$reason
+
+      # make a new df with just one row for the parcel_id
+      updated_df <- new_df[1,]
+      updated_df[1,"allowed"] <- as.character(val)
+      updated_df[1,"reason"] <- new_reason
+      # add that df to a list of the combined parcel_id dfs
+      new_dfs[[i]] <- updated_df
+
     }
 
-    # this just groups the rows so I can combine the reason
-    updated <- new_df |>
-      dplyr::group_by(parcel_id) |>
-      dplyr::summarise(allowed = val,
-                       reason = paste(reason,collapse = " ---||--- "))
+    # make one df out of all the combined parcel_id dfs
+    combined_duplicates <- dplyr::bind_rows(new_dfs)
 
-    new_reason <- updated$reason
+    # take out the old duplicated parcel_id rows
+    final_df <- final_df |>
+      dplyr::filter(!parcel_id %in% duplicates)
 
-    # make a new df with just one row for the parcel_id
-    updated_df <- new_df[1,]
-    updated_df[1,"allowed"] <- as.character(val)
-    updated_df[1,"reason"] <- new_reason
-    # add that df to a list of the combined parcel_id dfs
-    new_dfs[[i]] <- updated_df
-
+    # add the new combined parcel_id rows
+    final_df <- rbind(final_df, combined_duplicates)
   }
 
-  # make one df out of all the combined parcel_id dfs
-  combined_duplicates <- dplyr::bind_rows(new_dfs)
 
-  # take out the old duplicated parcel_id rows
-  final_df <- final_df |>
-    dplyr::filter(!parcel_id %in% duplicates)
-
-  # add the new combined parcel_id rows
-  final_df <- rbind(final_df, combined_duplicates)
-
-
-  ## CODE RUN STATISTICS ##
+  ## RUN STATISTICS ##
   # report total runtime and other statistics
   total_time <- proc.time()[[3]] - total_start_time
   cat("_____summary_____\n")
@@ -486,10 +490,25 @@ zoning_analysis_pipline <- function(bldg_file,
   return(final_df)
 
 }
-
+#
 # bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_2_fam.json"
-# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Garland_parcels.geojson"
-# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Garland.geojson"
+# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Rowlett_parcels.geojson"
+# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Rowlett.geojson"
+# detailed_check <- FALSE
+# run_check_land_use <- TRUE
+# run_check_height <- TRUE
+# run_check_height_eave <- TRUE
+# run_check_floors <- TRUE
+# run_check_unit_size <- TRUE
+# run_check_far <- TRUE
+# run_check_unit_density <- TRUE
+# run_check_lot_coverage <- TRUE
+# run_check_fl_area <- TRUE
+# run_check_unit_qty <- TRUE
+# run_check_footprint <- FALSE
+# crs_m <- 3081
+#
+#
 #
 # ggplot2::ggplot(final_df) +
 #   ggplot2::geom_sf(ggplot2::aes(color = allowed)) +
@@ -518,23 +537,23 @@ zoning_analysis_pipline <- function(bldg_file,
 #
 # ggplot2::ggplot(df) +
 #   ggplot2::geom_sf(ggplot2::aes(color = allowed))
-#
-#
-# type_list <- list()
-# length(type_list) <- nrow(tidyparcel_df)
-# for (z in 1:nrow(tidyparcel_df)){
-#   tidyparcel <- tidyparcel_df[z,]
-#   tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
-#   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
-#   if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
-#     tidyparcel_sides <- tidyparcel_geo |>
-#       dplyr::filter(parcel_id == tidyparcel$parcel_id)
-#     parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
-#     buildable_area <- get_buildable_area(parcel_with_setbacks)
-#
-#     type_list[[z]] <- class(buildable_area)
-#
-#
-#   }
-# }
-# unique(type_list)
+
+
+type_list <- list()
+length(type_list) <- nrow(tidyparcel_df)
+for (z in 1:nrow(tidyparcel_df)){
+  tidyparcel <- tidyparcel_df[z,]
+  tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
+  zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+  if (check_footprint_area(tidybuilding, tidyparcel)$check_footprint_area[[1]] == TRUE){
+    tidyparcel_sides <- tidyparcel_geo |>
+      dplyr::filter(parcel_id == tidyparcel$parcel_id)
+    parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
+    buildable_area <- get_buildable_area(parcel_with_setbacks)
+
+    type_list[[z]] <- class(buildable_area)
+
+
+  }
+}
+unique(type_list)
