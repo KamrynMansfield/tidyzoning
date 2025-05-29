@@ -26,8 +26,7 @@ check_unit_qty <- function(tidybuilding = NULL, tidydistrict = NULL, tidyparcel_
 
 
 
-  ### before this maybe check to see if there is only "unit_qty"
-  ### because that is usually the case.
+  # list of the fields that this function will check
   unit_qty_df <- zoning_req[zoning_req$constraint_name %in% c("unit_qty",
                                                               "pct_units_0bed",
                                                               "pct_units_1bed",
@@ -40,16 +39,15 @@ check_unit_qty <- function(tidybuilding = NULL, tidydistrict = NULL, tidyparcel_
                                                               "unit_3bed_qty",
                                                               "unit_4bed_qty"), ]
 
-  if (nrow(unit_qty_df) == 0){
-    return(TRUE)
-  } else if (nrow(unit_qty_df) == 1 & "unit_qty" %in% unit_qty_df$constraint_name){
-
-  }
 
   unit_info <- get_unit_info(building_json)
 
-  # getting the value from the building's attributes
-  if (length(unit_info$qty) > 0 & length(unit_info$bedrooms) > 0){
+  # getting values from the building's attributes
+  if (nrow(unit_qty_df) == 0){
+    return(TRUE)
+  } else if (nrow(unit_qty_df) == 1 & "unit_qty" %in% unit_qty_df$constraint_name){
+    values <- c(unit_qty = sum(unit_info$qty))
+  } else if (length(unit_info$qty) > 0 & length(unit_info$bedrooms) > 0){
     units <- sum(unit_info$qty)
 
     bedrooms_df <- unit_info |>
@@ -70,16 +68,16 @@ check_unit_qty <- function(tidybuilding = NULL, tidydistrict = NULL, tidyparcel_
     pct_4bed <- units_4bed / units
 
     values <- c(unit_qty = units,
-                pct_units_0bed = pct_0bed,
-                pct_units_1bed = pct_1bed,
-                pct_units_2bed = pct_2bed,
-                pct_units_3bed = pct_3bed,
-                pct_units_4bed = pct_4bed,
-                unit_0bed_qty = units_0bed,
-                unit_1bed_qty = units_1bed,
-                unit_2bed_qty = units_2bed,
-                unit_3bed_qty = units_3bed,
-                unit_4bed_qty = units_4bed)
+                pct_units_0bed = ifelse(length(pct_0bed) > 0,pct_0bed,0),
+                pct_units_1bed = ifelse(length(pct_1bed) > 0,pct_1bed,0),
+                pct_units_2bed = ifelse(length(pct_2bed) > 0,pct_2bed,0),
+                pct_units_3bed = ifelse(length(pct_3bed) > 0,pct_3bed,0),
+                pct_units_4bed = ifelse(length(pct_4bed) > 0,pct_4bed,0),
+                unit_0bed_qty = ifelse(length(units_0bed) > 0,units_0bed,0),
+                unit_1bed_qty = ifelse(length(units_1bed) > 0,units_1bed,0),
+                unit_2bed_qty = ifelse(length(units_2bed) > 0,units_2bed,0),
+                unit_3bed_qty = ifelse(length(units_3bed) > 0,units_3bed,0),
+                unit_4bed_qty = ifelse(length(units_4bed) > 0,units_4bed,0))
 
   } else if(length(unit_info$qty) > 1){
     units <- sum(unit_info$qty)
