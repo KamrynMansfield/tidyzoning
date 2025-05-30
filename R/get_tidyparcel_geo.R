@@ -11,7 +11,7 @@ get_tidyparcel_geo <- function(parcels_data){
     parcels_sf <- tryCatch({
       sf::st_read(parcels_data, quiet = TRUE)
     }, error = function(e) {
-      stop("Unable to open file. Check to make sure it is a proper geojson")
+      stop("Unable to open file. Is it the proper geojson format? Does the file exist?")
     })
   } else if (class(parcels_data)[[1]] == "sf"){ # then it is an sf object
     parcels_sf <- parcels_data
@@ -27,3 +27,4 @@ get_tidyparcel_geo <- function(parcels_data){
 
   return(parcels_geo)
 }
+
