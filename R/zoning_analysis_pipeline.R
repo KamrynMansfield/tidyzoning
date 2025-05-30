@@ -508,7 +508,7 @@ zoning_analysis_pipline <- function(bldg_file,
 
 }
 
-# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_12_fam.json"
+# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_12_fam.bldg"
 # parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Dallas_parcels.geojson"
 # ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Dallas.geojson"
 # detailed_check <- TRUE
