@@ -21,7 +21,6 @@
 #' @param run_check_lot_size Should the analysis run the check_lot_size function? (logical)
 #' @param run_check_parking_enclosed Should the analysis run the check_parking_enclosed function? (logical)
 #' @param run_check_footprint Should the analysis run the check_footprint function? (logical)
-#' @param crs_m Projected Coordinate Reference System (in meters) for your study area.
 #'
 #' @returns a simple features data frame with the centroid of each parcel with a column
 #' stating building allowance on the parcel and a column stating the reason
@@ -45,8 +44,7 @@ zoning_analysis_pipline <- function(bldg_file,
                                     run_check_unit_qty = TRUE,
                                     run_check_lot_size = TRUE,
                                     run_check_parking_enclosed = TRUE,
-                                    run_check_footprint = FALSE,
-                                    crs_m = 3081){
+                                    run_check_footprint = FALSE){
   # track the start time to give a time stamp at end
   total_start_time <- proc.time()[[3]]
 
@@ -73,6 +71,9 @@ zoning_analysis_pipline <- function(bldg_file,
     dplyr::filter(overlay == FALSE) |>
     dplyr::filter(planned_dev == FALSE)
 
+  # get appropriate crs in meters to use in the check footprint function
+  crs_m <- crsuggest::suggest_crs(tidyzoning, gcs = 4269 ,units = "m")[[1,1]] |>
+    as.numeric()
 
   ## TIDYPARCELS ##
   # separate the parcel data into two special feature data frames
@@ -507,7 +508,7 @@ zoning_analysis_pipline <- function(bldg_file,
   return(final_df)
 
 }
-
+#
 # bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_12_fam.bldg"
 # parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Cockrell Hill.parcel"
 # ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Cockrell Hill.zoning"
@@ -576,10 +577,4 @@ zoning_analysis_pipline <- function(bldg_file,
 #   }
 # }
 # unique(type_list)
-#
-#
-#
-#
-#
-#
 #
