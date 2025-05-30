@@ -30,16 +30,8 @@ test_that("ouptut has correct columns", {
   expect_identical(names(result), expected_names)
 })
 
-test_that("improper file error",{
-  expect_error(unify_tidybuilding(bldg_data_file = ""), regexp = "Improper file path")
-})
-
-test_that("file is not json error",{
-  expect_error(unify_tidybuilding(bldg_data_file = "fakefile.geojson"), regexp = "The file must be a json")
-})
-
 test_that("string is not json error",{
-  expect_error(unify_tidybuilding(bldg_data_string = ""), regexp = "The bldg_data_string must be a json")
+  expect_error(unify_tidybuilding(bldg_data_string = ""), regexp = "The bldg_data_string must be in json format")
 })
 
 test_that("json but incorrect format error",{

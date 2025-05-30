@@ -20,24 +20,19 @@ unify_tidybuilding <- function(bldg_data_file = NULL, ozfs_data_file = NULL, bld
     listed_json <- tryCatch({
       rjson::fromJSON(bldg_data_string)
     }, error = function(e) {
-      stop("The bldg_data_string must be a json")
+      stop("The bldg_data_string must be in json format")
     })
   }
 
-  if (!is.null(bldg_data_file) & length(grep(".",bldg_data_file,fixed = TRUE)) == 0){
-    stop("Improper file path")
-  }
-
   if (!is.null(bldg_data_file)){
-    split_name <- strsplit(basename(bldg_data_file),".", fixed = TRUE)[[1]]
-    ext <- split_name[[length(split_name)]]
-
-    if (ext == "json" | ext == "JSON"){
-      listed_json <- rjson::fromJSON(file = bldg_data_file)
-    } else{
-      stop("The file must be a json")
-    }
+    listed_json <- tryCatch({
+      rjson::fromJSON(file = bldg_data_file)
+    }, error = function(e) {
+      stop("The .bldg file must be in json format")
+    })
   }
+
+
 
   if (is.null(listed_json$bldg_info) | is.null(listed_json$unit_info) | is.null(listed_json$level_info)){
     stop("Improper format: json must contain bldg_info, unit_info, and level_info sections")
