@@ -1,13 +1,13 @@
 test_that("ouptut is a data frame", {
-  json_file <- system.file("extdata/bldg_12_fam.json", package = "tidyzoning")
+  json_file <- system.file("extdata/12_fam.bldg", package = "tidyzoning")
   result <- unify_tidybuilding(json_file)
   expect_s3_class(result, "data.frame")
 })
 
 test_that("ouptut has correct columns", {
-  json_file <- system.file("extdata/bldg_12_fam.json", package = "tidyzoning")
+  json_file <- system.file("extdata/12_fam.bldg", package = "tidyzoning")
   result <- unify_tidybuilding(json_file)
-  expected_names <- c("height",
+  expected_names <- c("height_top",
                       "width"     ,
                       "depth",
                       "roof_type",
@@ -26,7 +26,8 @@ test_that("ouptut has correct columns", {
                       "units_3bed"     ,
                       "units_4bed"     ,
                       "min_unit_size" ,
-                      "max_unit_size")
+                      "max_unit_size",
+                      "height")
   expect_identical(names(result), expected_names)
 })
 

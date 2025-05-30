@@ -59,12 +59,12 @@ unify_tidybuilding <- function(bldg_data_file = NULL, ozfs_data_file = NULL, bld
   level_info_df <- data.frame(level = level,
                               gross_fl_area = gross_fl_area)
 
-  height <- listed_json$bldg_info$height
+  height_top <- listed_json$bldg_info$height_top
   width <- listed_json$bldg_info$width
   depth <- listed_json$bldg_info$depth
-  roof_type <- listed_json$bldg_info$roof_type
+  roof_type <- ifelse(!is.null(listed_json$bldg_info$roof_type),listed_json$bldg_info$roof_type,"flat")
   parking <- ifelse(!is.null(listed_json$bldg_info$parking),listed_json$bldg_info$parking,0)
-  height_eave <- ifelse(!is.null(listed_json$bldg_info$height_eave),listed_json$bldg_info$height_eave,listed_json$bldg_info$height)
+  height_eave <- ifelse(!is.null(listed_json$bldg_info$height_eave),listed_json$bldg_info$height_eave,listed_json$bldg_info$height_top)
   stories <- max(level_info_df$level)
   total_units <- sum(unit_info_df$qty)
   type <- ifelse(total_units > 3, "4_family", paste0(total_units,"_family"))
@@ -80,7 +80,7 @@ unify_tidybuilding <- function(bldg_data_file = NULL, ozfs_data_file = NULL, bld
   min_unit_size <- min(unit_info_df$fl_area)
   max_unit_size <- max(unit_info_df$fl_area)
 
-  bldg_info_df <- data.frame(height = height,
+  bldg_info_df <- data.frame(height_top = height_top,
                              width = width,
                              depth = depth,
                              roof_type = roof_type,
@@ -104,17 +104,31 @@ unify_tidybuilding <- function(bldg_data_file = NULL, ozfs_data_file = NULL, bld
   if (!is.null(ozfs_data_file)){
     listed_ozfs <- rjson::fromJSON(file = ozfs_data_file)
 
-    # Loop through each hight definition
-    for (definition in listed_ozfs$definitions[["height"]]){
-      if (definition$roof == bldg_info_df$roof_type){
-        new_height <- eval(parse(text = definition$def))
-        break
+    if (!is.null(listed_ozfs$definitions)){
+      # Loop through each hight definition
+      for (definition in listed_ozfs$definitions[["height"]]){
+        if (definition$roof_type == bldg_info_df$roof_type){
+          new_height <- eval(parse(text = definition$expression))
+          break
+        }
       }
+
+      if (exists("new_height")){
+        bldg_info_df$height <- new_height
+      } else{
+        bldg_info_df$height <- height_top
+      }
+
+    } else{
+      bldg_info_df$height <- height_top
     }
 
-    bldg_info_df$height <- new_height
+  } else{
+    bldg_info_df$height <- height_top
   }
 
 
   return(bldg_info_df)
 }
+
+

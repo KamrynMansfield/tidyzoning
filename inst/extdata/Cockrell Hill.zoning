@@ -5,24 +5,20 @@
     "definitions": {
         "height":[
             {
-                "roof":"flat", 
-                "def":"height"
+                "roof_type":"hip", 
+                "expression":"(height_top + height_eave) / 2"
             },
             {
-                "roof":"hip", 
-                "def":"(height + height_eave) / 2"
+                "roof_type":"mansard", 
+                "expression":"height_top"
             },
             {
-                "roof":"mansard", 
-                "def":"height"
+                "roof_type":"gable", 
+                "expression":"(height_top + height_eave) / 2"
             },
             {
-                "roof":"gable", 
-                "def":"(height + height_eave) / 2"
-            },
-            {
-                "roof":"gambrel", 
-                "def":"(height + height_eave) / 2"
+                "roof_type":"gambrel", 
+                "expression":"(height_top + height_eave) / 2"
             }
         ]
     },
