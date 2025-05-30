@@ -1,9 +1,8 @@
 {
     "bldg_info": {
-        "height": 60,
+        "height_top": 60,
         "width": 65,
         "depth": 76,
-        "roof_type":"flat",
         "parking": 8
     },
     "unit_info": [

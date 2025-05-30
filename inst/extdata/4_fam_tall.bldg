@@ -1,9 +1,8 @@
 {
     "bldg_info": {
-        "height": 40,
+        "height_top": 40,
         "width": 32,
-        "depth": 60,
-        "roof_type":"flat"
+        "depth": 60
     },
     "unit_info": [
         {
