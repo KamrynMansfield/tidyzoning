@@ -509,8 +509,8 @@ zoning_analysis_pipline <- function(bldg_file,
 }
 
 # bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_12_fam.bldg"
-# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Dallas_parcels.geojson"
-# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Dallas.geojson"
+# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Cockrell Hill.parcel"
+# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Cockrell Hill.zoning"
 # detailed_check <- TRUE
 # run_check_land_use <- TRUE
 # run_check_height <- TRUE
