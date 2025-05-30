@@ -283,10 +283,9 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
                 constraint_min_note <- "OZFS Error"
                 break
               }
-
               break
             } else{
-              if (j == length(tidydistrict[[name]][[i]])){
+              if (j == length(constraint_info$min_val)){
                 constraint_min_val <- NA
               }
             }
@@ -470,6 +469,10 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
                 break
               }
               break
+            } else{
+              if (j == length(constraint_info$max_val)){
+                constraint_min_val <- NA
+              }
             }
           }
         }

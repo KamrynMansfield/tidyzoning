@@ -324,17 +324,16 @@ zoning_analysis_pipline <- function(bldg_file,
         tidyparcel_sides <- tidyparcel_geo |>
           dplyr::filter(parcel_id == tidyparcel$parcel_id)
         parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
-        buildable_area <- get_buildable_area(parcel_with_setbacks) |>
-          sf::st_make_valid()
+        buildable_area <- get_buildable_area(parcel_with_setbacks)
 
         # if two buildable areas were recorded, we need to test for both
         if (length(buildable_area) > 1){
-          check_1 <- check_footprint(tidybuilding, buildable_area[[1]], crs = crs_m)
+          check_1 <- check_footprint(tidybuilding, sf::st_make_valid(buildable_area[[1]]), crs = crs_m)
 
           if (check_1){
             check <- check_1
           } else{
-            check_2 <- check_footprint(tidybuilding, buildable_area[[2]], crs = crs_m)
+            check_2 <- check_footprint(tidybuilding, sf::st_make_valid(buildable_area[[2]]), crs = crs_m)
             if (check_2){
               check <- "MAYBE"
             } else{
@@ -343,7 +342,7 @@ zoning_analysis_pipline <- function(bldg_file,
           }
 
         } else{
-          check <- check_footprint(tidybuilding, buildable_area[[1]], crs = crs_m)
+          check <- check_footprint(tidybuilding, sf::st_make_valid(buildable_area[[1]]), crs = crs_m)
         }
 
       } else{
@@ -509,10 +508,10 @@ zoning_analysis_pipline <- function(bldg_file,
 
 }
 
-# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_2_fam.json"
-# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Rowlett_parcels.geojson"
-# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Rowlett.geojson"
-# detailed_check <- FALSE
+# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_12_fam.json"
+# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Dallas_parcels.geojson"
+# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Dallas.geojson"
+# detailed_check <- TRUE
 # run_check_land_use <- TRUE
 # run_check_height <- TRUE
 # run_check_height_eave <- TRUE
@@ -542,7 +541,7 @@ zoning_analysis_pipline <- function(bldg_file,
 # df <- zoning_analysis_pipline(bldg_file,
 #                                parcels_file,
 #                                ozfs_zoning_file,
-#                                detailed_check = FALSE,
+#                                detailed_check = TRUE,
 #                                run_check_land_use = TRUE,
 #                                run_check_height = TRUE,
 #                                run_check_height_eave = TRUE,
