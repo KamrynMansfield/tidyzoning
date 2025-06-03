@@ -508,8 +508,8 @@ zoning_analysis_pipline <- function(bldg_file,
   return(final_df)
 
 }
-#
-# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/bldg_12_fam.bldg"
+
+# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/2_fam.bldg"
 # parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Cockrell Hill.parcel"
 # ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Cockrell Hill.zoning"
 # detailed_check <- TRUE
