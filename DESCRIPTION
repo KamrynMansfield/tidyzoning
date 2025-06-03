@@ -17,7 +17,6 @@ Imports:
     rjson,
     sf,
     terra,
-    purrr,
     crsuggest
 RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)

@@ -577,4 +577,3 @@ zoning_analysis_pipline <- function(bldg_file,
 #   }
 # }
 # unique(type_list)
-#

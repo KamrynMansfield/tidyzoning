@@ -14,8 +14,6 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, buildin
   # get the tidydistrict into a list format
   ####### structure_constraints <- fromJSON(tidydistrict$structure_constraints)
 
-  safe_parse <- purrr::possibly(parse, otherwise = NA)
-
   unit_info <- get_unit_info(building_json)
 
   if (is.null(zoning_req)){
@@ -198,8 +196,14 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, buildin
 
       # Looking at possible min/max values
       if (length(constraint_info[[min_max_val]][[1]]) == 1){ # this is just a one-line expression for the constraint
-        unit_info_df[[min_max_val]] <- safe_parse(text = constraint_info[[min_max_val]][[1]]) |>
-          eval()
+        value <- tryCatch({
+          # Try to calculate the square root
+          parse(text = constraint_info[[min_max_val]][[1]])
+        }, error = function(e) {
+          NA
+        })
+
+        unit_info_df[[min_max_val]] <- eval(value)
 
         constraint_val <- NA
 
@@ -217,9 +221,16 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, buildin
               logical_operator <- "|"
             }
             if ("select" %in% rule_items){ # there is logical_op and there is a select
-              conditions_value <- safe_parse(text = paste(constraint_info[[min_max_val]][[j]]$conditions,
-                                                          collapse = logical_operator)) |>
-                eval()
+
+              value <- tryCatch({
+                # Try to calculate the square root
+                parse(text = paste(constraint_info[[min_max_val]][[j]]$conditions,
+                                   collapse = logical_operator))
+              }, error = function(e) {
+                NA
+              })
+
+              conditions_value <- eval(value)
 
               if (is.na(conditions_value)){
                 constraint_min_note <- "OZFS Error"
@@ -258,8 +269,14 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, buildin
                 }
               }
             } else{ # there is logical_op and just one expression at end
-              constraint_val <- safe_parse(text = constraint_info[[min_max_val]][[j]]$expression) |>
-                eval()
+              value <- tryCatch({
+                # Try to calculate the square root
+                parse(text = constraint_info[[min_max_val]][[j]]$expression)
+              }, error = function(e) {
+                NA
+              })
+
+              constraint_val <- eval(value)
 
               if (is.na(constraint_val)){
                 constraint_min_note <- "OZFS Error"
@@ -271,8 +288,14 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, buildin
             if ("select" %in% rule_items){ # not logical_op, but there is a select
               if ("conditions" %in% rule_items){ # There is still a condition before selecting
                 # there is a condition and there is a select
-                conditions_value <- safe_parse(text = constraint_info[[min_max_val]][[j]]$conditions) |>
-                  eval()
+                value <- tryCatch({
+                  # Try to calculate the square root
+                  parse(text = constraint_info[[min_max_val]][[j]]$conditions)
+                }, error = function(e) {
+                  NA
+                })
+
+                conditions_value <- eval(value)
 
                 if (is.na(conditions_value)){
                   constraint_min_note <- "OZFS Error"
@@ -343,8 +366,14 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, buildin
                 }
               }
             } else{ # no logical_op and no select
-              conditions_value <- safe_parse(text = constraint_info[[min_max_val]][[j]]$conditions) |>
-                eval()
+              value <- tryCatch({
+                # Try to calculate the square root
+                parse(text = constraint_info[[min_max_val]][[j]]$conditions)
+              }, error = function(e) {
+                NA
+              })
+
+              conditions_value <- eval(value)
 
               if (is.na(conditions_value)){
                 constraint_min_note <- "OZFS Error"
@@ -352,8 +381,14 @@ check_unit_size <- function(tidybuilding, tidydistrict, tidyparcel_dims, buildin
               }
 
               if (!is.na(conditions_value == TRUE) & conditions_value == TRUE){
-                constraint_val <- safe_parse(text = constraint_info[[min_max_val]][[j]]$expression) |>
-                  eval()
+                value <- tryCatch({
+                  # Try to calculate the square root
+                  parse(text = constraint_info[[min_max_val]][[j]]$expression)
+                }, error = function(e) {
+                  NA
+                })
+
+                constraint_val <- eval(value)
 
                 if (is.na(constraint_val)){
                   constraint_min_note <- "OZFS Error"

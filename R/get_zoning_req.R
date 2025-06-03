@@ -17,10 +17,6 @@
 #'
 get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
 
-  # this will be used later to make sure the expressions are written correctly
-  # I will get rid of this soon and just be using trycatch in my code
-  # safe_parse <- purrr::possibly(parse, otherwise = NA)
-
   listed_constraints <- rjson::fromJSON(tidydistrict$constraints)
   constraints <- names(listed_constraints)
 

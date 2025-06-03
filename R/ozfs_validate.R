@@ -66,6 +66,7 @@ ozfs_validate <- function(...){
 
   ozfs <- list(features = list_of_ozfs)
 
+  #### NEED TO GET RID OF ####
   safe_parse <- purrr::possibly(parse, otherwise = NA)
   safe_eval <- purrr::possibly(eval, otherwise = NA)
 
