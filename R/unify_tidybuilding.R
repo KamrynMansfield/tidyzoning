@@ -65,9 +65,10 @@ unify_tidybuilding <- function(bldg_data_file = NULL, ozfs_data_file = NULL, bld
   roof_type <- ifelse(!is.null(listed_json$bldg_info$roof_type),listed_json$bldg_info$roof_type,"flat")
   parking <- ifelse(!is.null(listed_json$bldg_info$parking),listed_json$bldg_info$parking,0)
   height_eave <- ifelse(!is.null(listed_json$bldg_info$height_eave),listed_json$bldg_info$height_eave,listed_json$bldg_info$height_top)
+  height_deck <- ifelse(!is.null(listed_json$bldg_info$height_deck),listed_json$bldg_info$height_deck,listed_json$bldg_info$height_top)
   stories <- max(level_info_df$level)
   total_units <- sum(unit_info_df$qty)
-  type <- ifelse(total_units > 3, "4_family", paste0(total_units,"_family"))
+  type <- ifelse(total_units > 3, "4_plus", paste0(total_units,"_unit"))
   gross_fl_area <- sum(level_info_df$gross_fl_area)
   total_bedrooms <- sum(unit_info_df$bedrooms * unit_info_df$qty)
   fl_area_first <- level_info_df$gross_fl_area[level_info_df$level == min(level_info_df$level)]
@@ -86,6 +87,7 @@ unify_tidybuilding <- function(bldg_data_file = NULL, ozfs_data_file = NULL, bld
                              roof_type = roof_type,
                              parking = parking,
                              height_eave = height_eave,
+                             height_deck = height_deck,
                              stories = stories,
                              total_units = total_units,
                              type = type,

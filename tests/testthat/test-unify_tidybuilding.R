@@ -13,6 +13,7 @@ test_that("ouptut has correct columns", {
                       "roof_type",
                       "parking"       ,
                       "height_eave"  ,
+                      "height_deck",
                       "stories"     ,
                       "total_units",
                       "type"           ,
