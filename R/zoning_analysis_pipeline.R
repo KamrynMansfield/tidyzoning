@@ -72,6 +72,7 @@ zoning_analysis_pipline <- function(bldg_file,
     dplyr::filter(planned_dev == FALSE)
 
   # get appropriate crs in meters to use in the check footprint function
+  # maybe change this
   crs_m <- crsuggest::suggest_crs(tidyzoning, gcs = 4269 ,units = "m")[[1,1]] |>
     as.numeric()
 
@@ -199,11 +200,6 @@ zoning_analysis_pipline <- function(bldg_file,
   warnings <- c()
   for (j in 1:length(check_functions)){ # loop through each check function
 
-    if (sum(check_functions[[j]][[2]] %in% names(tidyzoning)) == 0){
-      # if the fields analylzed in the function are not found in the ozfs,
-      # then it is just skipped entirely
-      next
-    }
     if (check_functions[[j]][[1]]){ #if the function is marked true, then it will run the function
 
       func_start_time <- proc.time()[[3]] #start time for function time stamps
