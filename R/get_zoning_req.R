@@ -20,7 +20,7 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
   # if there are no constraints under the constraints section,
   # it will output a string stating that
   if (is.null(tidydistrict$constraints) | is.na(tidydistrict$constraints)){
-    return("No constraints recorded for this district")
+    return("No zoning requirements recorded for this district")
   }
 
   listed_constraints <- rjson::fromJSON(tidydistrict$constraints)
@@ -137,13 +137,6 @@ get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
             warning("Unable to properly parse constraint condition")
             FALSE
           })
-
-          # this is just in case the the ozfs is wrong.
-          # It will throw a warning instead of an error.
-          if (is.na(parsed_condition)){
-            parsed_condition <- FALSE
-            warning(paste0("Found NA values in ",name,". Improper ozfs"))
-          }
 
           condition_met <- eval(parsed_condition)
 
