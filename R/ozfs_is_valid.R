@@ -8,15 +8,15 @@
 #' @export
 #'
 #' @examples
-ozfs_is_valid <- function(...){
-  result <- suppressWarnings(try(ozfs_validate(...), silent = TRUE))
+ozfs_is_valid <- function(list_of_files){
+  result <- suppressWarnings(try(ozfs_validate(list_of_files), silent = TRUE))
   if (inherits(result, "try-error")) {
     return(FALSE)
   }
 
-  if (nrow(result) > 0){
-    return(FALSE)
-  } else{
+  if (is.null(result)){
     return(TRUE)
+  } else{
+    return(FALSE)
   }
 }
