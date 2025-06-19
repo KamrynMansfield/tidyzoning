@@ -4,7 +4,7 @@
 \alias{ozfs_is_valid}
 \title{Check OZFS validity}
 \usage{
-ozfs_is_valid(...)
+ozfs_is_valid(list_of_files)
 }
 \arguments{
 \item{...}{A file path to an OZFS geojson file or list of file paths, an sf object created from and OZFS geojson data, or a combination of those.}

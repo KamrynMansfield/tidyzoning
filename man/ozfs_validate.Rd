@@ -2,15 +2,15 @@
 % Please edit documentation in R/ozfs_validate.R
 \name{ozfs_validate}
 \alias{ozfs_validate}
-\title{Validate ozfs}
+\title{Find invalid ozfs zoning files}
 \usage{
-ozfs_validate(...)
+ozfs_validate(list_of_files)
 }
 \arguments{
-\item{...}{A file path to an OZFS geojson file or list of file paths, an sf object created from and OZFS geojson data, or a combination of those.}
+\item{list_of_files}{A list of .zoning file paths}
 }
 \value{
-A data frame with info on where the errors were found.
+A list of files names with ozfs errors or warnings
 }
 \description{
 \code{ozfs_validate()} lists any errors in the formatting of the OZFS data
