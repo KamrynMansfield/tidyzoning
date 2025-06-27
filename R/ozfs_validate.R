@@ -22,7 +22,7 @@ ozfs_validate <- function(list_of_files){
     # CHECK GEOJSON COMPATIBILITY #
     ozfs_listed <- tryCatch(
       {
-        fromJSON(file = file)
+        rjson::fromJSON(file = file)
       }, error = function(e) {
         # Code to run if an error occurs
         return("error")
