@@ -2,12 +2,21 @@
 #'
 #' Because many zoning requirements depend on the proposed building
 #' or the parcel of that zoning district, `the get_zoning_req()` function
-#' takes a tidybuilding, a tidyparcel, and a tidydistrict and outputs a data
+#' takes a tidybuilding, a tidyparcel, and a district_data and outputs a data
 #' frame listing the set zoning requirements that those three objects would create.
 #' If every value is NA, it could indicate that the building
 #' land use is not allowed in the zoning district.
 #'
-#' @inheritParams add_setbacks
+#' @param bldg_file the file path to an OZFS *.bldg file
+#' @param parcel_data one row of a parcel data frame created from the
+#' OZFS *.parcel file
+#' @param district_data one row (representing one district) of a
+#' zoning data frame created from the OZFS *.zoning file
+#' @param zoning_data either the path to a *.zoning file or
+#' a list created from the the *.zoning file using `rjson::fromJSON`
+#' @param vars the result from the `get_variables()` function.
+#' If this data frame is supplied, bldg_file, parcel_data, and zoning_data
+#' are not needed.
 #'
 #' @return
 #' Returns a data frame with the value each zoning requirement for that specific building, parcel, and zoning district.
@@ -15,63 +24,31 @@
 #' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
 #' @export
 #'
-get_zoning_req <- function(tidybuilding, tidydistrict, tidyparcel_dims){
+get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, zoning_data = NULL, vars = NULL){
 
   # if there are no constraints under the constraints section,
   # it will output a string stating that
-  if (is.null(tidydistrict$constraints) | is.na(tidydistrict$constraints)){
+  if (is.null(district_data$constraints) | is.na(district_data$constraints)){
     return("No zoning requirements recorded for this district")
   }
 
-  listed_constraints <- rjson::fromJSON(tidydistrict$constraints)
+  listed_constraints <- rjson::fromJSON(district_data$constraints)
   constraints <- names(listed_constraints)
 
   if (length(constraints) == 0){
     return("No zoning requirements recorded for this district")
   }
 
-  # Name the building type
-  bldg_type <- tidybuilding$type
 
-  # establish the parcel variables that might be used in the equations
-  lot_width <- tidyparcel_dims$lot_width[[1]] # this should be in ft
-  lot_depth <- tidyparcel_dims$lot_depth[[1]] # this should be in ft
-  lot_area <- tidyparcel_dims$lot_area[[1]] # this should be in acres
-  lot_type <- ifelse(!is.null(tidyparcel_dims$lot_type), tidyparcel_dims$lot_type, NA)
+  if (is.null(vars)){
+    vars <- get_variables(bldg_data, parcel_data, district_data, zoning_data)
+  }
 
+  for (var_idx in 1:ncol(vars)){
+    vname <- names(vars)[[var_idx]]
+    assign(vname, vars[[1,vname]])
+  }
 
-  # establish the building variables that might be used in the equations
-  bed_list <- c(units_0bed = 0,
-                units_1bed = 1,
-                units_2bed = 2,
-                units_3bed = 3,
-                units_4bed = 4)
-
-  bedrooms <- NA
-  total_bedrooms <- tidybuilding$total_bedrooms
-  units_0bed <- ifelse("units_0bed" %in% names(tidybuilding), tidybuilding$units_0bed, 0)
-  units_1bed <- ifelse("units_1bed" %in% names(tidybuilding), tidybuilding$units_1bed, 0)
-  units_2bed <- ifelse("units_2bed" %in% names(tidybuilding), tidybuilding$units_2bed, 0)
-  units_3bed <- ifelse("units_3bed" %in% names(tidybuilding), tidybuilding$units_3bed, 0)
-  units_4bed <- ifelse("units_4bed" %in% names(tidybuilding), tidybuilding$units_4bed, 0)
-  total_units <- ifelse(!is.null(tidybuilding$total_units), tidybuilding$total_units, NA)
-  fl_area <- ifelse(length(tidybuilding$gross_fl_area) > 0,tidybuilding$gross_fl_area,NA)
-  parking_enclosed <- sum(tidybuilding$parking_info$stalls[tidybuilding$parking_info$type == "enclosed"])
-  height <- ifelse(length(tidybuilding$height) > 0, tidybuilding$height, NA)
-  height_eave <- ifelse(length(tidybuilding$height_eave) > 0, tidybuilding$height_eave, NA)
-  floors <- ifelse(length(tidybuilding$stories) > 0, tidybuilding$stories, NA)
-  min_unit_size <- ifelse(!is.null(tidybuilding$min_unit_size), tidybuilding$min_unit_size, NA)
-  max_unit_size <- ifelse(!is.null(tidybuilding$max_unit_size), tidybuilding$max_unit_size, NA)
-  far <- tidybuilding$gross_fl_area / lot_area
-  bldg_width <- ifelse(length(tidybuilding$width) > 0, tidybuilding$width, NA)
-  bldg_depth <- ifelse(length(tidybuilding$depth) > 0, tidybuilding$depth, NA)
-
-
-  # starting lists of NA that we will update and add to a final data frame
-  min_vals <- rep(list(NA), length(constraints))
-  max_vals <- rep(list(NA), length(constraints))
-  min_val_notes <- rep(list(NA), length(constraints))
-  max_val_notes <- rep(list(NA), length(constraints))
 
   # loop through each zoning regulation in the district
   for (i in 1:length(constraints)){
