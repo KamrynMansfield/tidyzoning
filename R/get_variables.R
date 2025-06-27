@@ -1,22 +1,41 @@
 #' Get summarized building info in one table
 #'
-#' @param bldg_data the file path to an OZFS *.bldg file
+#' @param bldg_file the file path to an OZFS *.bldg file
 #' @param parcel_data one row of a parcel data frame created from the
 #' OZFS *.parcel file
 #' @param district_data one row (representing one district) of a
 #' zoning data frame created from the OZFS *.zoning file
+#' @param zoning_data either the path to a *.zoning file or
+#' a list created from the the *.zoning file using `rjson::fromJSON`
+#'
 #'
 #' @returns a one-row data frame with a column for each variable
 #' @export
 #'
 #' @examples
 #'
-get_variables <- function(bldg_data, parcel_data, district_data){
+get_variables <- function(bldg_file, parcel_data, district_data, zoning_data){
+
+  if (class(zoning_data)[[1]] == "character"){
+    if (file.exists(zoning_data)){
+      zoning_json <- tryCatch({
+        rjson::fromJSON(file = zoning_data)
+      }, error = function(e) {
+        stop("The zoning_data file path does not seem to be in json/geojson format")
+      })
+
+      zoning_defs <- zoning_json$definitions
+    }
+  } else if (class(zoning_data) == "list"){
+    zoning_defs <- zoning_data$definitions
+  } else{
+    stop("Improper input: zoning_data")
+  }
 
   bldg_json <- tryCatch({
-    rjson::fromJSON(file = bldg_data)
+    rjson::fromJSON(file = bldg_file)
   }, error = function(e) {
-    stop("bldg_data must be a file path to a *.bldg file and it must be in json format")
+    stop("bldg_file must be a file path to a *.bldg file and it must be in json format")
   })
 
   if (is.null(bldg_json$bldg_info) | is.null(bldg_json$unit_info) | is.null(bldg_json$level_info)){
@@ -65,10 +84,9 @@ get_variables <- function(bldg_data, parcel_data, district_data){
   units_3bed <- sum(unit_info_df$qty[unit_info_df$bedrooms == 3])
   units_4bed <- sum(unit_info_df$qty[unit_info_df$bedrooms > 3])
   far <- fl_area / (lot_area * 43560)
-  # height: a variable that will be created using the zoning definitions
-  # res_type: a variable that will be created using the zoning definitions
-  # bedrooms: a variable that we will need when we check unit size
-
+  # height: a variable that will be created at the end of the this function
+  # res_type: a variable that will be created at the end of the this function
+  # bedrooms: a variable that we will create and use only when we check unit size
 
   # making it a data frame to return
   vars_df <- data.frame(bldg_depth = bldg_depth,
@@ -102,6 +120,61 @@ get_variables <- function(bldg_data, parcel_data, district_data){
                              units_3bed = units_3bed,
                              units_4bed = units_4bed,
                              far = far)
+
+
+  # the last variables we assign are the variables defined by the city zoning code
+  # because these variables are often calculated with the above variables
+
+  # loop through each variable that will need to be defined
+  for (i in 1:length(zoning_defs)){
+    var_name <- names(zoning_defs)[[i]]
+
+    var_list <- zoning_defs[[i]]
+
+    # loop through each array item under the variable
+    notmet <- 0 # start to track number of items that didn't meet the conditions
+    for (j in 1:length(var_list)){
+      condition_list <- var_list[[j]]$condition
+      condition <- paste0("(",condition_list,")", collapse = " and ")
+      condition <- gsub("and","&",condition)
+      condition <- gsub("or","|",condition)
+
+      evaluated <- tryCatch({
+        eval(parse(text = condition))
+      }, error = function(e) {
+        return("error")
+      })
+
+      if (evaluated == "error"){
+        notmet <- notmet + 1
+        next
+      }
+
+
+      if (evaluated){
+        expr <- var_list[[j]]$expression
+        evaluated_expr <- tryCatch({
+          eval(parse(text = expr))
+        }, error = function(e) {
+          return("error")
+        })
+
+        if (evaluated_expr == "error"){
+          stop(paste("unable to evaluate variable:", var_name))
+        }
+        value <- evaluated_expr
+      }
+
+    }
+
+    if (notmet == length(var_list)){
+      stop(paste("No conditions met. Unable to fine",var_name, "variable"))
+    }
+
+    vars_df[[var_name]] <- value
+
+  } # end loop through each variable that will need to be defined.
+
 
   return(vars_df)
 }
