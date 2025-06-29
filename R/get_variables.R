@@ -1,6 +1,7 @@
 #' Get summarized building info in one table
 #'
-#' @param bldg_file the file path to an OZFS *.bldg file
+#' @param bldg_data either the file path to an OZFS *.bldg file or
+#' a list created from the the *.bldg file using `rjson::fromJSON`
 #' @param parcel_data one row of a parcel data frame created from the
 #' OZFS *.parcel file
 #' @param district_data one row (representing one district) of a
@@ -14,7 +15,7 @@
 #'
 #' @examples
 #'
-get_variables <- function(bldg_file, parcel_data, district_data, zoning_data){
+get_variables <- function(bldg_data, parcel_data, district_data, zoning_data){
 
   if (class(zoning_data)[[1]] == "character"){
     if (file.exists(zoning_data)){
@@ -26,17 +27,25 @@ get_variables <- function(bldg_file, parcel_data, district_data, zoning_data){
 
       zoning_defs <- zoning_json$definitions
     }
-  } else if (class(zoning_data) == "list"){
+  } else if (class(zoning_data)[[1]] == "list"){
     zoning_defs <- zoning_data$definitions
   } else{
     stop("Improper input: zoning_data")
   }
 
-  bldg_json <- tryCatch({
-    rjson::fromJSON(file = bldg_file)
-  }, error = function(e) {
-    stop("bldg_file must be a file path to a *.bldg file and it must be in json format")
-  })
+  if (class(bldg_data)[[1]] == "character"){
+    bldg_json <- tryCatch({
+      rjson::fromJSON(file = bldg_data)
+    }, error = function(e) {
+      stop("bldg_data must be a file path to an OZFS *.bldg file or a list created from said file")
+    })
+  } else if (class(zoning_data)[[1]] == "list"){
+    bldg_json <- bldg_data
+  } else{
+    stop("Improper input: bldg_data")
+  }
+
+
 
   if (is.null(bldg_json$bldg_info) | is.null(bldg_json$unit_info) | is.null(bldg_json$level_info)){
     stop("Improper format: json must contain bldg_info, unit_info, and level_info sections")
@@ -163,6 +172,7 @@ get_variables <- function(bldg_file, parcel_data, district_data, zoning_data){
           stop(paste("unable to evaluate variable:", var_name))
         }
         value <- evaluated_expr
+        break
       }
 
     }

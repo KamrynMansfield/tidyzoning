@@ -4,19 +4,23 @@
 \alias{get_variables}
 \title{Get summarized building info in one table}
 \usage{
-get_variables(bldg_data, parcel_data, district_data)
+get_variables(bldg_data, parcel_data, district_data, zoning_data)
 }
 \arguments{
-\item{bldg_data}{the file path to an OZFS *.bldg file}
+\item{bldg_data}{either the file path to an OZFS *.bldg file or
+a list created from the the *.bldg file using \code{rjson::fromJSON}}
 
 \item{parcel_data}{one row of a parcel data frame created from the
 OZFS *.parcel file}
 
 \item{district_data}{one row (representing one district) of a
 zoning data frame created from the OZFS *.zoning file}
+
+\item{zoning_data}{either the path to a *.zoning file or
+a list created from the the *.zoning file using \code{rjson::fromJSON}}
 }
 \value{
-a one-row data frame with values describing the building.
+a one-row data frame with a column for each variable
 }
 \description{
 Get summarized building info in one table

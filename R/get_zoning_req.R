@@ -7,7 +7,8 @@
 #' If every value is NA, it could indicate that the building
 #' land use is not allowed in the zoning district.
 #'
-#' @param bldg_file the file path to an OZFS *.bldg file
+#' @param bldg_file either the file path to an OZFS *.bldg file or
+#' a list created from the the *.bldg file using `rjson::fromJSON`
 #' @param parcel_data one row of a parcel data frame created from the
 #' OZFS *.parcel file
 #' @param district_data one row (representing one district) of a
@@ -19,7 +20,7 @@
 #' are not needed.
 #'
 #' @return
-#' Returns a data frame with the value each zoning requirement for that specific building, parcel, and zoning district.
+#' Returns a data frame with the value of each zoning requirement for that specific building, parcel, and zoning district.
 #' NA values indicate the requirement isn't recorded in that district.
 #' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
 #' @export
@@ -28,7 +29,9 @@ get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, 
 
   # if there are no constraints under the constraints section,
   # it will output a string stating that
-  if (is.null(district_data$constraints) | is.na(district_data$constraints)){
+  if (is.null(district_data$constraints)){
+    return("No zoning requirements recorded for this district")
+  } else if (is.na(district_data$constraints)){
     return("No zoning requirements recorded for this district")
   }
 
@@ -51,174 +54,126 @@ get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, 
 
 
   # loop through each zoning regulation in the district
+  min_vals <- list()
+  min_val_notes <- list()
+  max_vals <- list()
+  max_val_notes <- list()
   for (i in 1:length(constraints)){
-    name <- constraints[[i]]
-    if (is.null(listed_constraints[[name]])){
-      next
-    }
-    constraint_list <- listed_constraints[[name]]
+    constraint_name <- constraints[[i]]
+    constraint_list <- listed_constraints[[i]]
 
-    # Loop through the each uses available
-    # to select the appropriate constraint info
-    for (j in 1:length(constraint_list)){
-      use_name <- constraint_list[[j]]$uses
-      if (bldg_type %in% use_name){
-        use_index <- j
-        break
-      }else {
-        use_index <- NA
-      }
-    }
-    if (is.na(use_index)){ # if there are no values for the specific land use it gives a warning
-      min_val_notes[[i]] <- "no constraints for land use"
-      max_val_notes[[i]] <- "no constraints for land use"
-      next
-    }
-    # this is the info for the constraint that matches the building's land use
-    constraint_info <- constraint_list[[use_index]]
+    # loop through each min/max_val
+    for (val_idx in 1:length(constraint_list)){
+      val_name <- names(constraint_list)[[val_idx]]
+      val_list <- constraint_list[[val_name]]
 
-    # see what values are recorded: "min_val", "max_val", or "min_val" and "max_val"
-    if ("min_val" %in% names(constraint_info) & "max_val" %in% names(constraint_info)){
-      minmax_options <- c("min_val","max_val")
-    } else if ("min_val" %in% names(constraint_info)){
-      minmax_options <- "min_val"
-    } else if ("max_val" %in% names(constraint_info)){
-      minmax_options <- "max_val"
-    } else{
-      min_val_notes[[i]] <- "no min or max value recorded"
-      max_val_notes[[i]] <- "no min or max value recorded"
-      warning("There is constraint info for the building's land use, but no associated values")
-      next
-    }
+      value <- NA
+      note <- NA
 
-    # loop through the min_val and max_val lists
-    # it is often just one or the other
-    for (minmax in minmax_options){
-      constraint_note <- NA
+      # loop through each array item under the variable
+      maybe_ids <- c()
+      true_id <- NULL
+      for (j in 1:length(val_list)){
+        condition_list <- val_list[[j]]$condition
 
-      # Assign the pertinent min/max_val item to a variable val_list
-      # val_list is the list that contains, condition, expression, criterion, more_restrictive
-      if (length(constraint_info[[minmax]]) == 1){ # there are no conditions, just one item
-        val_list <- constraint_info[[minmax]][[1]]
-
-      } else if (length(constraint_info[[minmax]]) > 1){ # there are conditions to loop through
-        for (item in constraint_info[[minmax]]){
-
-          condition <- gsub("and","&",item$condition)
-          condition <- gsub("or","|", condition)
-
-          parsed_condition <- tryCatch({
-            # Try to calculate the square root
-            parse(text = condition)
-          }, error = function(e) {
-            warning("Unable to properly parse constraint condition")
-            FALSE
-          })
-
-          condition_met <- eval(parsed_condition)
-
-          if (is.na(condition_met)){
-            condition_met <- FALSE
-          }
-
-          if (condition_met){
-            val_list <- item
-            break
-          }
+        # When there is just one array item and no condition
+        if (is.null(condition_list) & length(val_list) == 1){
+          true_id <- j
+          break
+        } else if (is.null(condition_list)){
+          note <- "No condition field despite multiple array items"
+        } else if (length(val_list) == 1){
+          note <- "Condition given despite a sinlge array item"
         }
 
-      } else{
-        warning("Improper ozfs formatting")
-        constraint_note <- paste0(minmax, " recorded but no info attached")
-        next
-      }
 
-      # if there is data under the val_list,
-      # then find the constraint value
-      if (exists("val_list")){
-
-        if (is.null(val_list$criterion)){ # then it will be just an expression
-          expression <- val_list$expression
-          parsed <- tryCatch({
-            # Try to calculate the square root
-            parse(text = expression)
-          }, error = function(e) {
-            warning("Unable to properly parse constraint expression")
-            NA
+        condition_list <- lapply(condition_list, function(x) gsub("\\band\\b", "&", x))
+        condition_list <- lapply(condition_list, function(x) gsub("\\bor\\b", "|", x))
+        eval_conditions <- sapply(condition_list, function(x) {
+          tryCatch({
+          eval(parse(text = x))
+        }, error = function(e) {
+          return("MAYBE")
+        })
           })
 
-          value <- eval(parsed)
+        if (sum(eval_conditions == "TRUE") == length(eval_conditions)){ # all conditions == TRUE
+          true_id <- j
+          break
+        } else if ("FALSE" %in% eval_conditions){ # there's at least one FALSE
+          next
+        } else{ # has MAYBE with perhaps some TRUE
+          maybe_ids <- c(maybe_ids, j)
+        }
 
-          if(is.na(value)){
-            constraint_note <- paste0("parsing error (improper expression for ", name,")")
-          }
 
-        } else{ # then it will be expression, criterion (and maybe more_restrictive)
+      }# end loop through each array item under the variable
 
-          # loop through each expression and parse and evaluate it
-          values <- c() # will become a list of values of for each expression
-          for (expression in val_list$expression){
-            parsed <- tryCatch({
-              # Try to calculate the square root
-              parse(text = expression)
+      if (!is.null(true_id)){
+        expressions <- val_list[[true_id]]$expression
+        eval_expressions <- lapply(expressions, function(x){
+          tryCatch({
+            eval(parse(text = x))
+          }, error = function(e) {
+            return("error")
+          })
+        }) |> unlist()
+
+        if (eval_expressions == "error"){
+          note <- "Improper OZFS expression"
+        } else if (length(eval_expressions) > 1){
+          value <- c(min(eval_expressions), max(eval_expressions))
+        } else{
+          value <- eval_expressions
+        }
+      } else if (!is.null(maybe_ids)){
+        possible_vals <- c()
+        for (id in maybe_ids){
+          expressions <- val_list[[id]]$expression
+          eval_expressions <- lapply(expressions, function(x){
+            tryCatch({
+              eval(parse(text = x))
             }, error = function(e) {
-              warning("Unable to properly parse constraint expression")
-              NA
+              return("error")
             })
+          }) |> unlist()
 
-            val <- eval(parsed)
-
-            values <- c(values, val)
-
-            if(is.na(val)){
-              constraint_note <- paste0("parsing error (improper expression for ", name,")")
-            }
-
-          }
-
-          # once we have the values list, we pick the value according to the criteron
-          # if criterion is "dependent" then we out both values
-          if (val_list$criterion == "min"){
-            value <- min(values)
-          } else if (val_list$criterion == "max"){
-            value <- max(values)
-          } else if (val_list$criterion == "dependent"){
-            value <- c(min(values), max(values))
-            if (!is.null(val_list$more_restrictive)){
-              constraint_note <- val_list$more_restrictive
-            } else{
-              constraint_note <- "no reason given for dependent criterion"
-            }
+          if (eval_expressions == "error"){
+            note <- "Improper OZFS expression"
+          } else if (length(eval_expressions) > 1){
+            possible_vals <- c(possible_vals, c(min(eval_expressions), max(eval_expressions)))
           } else{
-            constraint_note <- "invalid criteron"
+            possible_vals <- c(possible_vals, eval_expressions)
           }
-
         }
 
+        value <- c(min(possible_vals), max(possible_vals))
       } else{
-        constraint_note <- paste0("no conditions met or imporper ozfs for ", name)
+        warning("Improper OZFS: No constraint conditions met")
       }
 
-      # Now we should have assigned the correct value or values.
-      # Determine if it is a min_val or a max_val and update the lists accordingly
-      if (minmax == "min_val"){
+      if (val_name == "min_val"){
         min_vals[[i]] <- value
-        min_val_notes[[i]] <- constraint_note
+        min_val_notes[[i]] <- note
       } else{
         max_vals[[i]] <- value
-        max_val_notes[[i]] <- constraint_note
+        max_val_notes[[i]] <- note
       }
 
-    }
 
-  }
+
+    }# end loop through each min/max_val
+
+  }# end loop through each constraint
+
 
   # put everything into a data frame
-  constraints_df <- data.frame(constraint_name = constraints)
-  constraints_df$min_value <- min_vals
-  constraints_df$max_value <- max_vals
-  constraints_df$min_val_note <- min_val_notes
-  constraints_df$max_val_note <- max_val_notes
+  constraints_df <- data.frame(constraint_name = constraints,
+                               min_value = I(min_vals),
+                               max_value = I(max_vals),
+                               min_val_note = I(min_val_notes),
+                               max_val_note = I(max_val_notes))
+
 
   return(constraints_df)
 }

@@ -4,24 +4,40 @@
 \alias{get_zoning_req}
 \title{List district zoning requirement values}
 \usage{
-get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
+get_zoning_req(
+  district_data,
+  bldg_file = NULL,
+  parcel_data = NULL,
+  zoning_data = NULL,
+  vars = NULL
+)
 }
 \arguments{
-\item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
+\item{district_data}{one row (representing one district) of a
+zoning data frame created from the OZFS *.zoning file}
 
-\item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
+\item{bldg_file}{either the file path to an OZFS *.bldg file or
+a list created from the the *.bldg file using \code{rjson::fromJSON}}
 
-\item{tidyparcel_dims}{The simple features object with each parcel centroid and the parcel dimensions}
+\item{parcel_data}{one row of a parcel data frame created from the
+OZFS *.parcel file}
+
+\item{zoning_data}{either the path to a *.zoning file or
+a list created from the the *.zoning file using \code{rjson::fromJSON}}
+
+\item{vars}{the result from the \code{get_variables()} function.
+If this data frame is supplied, bldg_file, parcel_data, and zoning_data
+are not needed.}
 }
 \value{
-Returns a data frame with the value each zoning requirement for that specific building, parcel, and zoning district.
+Returns a data frame with the value of each zoning requirement for that specific building, parcel, and zoning district.
 NA values indicate the requirement isn't recorded in that district.
 If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
 }
 \description{
 Because many zoning requirements depend on the proposed building
 or the parcel of that zoning district, \verb{the get_zoning_req()} function
-takes a tidybuilding, a tidyparcel, and a tidydistrict and outputs a data
+takes a tidybuilding, a tidyparcel, and a district_data and outputs a data
 frame listing the set zoning requirements that those three objects would create.
 If every value is NA, it could indicate that the building
 land use is not allowed in the zoning district.
