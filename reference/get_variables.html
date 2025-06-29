@@ -36,7 +36,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_variables</span><span class="op">(</span><span class="va">bldg_data</span>, <span class="va">parcel_data</span>, <span class="va">district_data</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_variables</span><span class="op">(</span><span class="va">bldg_data</span>, <span class="va">parcel_data</span>, <span class="va">district_data</span>, <span class="va">zoning_data</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -44,7 +44,8 @@
 
 
 <dl><dt id="arg-bldg-data">bldg_data<a class="anchor" aria-label="anchor" href="#arg-bldg-data"></a></dt>
-<dd><p>the file path to an OZFS *.bldg file</p></dd>
+<dd><p>either the file path to an OZFS *.bldg file or
+a list created from the the *.bldg file using <code><a href="https://rdrr.io/pkg/rjson/man/fromJSON.html" class="external-link">rjson::fromJSON</a></code></p></dd>
 
 
 <dt id="arg-parcel-data">parcel_data<a class="anchor" aria-label="anchor" href="#arg-parcel-data"></a></dt>
@@ -56,10 +57,15 @@ OZFS *.parcel file</p></dd>
 <dd><p>one row (representing one district) of a
 zoning data frame created from the OZFS *.zoning file</p></dd>
 
+
+<dt id="arg-zoning-data">zoning_data<a class="anchor" aria-label="anchor" href="#arg-zoning-data"></a></dt>
+<dd><p>either the path to a *.zoning file or
+a list created from the the *.zoning file using <code><a href="https://rdrr.io/pkg/rjson/man/fromJSON.html" class="external-link">rjson::fromJSON</a></code></p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>a one-row data frame with values describing the building.</p>
+    <p>a one-row data frame with a column for each variable</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
