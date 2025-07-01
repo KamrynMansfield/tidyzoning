@@ -7,7 +7,7 @@
 #' If every value is NA, it could indicate that the building
 #' land use is not allowed in the zoning district.
 #'
-#' @param bldg_file either the file path to an OZFS *.bldg file or
+#' @param bldg_data either the file path to an OZFS *.bldg file or
 #' a list created from the the *.bldg file using `rjson::fromJSON`
 #' @param parcel_data one row of a parcel data frame created from the
 #' OZFS *.parcel file
@@ -16,7 +16,7 @@
 #' @param zoning_data either the path to a *.zoning file or
 #' a list created from the the *.zoning file using `rjson::fromJSON`
 #' @param vars the result from the `get_variables()` function.
-#' If this data frame is supplied, bldg_file, parcel_data, and zoning_data
+#' If this data frame is supplied, bldg_data, parcel_data, and zoning_data
 #' are not needed.
 #'
 #' @return
@@ -25,13 +25,14 @@
 #' If every value is NA, it could indicate that the building land use is not allowed in the zoning district.
 #' @export
 #'
-get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, zoning_data = NULL, vars = NULL){
+get_zoning_req <- function(district_data,
+                           bldg_data = NULL,
+                           parcel_data = NULL,
+                           zoning_data = NULL,
+                           vars = NULL){
 
-  # if there are no constraints under the constraints section,
-  # it will output a string stating that
-  if (is.null(district_data$constraints)){
-    return("No zoning requirements recorded for this district")
-  } else if (is.na(district_data$constraints)){
+  # check to see if there are any constraints in the district
+  if (is.null(district_data$constraints) | is.na(district_data$constraints)){
     return("No zoning requirements recorded for this district")
   }
 
@@ -54,10 +55,10 @@ get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, 
 
 
   # loop through each zoning regulation in the district
-  min_vals <- list()
-  min_val_notes <- list()
-  max_vals <- list()
-  max_val_notes <- list()
+  min_vals <- rep(list(NA), length(constraints))
+  min_val_notes <- rep(list(NA), length(constraints))
+  max_vals <- rep(list(NA), length(constraints))
+  max_val_notes <- rep(list(NA), length(constraints))
   for (i in 1:length(constraints)){
     constraint_name <- constraints[[i]]
     constraint_list <- listed_constraints[[i]]
@@ -115,14 +116,19 @@ get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, 
           tryCatch({
             eval(parse(text = x))
           }, error = function(e) {
-            return("error")
+            return(NULL)
           })
         }) |> unlist()
 
-        if (eval_expressions == "error"){
-          note <- "Improper OZFS expression"
+        if (is.null(eval_expressions)){
+          note <- "Unable to evaluate expression: incorrect format or missing variables"
         } else if (length(eval_expressions) > 1){
-          value <- c(min(eval_expressions), max(eval_expressions))
+          if (!is.null(val_list[[j]]$min_max)){
+            values <- ifelse(val_list[[j]]$min_max == "min",min(eval_expressions), max(eval_expressions))
+          } else{
+            value <- c(min(eval_expressions), max(eval_expressions))
+            note <- "multiple expressions with insufficient conditions"
+          }
         } else{
           value <- eval_expressions
         }
@@ -134,14 +140,18 @@ get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, 
             tryCatch({
               eval(parse(text = x))
             }, error = function(e) {
-              return("error")
+              return(NULL)
             })
           }) |> unlist()
 
-          if (eval_expressions == "error"){
-            note <- "Improper OZFS expression"
+          if (is.null(eval_expressions)){
+            note <- "Unable to evaluate expression: incorrect format or missing variables"
           } else if (length(eval_expressions) > 1){
-            possible_vals <- c(possible_vals, c(min(eval_expressions), max(eval_expressions)))
+            if (!is.null(val_list[[j]]$min_max)){
+              possible_vals <- c(possible_vals, ifelse(val_list[[j]]$min_max == "min",min(eval_expressions), max(eval_expressions)))
+            } else{
+              possible_vals <- c(possible_vals, c(min(eval_expressions), max(eval_expressions)))
+            }
           } else{
             possible_vals <- c(possible_vals, eval_expressions)
           }
@@ -149,14 +159,14 @@ get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, 
 
         value <- c(min(possible_vals), max(possible_vals))
       } else{
-        warning("Improper OZFS: No constraint conditions met")
+        note <- "Improper OZFS: No constraint conditions met"
       }
 
       if (val_name == "min_val"){
-        min_vals[[i]] <- value
+        min_vals[[i]] <- round(value, 4)
         min_val_notes[[i]] <- note
       } else{
-        max_vals[[i]] <- value
+        max_vals[[i]] <- round(value,4)
         max_val_notes[[i]] <- note
       }
 
@@ -171,9 +181,46 @@ get_zoning_req <- function(district_data, bldg_file = NULL, parcel_data = NULL, 
   constraints_df <- data.frame(constraint_name = constraints,
                                min_value = I(min_vals),
                                max_value = I(max_vals),
-                               min_val_note = I(min_val_notes),
-                               max_val_note = I(max_val_notes))
+                               min_val_error = I(min_val_notes),
+                               max_val_error = I(max_val_notes))
 
 
   return(constraints_df)
 }
+
+zoning <- sf::st_read("../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/ozfs_final/Addison.zoning")
+parcel <- sf::st_read("inst/extdata/Cockrell Hill.parcel")
+district_data <- zoning[1,]
+parcel_data <- parcel[10,]
+
+zoning <- sf::st_read("../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/8_cities_ozfs/2_Garland.zoning")
+
+zoning_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/ozfs_final/Addison.zoning"
+zoning_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/8_cities_ozfs/2_Garland.zoning"
+
+get_variables(bldg_data = "inst/extdata/12_fam.bldg",
+              parcel_data = parcel_data,
+              district_data = district_data,
+              zoning_data = zoning_file)
+
+get_zoning_req(district_data = district_data,
+               bldg_data = "inst/extdata/2_fam.bldg",
+               parcel_data = parcel_data,
+               zoning_data = "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/ozfs_final/Addison.zoning")
+
+
+#
+# list_of_reqs <- list()
+# for (i in 1:nrow(zoning)){
+#   district_data <- zoning[i,]
+#   reqs_df <- get_zoning_req(district_data = district_data,
+#                             bldg_data = "inst/extdata/2_fam.bldg",
+#                             parcel_data = parcel_data,
+#                             zoning_data = "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/ozfs_final/Addison.zoning")
+#
+#   list_of_reqs[[i]] <- reqs_df
+# }
+#
+# list_of_reqs
+
+
