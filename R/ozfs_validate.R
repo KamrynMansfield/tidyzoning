@@ -183,30 +183,34 @@ ozfs_validate <- function(list_of_files){
             if (is.null(val_list$expression)){ # expression field is required
               list_of_errors <- c(list_of_errors, paste(dist_abbr,": no expression for",minmax_name, "of",constraint_name))
             } else{
-              parsed_expression <- tryCatch(
-                {
-                  parse(text = val_list$expression)
-                }, error = function(e) {
-                  # Code to run if an error occurs
-                  return("error")
-                }
-              )
-
-              if (class(parsed_expression) == "character"){ # # expressions must parse properly
-                list_of_errors <- c(list_of_errors, paste(dist_abbr,": expression parse error for",minmax_name, "of",constraint_name))
-              } else{
-                eval_expression <- tryCatch(
+              parsed_expression <- lapply(val_list$expression, function(x){
+                tryCatch(
                   {
-                    eval(parsed_expression)
+                    parse(text = x)
                   }, error = function(e) {
                     # Code to run if an error occurs
-                    return("error")
+                    return(NULL)
                   }
                 )
-                if (class(eval_expression) == "character"){ # expressions must evaluate properly
+              })
+
+              if (is.null(parsed_expression)){ # # expressions must parse properly
+                list_of_errors <- c(list_of_errors, paste(dist_abbr,": expression parse error for",minmax_name, "of",constraint_name))
+              } else{
+                eval_expression <- lapply(parsed_expression, function(x){
+                  tryCatch(
+                    {
+                      eval(x)
+                    }, error = function(e) {
+                      # Code to run if an error occurs
+                      return(NULL)
+                    }
+                  )
+                } ) |> unlist()
+                if (is.null(eval_expression)){ # expressions must evaluate properly
                   list_of_errors <- c(list_of_errors, paste(dist_abbr,": expression eval error for",minmax_name, "of",constraint_name))
                 }
-                if (is.na(eval_expression)){ # NAs shouldn't exist
+                if (sum(is.na(eval_expression)) > 0 ){ # NAs shouldn't exist
                   list_of_warnings <- c(list_of_warnings, paste(dist_abbr,": NA expression encountered for",minmax_name, "of",constraint_name))
                 }
               }
@@ -221,6 +225,24 @@ ozfs_validate <- function(list_of_files){
                 # if there is a criterion, there should be multiple values in expression
                 list_of_warnings <- c(list_of_warnings, paste(dist_abbr,": criterion not needed",minmax_name, "of",constraint_name))
               }
+            }
+
+            if (!is.null(val_list$condition)){
+              eval_condition <- lapply(parsed_expression, function(x){
+                tryCatch(
+                  {
+                    eval(x)
+                  }, error = function(e) {
+                    # Code to run if an error occurs
+                    return(NULL)
+                  }
+                )
+              } ) |> unlist()
+
+              if (sum(is.na(eval_condition)) > 0){ # NAs shouldn't exist
+                list_of_warnings <- c(list_of_warnings, paste(dist_abbr,": NA condition encountered for",minmax_name, "of",constraint_name))
+              }
+
             }
 
 
