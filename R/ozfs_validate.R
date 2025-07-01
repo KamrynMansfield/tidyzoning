@@ -68,7 +68,7 @@ ozfs_validate <- function(list_of_files){
       if (!is.null(properties$constraints)){
         constraints <- properties$constraints
       } else{
-        break
+        next
       }
 
       # possible constraint names that could be listed
@@ -211,7 +211,7 @@ ozfs_validate <- function(list_of_files){
                   list_of_errors <- c(list_of_errors, paste(dist_abbr,": expression eval error for",minmax_name, "of",constraint_name))
                 }
                 if (sum(is.na(eval_expression)) > 0 ){ # NAs shouldn't exist
-                  list_of_warnings <- c(list_of_warnings, paste(dist_abbr,": NA expression encountered for",minmax_name, "of",constraint_name))
+                  list_of_errors <- c(list_of_errors, paste(dist_abbr,": NA expression encountered for",minmax_name, "of",constraint_name))
                 }
               }
             }
@@ -228,10 +228,10 @@ ozfs_validate <- function(list_of_files){
             }
 
             if (!is.null(val_list$condition)){
-              eval_condition <- lapply(parsed_expression, function(x){
+              eval_condition <- lapply(val_list$condition, function(x){
                 tryCatch(
                   {
-                    eval(x)
+                    eval(parse(text = x))
                   }, error = function(e) {
                     # Code to run if an error occurs
                     return(NULL)
@@ -240,7 +240,7 @@ ozfs_validate <- function(list_of_files){
               } ) |> unlist()
 
               if (sum(is.na(eval_condition)) > 0){ # NAs shouldn't exist
-                list_of_warnings <- c(list_of_warnings, paste(dist_abbr,": NA condition encountered for",minmax_name, "of",constraint_name))
+                list_of_errors <- c(list_of_errors, paste(dist_abbr,": NA condition encountered for",minmax_name, "of",constraint_name))
               }
 
             }
