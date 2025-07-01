@@ -6,7 +6,7 @@
 \usage{
 get_zoning_req(
   district_data,
-  bldg_file = NULL,
+  bldg_data = NULL,
   parcel_data = NULL,
   zoning_data = NULL,
   vars = NULL
@@ -16,7 +16,7 @@ get_zoning_req(
 \item{district_data}{one row (representing one district) of a
 zoning data frame created from the OZFS *.zoning file}
 
-\item{bldg_file}{either the file path to an OZFS *.bldg file or
+\item{bldg_data}{either the file path to an OZFS *.bldg file or
 a list created from the the *.bldg file using \code{rjson::fromJSON}}
 
 \item{parcel_data}{one row of a parcel data frame created from the
@@ -26,7 +26,7 @@ OZFS *.parcel file}
 a list created from the the *.zoning file using \code{rjson::fromJSON}}
 
 \item{vars}{the result from the \code{get_variables()} function.
-If this data frame is supplied, bldg_file, parcel_data, and zoning_data
+If this data frame is supplied, bldg_data, parcel_data, and zoning_data
 are not needed.}
 }
 \value{
