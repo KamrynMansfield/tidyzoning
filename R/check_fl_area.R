@@ -1,18 +1,16 @@
 #' Compare building floor area and allowed floor area
 #'
-#' `check_fl_area()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on floor area.
+#' `check_fl_area()` states whether a building is allowed on a parcel based
+#' on its floor area. It returns TRUE, FALSE, or "MAYBE"
 #'
-#' @inheritParams check_height
+#' @inheritParams check_far
 #'
 #' @return
-#' Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on floor area.
+#' Returns "TRUE", "FALSE", or "MAYBE". "MAYBE" indicates a complex condition
+#' the OZFS is currently not able to support.
 #' @export
 #'
-check_fl_area <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NULL, zoning_req = NULL){
-  # if zoning_req is not given, we need to run the get_zoning_req function
-  if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
-  }
+check_fl_area <- function(vars, zoning_req){
 
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
   # we return maybe with a warning
@@ -31,9 +29,9 @@ check_fl_area <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = N
     return(TRUE)
   }
 
-  values <- c(fl_area = ifelse(!is.null(tidybuilding$gross_fl_area),tidybuilding$gross_fl_area, NA),
-              fl_area_first = ifelse(!is.null(tidybuilding$fl_area_first),tidybuilding$fl_area_first,NA),
-              fl_area_top = ifelse(!is.null(tidybuilding$fl_area_top),tidybuilding$fl_area_top,NA))
+  values <- c(fl_area = vars$fl_area,
+              fl_area_first = vars$fl_area_first,
+              fl_area_top = vars$fl_area_top)
 
 
   allowed <- c()

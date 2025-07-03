@@ -12,13 +12,8 @@ check_lot_coverage(
 )
 }
 \arguments{
-\item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
-
-\item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
-
-\item{tidyparcel_dims}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
-
-\item{zoning_req}{The data frame result from the \code{get_zoning_req()} function. If provided, the tidydistrict and parccel need not be provided.}
+\item{zoning_req}{A data frame with the min_value and max_value of each
+constraint. The result of the \link{get_zoning_req} function.}
 }
 \value{
 Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on lot coverage.

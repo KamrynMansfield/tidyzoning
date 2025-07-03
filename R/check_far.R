@@ -1,24 +1,22 @@
 #' Compare building floor area ratio to zoning requirements
 #'
-#' `check_far()` takes a tidybuilding, tidydistrict, and tidyparcel to see if the district's zoning code allows the tidybuilding based on floor area ratio.
+#' `check_far()` states whether a building is allowed on a parcel based
+#' on its Floor Area Ratio (FAR). It returns TRUE, FALSE, or "MAYBE"
 #'
-#' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
-#' @param tidydistrict The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.
-#' @param tidyparcel_dims A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).
-#' @param zoning_req The data frame result from the `get_zoning_req()` function. If provided, the tidydistrict and parccel need not be provided.
+#' @param vars A data frame with a column for each OZFS variable. The result
+#' of the [get_variables] function.
+#' @param zoning_req A data frame with the min_value and max_value of each
+#' constraint. The result of the [get_zoning_req] function.
 #'
 #'
 #' @return
-#' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on floor area ratio.
+#' Returns "TRUE", "FALSE", or "MAYBE". "MAYBE" indicates a complex condition
+#' the OZFS is currently not able to support.
 #' @export
 #'
-check_far <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims, zoning_req = NULL){
-  # if zoning_req is not given, we need to run the get_zoning_req function
-  if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
-  }
+check_far <- function(vars, zoning_req){
 
-  # establish the constaint we are looking at
+  # establish the constraint we are looking at
   constraint <- "far"
 
   # if the zonning_req is "character" and not "data.frame", there were no zoning requirements recorded.
@@ -30,17 +28,7 @@ check_far <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims, zoning
     return(TRUE)
   }
 
-  # getting the value from the building's attributes
-  if (length(tidybuilding$gross_fl_area) == 1){
-    fl_area <- tidybuilding$gross_fl_area
-  } else{
-    warning("Improper building data")
-    return("MAYBE")
-  }
-
-  ######## need to double check to make sure I'm calling the lot_area correctly
-  ########
-  value <- fl_area / (tidyparcel_dims$lot_area * 43560)
+  value <- vars$far
 
   # assume min and max values if they are not recorded
   # if specific constraint we are looking for is not in zoning requirements, we assume any value is allowed

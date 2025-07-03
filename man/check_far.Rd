@@ -4,25 +4,20 @@
 \alias{check_far}
 \title{Compare building floor area ratio to zoning requirements}
 \usage{
-check_far(
-  tidybuilding,
-  tidydistrict = NULL,
-  tidyparcel_dims,
-  zoning_req = NULL
-)
+check_far(vars, zoning_req)
 }
 \arguments{
-\item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
+\item{vars}{A data frame with a column for each OZFS variable. The result
+of the \link{get_variables} function.}
 
-\item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
-
-\item{tidyparcel_dims}{A tidyparcel object is an simple features object depicting each side of a parcel and its label (front, Interior side, Exterior side, rear, centroid).}
-
-\item{zoning_req}{The data frame result from the \code{get_zoning_req()} function. If provided, the tidydistrict and parccel need not be provided.}
+\item{zoning_req}{A data frame with the min_value and max_value of each
+constraint. The result of the \link{get_zoning_req} function.}
 }
 \value{
-Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on floor area ratio.
+Returns "TRUE", "FALSE", or "MAYBE". "MAYBE" indicates a complex condition
+the OZFS is currently not able to support.
 }
 \description{
-\code{check_far()} takes a tidybuilding, tidydistrict, and tidyparcel to see if the district's zoning code allows the tidybuilding based on floor area ratio.
+\code{check_far()} states whether a building is allowed on a parcel based
+on its Floor Area Ratio (FAR). It returns TRUE, FALSE, or "MAYBE"
 }

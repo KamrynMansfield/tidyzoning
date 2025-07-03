@@ -1,17 +1,16 @@
 #' Compare building floor count and allowed floors
 #'
-#' `check_floors()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on number of floors.
+#' `check_floors()` states whether a building is allowed on a parcel based
+#' on number of floors. It returns TRUE, FALSE, or "MAYBE"
 #'
-#' @inheritParams check_height
+#' @inheritParams check_far
 #'
 #' @return
-#' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on total floors.
+#' Returns "TRUE", "FALSE", or "MAYBE". "MAYBE" indicates a complex condition
+#' the OZFS is currently not able to support.
 #' @export
 #'
-check_floors <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NULL, zoning_req = NULL){
-  if (is.null(zoning_req)){
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel_dims)
-  }
+check_floors <- function(vars, zoning_req){
 
   if (class(zoning_req) == "character"){
     warning("No zoning requirements recorded for this district")
@@ -20,13 +19,7 @@ check_floors <- function(tidybuilding, tidydistrict = NULL, tidyparcel_dims = NU
     return(TRUE)
   }
 
-
-  if (!is.null(tidybuilding$stories)){
-    value <- tidybuilding$stories
-  } else{
-    warning("improper building data")
-    return("MAYBE")
-  }
+  value <- vars$floors
 
   if ("stories" %in% zoning_req$constraint_name){
     min_requirement <- zoning_req[zoning_req$constraint_name == "stories", "min_value"][[1]]

@@ -1,8 +1,10 @@
-#' Check OZFS validity
+#' Is it formatted to OZFS standards?
 #'
-#'`ozfs_is_valid()` State the validity of the ozfs data
+#' `ozfs_is_valid()` TRUE or FALSE stating whether or not the files are
+#' properly formatted according to OZFS standards. Use [ozfs_validate] for
+#' a detailed list of why files don't meet the standard.
 #'
-#' @param ... A file path to an OZFS geojson file or list of file paths, an sf object created from and OZFS geojson data, or a combination of those.
+#' @param list_of_files A list of file paths to OZFS *.zoning files
 #'
 #' @returns TRUE or FALSE stating whether data is in valid OZFS format or not
 #' @export

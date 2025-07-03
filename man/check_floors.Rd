@@ -4,29 +4,20 @@
 \alias{check_floors}
 \title{Compare building floor count and allowed floors}
 \usage{
-check_floors(
-  tidybuilding,
-  tidydistrict = NULL,
-  tidyparcel_dims = NULL,
-  zoning_req = NULL
-)
+check_floors(vars, zoning_req)
 }
 \arguments{
-\item{tidybuilding}{A dataframe with fields to represent a building.
-Created from the function \link{unify_tidybuilding}.}
+\item{vars}{A data frame with a column for each OZFS variable. The result
+of the \link{get_variables} function.}
 
-\item{tidydistrict}{The tidydistrict corresponding to the tidyparcel.
-A tidydistrict object is one row from a tidyzoning simple features object.}
-
-\item{tidyparcel_dims}{A tidyparcel object is an simple features object
-depicting each parcel and its its dimentions.}
-
-\item{zoning_req}{The data frame result from the \code{get_zoning_req()} function.
-If provided, the tidydistrict and parccel need not be provided.}
+\item{zoning_req}{A data frame with the min_value and max_value of each
+constraint. The result of the \link{get_zoning_req} function.}
 }
 \value{
-Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on total floors.
+Returns "TRUE", "FALSE", or "MAYBE". "MAYBE" indicates a complex condition
+the OZFS is currently not able to support.
 }
 \description{
-\code{check_floors()} takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on number of floors.
+\code{check_floors()} states whether a building is allowed on a parcel based
+on number of floors. It returns TRUE, FALSE, or "MAYBE"
 }

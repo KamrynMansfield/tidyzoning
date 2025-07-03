@@ -2,16 +2,18 @@
 % Please edit documentation in R/ozfs_is_valid.R
 \name{ozfs_is_valid}
 \alias{ozfs_is_valid}
-\title{Check OZFS validity}
+\title{Is it formatted to OZFS standards?}
 \usage{
 ozfs_is_valid(list_of_files)
 }
 \arguments{
-\item{...}{A file path to an OZFS geojson file or list of file paths, an sf object created from and OZFS geojson data, or a combination of those.}
+\item{list_of_files}{A list of file paths to OZFS *.zoning files}
 }
 \value{
 TRUE or FALSE stating whether data is in valid OZFS format or not
 }
 \description{
-\code{ozfs_is_valid()} State the validity of the ozfs data
+\code{ozfs_is_valid()} TRUE or FALSE stating whether or not the files are
+properly formatted according to OZFS standards. Use \link{ozfs_validate} for
+a detailed list of why files don't meet the standard.
 }
