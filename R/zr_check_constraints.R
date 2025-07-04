@@ -150,3 +150,5 @@ zr_check_constraints <- function(vars,
   return(checked_df)
 
 }
+
+zr_check_constraints(vars, zoning_req)
