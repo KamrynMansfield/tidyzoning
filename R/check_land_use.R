@@ -1,26 +1,31 @@
 #' Compare building land use and allowed land uses
 #'
-#' `check_land_use()` takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on land use.
+#' `check_land_use()` checks to see if the residential type is listed in the
+#' districts permitted uses. It returns TRUE or FALSE.
 #'
-#' @inheritParams add_setbacks
+#' @param vars A data frame with a column for each OZFS variable. The result
+#' of the [get_variables] function.
+#' @param district_data one row (representing one district) of a
+#' zoning data frame created from the OZFS *.zoning file
 #'
 #' @return
 #' Returns TRUE or FALSE stating whether or not the building would be allowed in the district based on land use.
 #' Note: If there is no recorded land use requirement in zoning code, it returns FALSE
 #' @export
 #'
-check_land_use <- function(tidybuilding, tidydistrict){
-  bldg_type <- tidybuilding$type
+check_land_use <- function(vars, district_data){
+  res_type <- vars$res_type
 
-  if (is.null(bldg_type)){
+  if (is.null(res_type)){
     return(FALSE)
-    warning("Building data lacking bldg_type")
+    warning("Building data lacking res_type")
   }
 
-  if (length(tidydistrict$res_uses[[1]]) == 0){
+  if (length(district_data$res_types_allowed[[1]]) == 0){
     warning("Can't find permitted land uses. Assumed FALSE")
     return(FALSE)
   } else{
-    return(bldg_type %in% tidydistrict$res_uses[[1]])
+    return(res_type %in% district_data$res_types_allowed[[1]])
   }
 }
+
