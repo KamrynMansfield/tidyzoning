@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-get_tidyparcel_geo <- function(parcels_data){
+get_parcel_geo <- function(parcels_data){
   if (class(parcels_data)[[1]] == "character"){ # then it is a file path
     parcels_sf <- tryCatch({
       sf::st_read(parcels_data, quiet = TRUE)
