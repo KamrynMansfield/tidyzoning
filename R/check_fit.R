@@ -1,17 +1,17 @@
 #' Check if footprint fits in buildable area
 #'
-#' `check_footprint()` takes a building footprint from tidybuilding object and checks to see if it will fit in the provided buildable area. The buildable area can be any shape.
+#' `check_footprint()` takes a building footprint from bldg_data object and checks to see if it will fit in the provided buildable area. The buildable area can be any shape.
 #'
-#' @param tidybuilding A list of data frames with attributes representing a building.
+#' @param bldg_data A list of data frames with attributes representing a building.
 #' @param buildable_area A geometry. Usually of the parcels buildable area calculated from the setback requirements.
 #' @param crs The projected Coordinate Reference System for the study area. Must be in meters.
 #' @return
 #' Returns TRUE of FALSE stating whether or not the building footprint would fit in the buildable area.
 #' @export
 #'
-check_fit <- function(tidybuilding, buildable_area, crs = 3081){
-  width <- tidybuilding$width * 0.3048
-  depth <- tidybuilding$depth * 0.3048
+check_fit <- function(bldg_data, buildable_area, crs = 3081){
+  width <- bldg_data$bldg_info$width * 0.3048
+  depth <- bldg_data$bldg_info$depth * 0.3048
 
   rot_degrees <- seq(0,75, 15)
   # do the process and then rotate the footprint if it doesn't work
