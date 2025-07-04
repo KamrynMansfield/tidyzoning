@@ -5,7 +5,7 @@
 #'
 #' @param bldg_file The path to the json file representing a building
 #' @param parcels_file The path to the geojson file representing the parcels
-#' @param ozfs_zoning_file The path to the geojson file with the ozfs zoning codes.
+#' @param zoning_file The path to the geojson file with the ozfs zoning codes.
 #' @param detailed_check When TRUE, every parcel passes through each check no matter the result,
 #' and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE
 #' @param run_check_land_use Should the analysis run the check_land_use function? (logical)
@@ -30,32 +30,52 @@
 #' @examples
 zoning_analysis_pipline <- function(bldg_file,
                                     parcels_file,
-                                    ozfs_zoning_file,
-                                    detailed_check = FALSE,
-                                    run_check_land_use = TRUE,
-                                    run_check_height = TRUE,
-                                    run_check_height_eave = TRUE,
-                                    run_check_floors = TRUE,
-                                    run_check_unit_size = TRUE,
-                                    run_check_far = TRUE,
-                                    run_check_unit_density = TRUE,
-                                    run_check_lot_coverage = TRUE,
-                                    run_check_fl_area = TRUE,
-                                    run_check_unit_qty = TRUE,
-                                    run_check_lot_size = TRUE,
-                                    run_check_parking_enclosed = TRUE,
-                                    run_check_footprint = FALSE){
+                                    zoning_file,
+                                    detailed_check = TRUE,
+                                    checks = c("land_use",
+                                               "far",
+                                               "fl_area",
+                                               "fl_area_first",
+                                               "fl_area_top",
+                                               "footprint",
+                                               "height",
+                                               "height_eave",
+                                               "lot_cov_bldg",
+                                               "lot_size",
+                                               "parking_enclosed",
+                                               "stories",
+                                               "unit_0bed",
+                                               "unit_1bed",
+                                               "unit_2bed",
+                                               "unit_3bed",
+                                               "unit_4bed",
+                                               "unit_density",
+                                               "unit_pct_0bed",
+                                               "unit_pct_1bed",
+                                               "unit_pct_2bed",
+                                               "unit_pct_3bed",
+                                               "unit_pct_4bed",
+                                               "total_units",
+                                               "unit_size_avg",
+                                               "unit_size",
+                                               "bldg_fit",
+                                               "overlay")){
   # track the start time to give a time stamp at end
   total_start_time <- proc.time()[[3]]
+
+  initial_checks <- checks[checks != c("land_use",
+                                       "unit_size",
+                                       "bldg_fit",
+                                       "overlay")]
 
   ########---- START DATA PREP----########
   ## TIDYBUILDING ##
   # get building summary data frame with unify_tidybuilding
-  tidybuilding <- unify_tidybuilding(bldg_file, ozfs_zoning_file)
+  tidybuilding <- unify_tidybuilding(bldg_file, zoning_file)
 
   ## TIDYZONING ##
   # get the full ozfs data as an sf data frame
-  tidyzoning_full <- sf::st_read(ozfs_zoning_file, quiet = TRUE)
+  tidyzoning_full <- sf::st_read(zoning_file, quiet = TRUE)
   # get just the overlay districts with geometry
   overlays <- tidyzoning_full |>
     dplyr::filter(!sf::st_is_empty(geometry)) |>
@@ -121,7 +141,7 @@ zoning_analysis_pipline <- function(bldg_file,
 
     # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
     # we filter the tidyparcel_df to have just the TRUEs and MAYBEs
-    # so it will be smalle for the next checks
+    # so it will be small for the next checks
     if (detailed_check == FALSE){
       tidyparcel_false <- tidyparcel_df |>
         dplyr::filter(check_pd == FALSE)
@@ -178,22 +198,6 @@ zoning_analysis_pipline <- function(bldg_file,
 
   # INITIAL CHECKS
   # perform all the initial checks
-
-  # this list has the run_check_function variable alongside
-  # the ozfs fields that are analyzed with that function
-  # it is used to find out which functions to run and which functions to skip
-  # in the following initial checks loop
-  check_functions <- list(list(run_check_height, list("height")),
-                       list(run_check_height_eave, list("height_eave")),
-                       list(run_check_floors, list("stories")),
-                       list(run_check_unit_size, list("unit_size",	"unit_size_avg")),
-                       list(run_check_far, list("far")),
-                       list(run_check_unit_density, list("unit_density")),
-                       list(run_check_lot_coverage, list("lot_cov_bldg")),
-                       list(run_check_fl_area, list("fl_area",	"fl_area_first",	"fl_area_top")),
-                       list(run_check_unit_qty, list("unit_qty",	"unit_pct_0bed",	"unit_pct_1bed",	"unit_pct_2bed",	"unit_pct_3bed",	"unit_pct_4bed",	"unit_0bed_qty",	"unit_1bed_qty",	"unit_2bed_qty",	"unit_3bed_qty",	"unit_4bed_qty")),
-                       list(run_check_lot_size, list("lot_size")),
-                       list(run_check_parking_enclosed, list("parking_enclosed")))
 
   # start empty variables to store potential errors and warnings
   errors <- c()
@@ -507,7 +511,7 @@ zoning_analysis_pipline <- function(bldg_file,
 
 # bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/2_fam.bldg"
 # parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Cockrell Hill.parcel"
-# ozfs_zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Cockrell Hill.zoning"
+# zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Cockrell Hill.zoning"
 # detailed_check <- TRUE
 # run_check_land_use <- TRUE
 # run_check_height <- TRUE
@@ -537,7 +541,7 @@ zoning_analysis_pipline <- function(bldg_file,
 #
 # df <- zoning_analysis_pipline(bldg_file,
 #                                parcels_file,
-#                                ozfs_zoning_file,
+#                                zoning_file,
 #                                detailed_check = TRUE,
 #                                run_check_land_use = TRUE,
 #                                run_check_height = TRUE,
