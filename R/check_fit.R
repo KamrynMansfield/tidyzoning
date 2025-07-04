@@ -9,7 +9,7 @@
 #' Returns TRUE of FALSE stating whether or not the building footprint would fit in the buildable area.
 #' @export
 #'
-check_footprint <- function(tidybuilding, buildable_area, crs = 3081){
+check_fit <- function(tidybuilding, buildable_area, crs = 3081){
   width <- tidybuilding$width * 0.3048
   depth <- tidybuilding$depth * 0.3048
 
