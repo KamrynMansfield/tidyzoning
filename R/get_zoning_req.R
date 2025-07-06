@@ -80,15 +80,10 @@ get_zoning_req <- function(district_data,
         condition_list <- val_list[[j]]$condition
 
         # When there is just one array item and no condition
-        if (is.null(condition_list) & length(val_list) == 1){
+        if (length(val_list) == 1){
           true_id <- j
           break
-        } else if (is.null(condition_list)){
-          note <- "No condition field despite multiple array items"
-        } else if (length(val_list) == 1 & length(val_list$expression) == 1){
-          note <- "Condition given despite a sinlge array item"
         }
-
 
         condition_list <- lapply(condition_list, function(x) gsub("\\band\\b", "&", x))
         condition_list <- lapply(condition_list, function(x) gsub("\\bor\\b", "|", x))
@@ -127,9 +122,10 @@ get_zoning_req <- function(district_data,
         } else if (length(eval_expressions) > 1){
           if (!is.null(val_list[[j]]$min_max)){
             value <- ifelse(val_list[[j]]$min_max == "min",min(eval_expressions), max(eval_expressions))
+          } else if (min(eval_expressions) == max(eval_expressions)){
+            value <- min(eval_expressions)
           } else{
             value <- c(min(eval_expressions), max(eval_expressions))
-            note <- "multiple expressions with insufficient conditions"
           }
         } else{
           value <- eval_expressions
@@ -159,7 +155,12 @@ get_zoning_req <- function(district_data,
           }
         }
 
-        value <- c(min(possible_vals), max(possible_vals))
+        if (min(possible_vals) == max(possible_vals)){
+          value <- min(possible_vals)
+        } else{
+          value <- c(min(possible_vals), max(possible_vals))
+        }
+
       } else{
         note <- "No constraint conditions met"
       }
