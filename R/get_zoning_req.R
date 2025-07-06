@@ -79,7 +79,7 @@ get_zoning_req <- function(district_data,
       for (j in 1:length(val_list)){
         condition_list <- val_list[[j]]$condition
 
-        # When there is just one array item and no condition
+        # When there is just one array item
         if (length(val_list) == 1){
           true_id <- j
           break
