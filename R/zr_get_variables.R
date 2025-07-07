@@ -60,6 +60,7 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
   # assigning the values to variables
   bldg_depth <- bldg_json$bldg_info$depth
   bldg_width <- bldg_json$bldg_info$width
+  footprint <- bldg_width * bldg_depth
   dist_abbr <- district_data$dist_abbr
   fl_area <- sum(level_info_df$gross_fl_area)
   fl_area_first <- ifelse(length(level_info_df$gross_fl_area[level_info_df$level == 1]) == 1,
@@ -68,7 +69,7 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
   fl_area_top <- ifelse(sum(level_info_df$level > 1) > 0,
                         level_info_df$gross_fl_area[level_info_df$level == max(level_info_df$level)],
                         0)
-  floors <- max(level_info_df$level)
+  stories <- max(level_info_df$level)
   height_deck <- ifelse(!is.null(bldg_json$bldg_info$height_deck),bldg_json$bldg_info$height_deck,bldg_json$bldg_info$height_top)
   height_eave <- ifelse(!is.null(bldg_json$bldg_info$height_eave),bldg_json$bldg_info$height_eave,bldg_json$bldg_info$height_top)
   height_plate <- bldg_json$bldg_info$height_plate
@@ -93,6 +94,14 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
   units_2bed <- sum(unit_info_df$qty[unit_info_df$bedrooms == 2])
   units_3bed <- sum(unit_info_df$qty[unit_info_df$bedrooms == 3])
   units_4bed <- sum(unit_info_df$qty[unit_info_df$bedrooms > 3])
+  unit_pct_0bed <- units_0bed / total_units
+  unit_pct_1bed <- units_1bed / total_units
+  unit_pct_2bed <- units_2bed / total_units
+  unit_pct_3bed <- units_3bed / total_units
+  unit_pct_4bed <- units_4bed / total_units
+  unit_size_avg <- mean(unit_info_df$fl_area)
+  lot_cov_bldg <- (footprint / (lot_area * 43560)) * 100
+  unit_density <- total_units / lot_area
   far <- fl_area / (lot_area * 43560)
   # height: a variable that will be created at the end of the this function
   # res_type: a variable that will be created at the end of the this function
@@ -101,6 +110,7 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
   # making it a data frame to return
   vars_df <- data.frame(bldg_depth = bldg_depth,
                         bldg_width = bldg_width,
+                        footprint = footprint,
                         dist_abbr = dist_abbr,
                         fl_area = fl_area,
                         fl_area_first = fl_area_first,
@@ -130,6 +140,14 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
                         units_2bed = units_2bed,
                         units_3bed = units_3bed,
                         units_4bed = units_4bed,
+                        unit_pct_0bed = unit_pct_0bed,
+                        unit_pct_1bed = unit_pct_1bed,
+                        unit_pct_2bed = unit_pct_2bed,
+                        unit_pct_3bed = unit_pct_3bed,
+                        unit_pct_4bed = unit_pct_4bed,
+                        unit_size_avg = unit_size_avg,
+                        lot_cov_bldg = lot_cov_bldg,
+                        unit_density = unit_density,
                         far = far)
 
 
