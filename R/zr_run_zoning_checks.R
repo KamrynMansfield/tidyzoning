@@ -1,15 +1,17 @@
-#' Complete analysis to find where the building fits
+#' Find where a building is allowed to be built
 #'
-#' `zoning_analysis_pipline()` runs through all of the zoning checks to see which parcels
-#' allow a certain building.
+#' `zr_run_zoning_checks()` checks the building information against all the
+#' zoning constraints to see which parcels will allow the building.
 #'
-#' @param bldg_file The path to the json file representing a building
-#' @param parcels_file The path to the geojson file representing the parcels
-#' @param zoning_file The path to the geojson file with the ozfs zoning codes.
+#' @param bldg_file The path to the OZFS *.bldg file
+#' @param parcels_file The path to the OZFS *.parcel file
+#' @param zoning_file The path to the OZFS *.zoning
 #' @param detailed_check When TRUE, every parcel passes through each check no matter the result,
 #' and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE
 #' @param checks A list of all the checks that should take place. The default is
-#' every check possible.
+#' every check possible. Note, if a zoning file doesn't have zoning info for one
+#' of the constraints listed in the checks variable, then we assume it is allowed
+#' based on that condition.
 #'
 #' @returns a simple features data frame with the centroid of each parcel with a column
 #' stating building allowance on the parcel and a column stating the reason
@@ -17,7 +19,7 @@
 #' @export
 #'
 #' @examples
-zoning_analysis_pipline <- function(bldg_file,
+zr_run_zoning_checks <- function(bldg_file,
                                     parcels_file,
                                     zoning_file,
                                     detailed_check = TRUE,
@@ -78,6 +80,9 @@ zoning_analysis_pipline <- function(bldg_file,
     dplyr::filter(!sf::st_is_empty(geometry)) |>
     dplyr::filter(overlay == FALSE) |>
     dplyr::filter(planned_dev == FALSE)
+
+  #zoning_data is the json list form of the zoning file
+  zoning_data <- rjson::fromJSON(file = zoning_file)
 
   # get appropriate crs in meters to use in the check footprint function
   crs_m <- crsuggest::suggest_crs(zoning_sf, gcs = 4269 ,units = "m")[[1,1]] |>
@@ -184,13 +189,15 @@ zoning_analysis_pipline <- function(bldg_file,
   errors <- c()
   warnings <- c()
   for (i in 1:nrow(parcel_df)){
-    tidyparcel <- parcel_df[i,]
-    tidydistrict <- zoning_sf[tidyparcel$zoning_id,]
-    zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+    parcel_data <- parcel_df[i,]
+    district_data <- zoning_sf[parcel_data$zoning_id,]
+    vars <- get_variables(bldg_data, parcel_data, district_data, zoning_data)
+    zoning_req <- get_zoning_req(district_data, vars = vars)
 
 
-    check <- tryCatch({
-      do.call(funcs[[j]][[1]], funcs[[j]][[2]])
+
+    checks_df <- tryCatch({
+      zr_check_constraints(vars, zoning_req, initial_checks)
     }, warning = function(w) {
       # code to execute for errors
       paste("Warning in zoning_id",tidyparcel$zoning_id)
@@ -199,7 +206,9 @@ zoning_analysis_pipline <- function(bldg_file,
       paste("Error in zoning_id",tidyparcel$zoning_id)
     })
 
-    if (!check %in% c(TRUE, FALSE, "MAYBE")){
+
+    # need to update this so it works with the data frame output.
+    if (class(checks_df)[[1]] == "data.frame"){
       if (length(grep("Warning",check)) > 0){
         warnings <- c(warnings, check)
         check <- "MAYBE"
