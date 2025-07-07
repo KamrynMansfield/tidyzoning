@@ -85,6 +85,7 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
   parking_enclosed <- ifelse(!is.null(bldg_json$bldg_info$parking),bldg_json$bldg_info$parking,0)
   roof_type <- ifelse(!is.null(bldg_json$bldg_info$roof_type),bldg_json$bldg_info$roof_type,"flat")
   sep_platting <- ifelse(!is.null(bldg_json$bldg_info$sep_platting),bldg_json$bldg_info$sep_platting, FALSE)
+  unit_separation <- ifelse(!is.null(bldg_json$bldg_info$unit_separation),bldg_json$bldg_info$unit_separation, "open_area")
   total_bedrooms <- sum(unit_info_df$bedrooms * unit_info_df$qty)
   total_units <- sum(unit_info_df$qty)
   units_0bed <- sum(unit_info_df$qty[unit_info_df$bedrooms == 0])
@@ -99,36 +100,38 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
 
   # making it a data frame to return
   vars_df <- data.frame(bldg_depth = bldg_depth,
-                             bldg_width = bldg_width,
-                             dist_abbr = dist_abbr,
-                             fl_area = fl_area,
-                             fl_area_first = fl_area_first,
-                             fl_area_top = fl_area_top,
-                             floors = floors,
-                             height_deck = height_deck,
-                             height_eave = height_eave,
-                             height_plate = height_plate,
-                             height_top = height_top,
-                             height_tower = height_tower,
-                             lot_area = lot_area,
-                             lot_depth = lot_depth,
-                             lot_type = lot_type,
-                             lot_width = lot_width,
-                             max_unit_size = max_unit_size,
-                             min_unit_size = min_unit_size,
-                             n_ground_entry = n_ground_entry,
-                             n_outside_entry = n_outside_entry,
-                             parking_enclosed = parking_enclosed,
-                             roof_type = roof_type,
-                             sep_platting = sep_platting,
-                             total_bedrooms = total_bedrooms,
-                             total_units = total_units,
-                             units_0bed = units_0bed,
-                             units_1bed = units_1bed,
-                             units_2bed = units_2bed,
-                             units_3bed = units_3bed,
-                             units_4bed = units_4bed,
-                             far = far)
+                        bldg_width = bldg_width,
+                        dist_abbr = dist_abbr,
+                        fl_area = fl_area,
+                        fl_area_first = fl_area_first,
+                        fl_area_top = fl_area_top,
+                        floors = floors,
+                        height_deck = height_deck,
+                        height_eave = height_eave,
+                        height_plate = height_plate,
+                        height_top = height_top,
+                        height_tower = height_tower,
+                        lot_area = lot_area,
+                        lot_depth = lot_depth,
+                        lot_type = lot_type,
+                        lot_width = lot_width,
+                        max_unit_size = max_unit_size,
+                        min_unit_size = min_unit_size,
+                        n_ground_entry = n_ground_entry,
+                        n_outside_entry = n_outside_entry,
+                        parking_enclosed = parking_enclosed,
+                        roof_type = roof_type,
+                        sep_platting = sep_platting,
+                        unit_separation = unit_separation,
+                        total_bedrooms = total_bedrooms,
+                        total_units = total_units,
+                        units_0bed = units_0bed,
+                        units_1bed = units_1bed,
+                        units_2bed = units_2bed,
+                        units_3bed = units_3bed,
+                        units_4bed = units_4bed,
+                        far = far)
+
 
 
   # the last variables we assign are the variables defined by the city zoning code
