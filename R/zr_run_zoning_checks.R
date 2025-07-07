@@ -85,18 +85,17 @@ zr_run_zoning_checks <- function(bldg_file,
   zoning_data <- rjson::fromJSON(file = zoning_file)
 
   # get appropriate crs in meters to use in the check footprint function
-  crs_m <- crsuggest::suggest_crs(zoning_sf, gcs = 4269 ,units = "m")[[1,1]] |>
-    as.numeric()
+  crs <- zr_get_crs(zoning_sf)
 
   ## TIDYPARCELS ##
   # separate the parcel data into two special feature data frames
-  parcel_geo <- get_parcel_geo(parcels_file) # parcels with side labels
-  parcel_dims <- get_parcel_dims(parcels_file) # parcels with centroid and dimensions
+  parcel_geo <- zr_get_parcel_geo(parcels_file) # parcels with side labels
+  parcel_dims <- zr_get_parcel_dims(parcels_file) # parcels with centroid and dimensions
 
 
   ## GET DISTRICT INDICES ##
   # use the base zoning districts to add zoning_id to parcel_dims
-  parcel_dims <- find_district_idx(parcel_dims, zoning_sf, "zoning_id")
+  parcel_dims <- zr_find_district_idx(parcel_dims, zoning_sf, "zoning_id")
 
   # add false_reasons and maybe_reasons columns to parcel_dims (for tracking maybs and falses)
   # this parcel_df is what we will use for most of the calculations
@@ -116,7 +115,7 @@ zr_run_zoning_checks <- function(bldg_file,
   # if parcels are in a planned development, the building is automatically not allowed
   if (nrow(pd_districts) > 0){ # if there are pd_districts
     # make a new df with the pd district indexes
-    tidyparcel_pd <- find_district_idx(parcel_dims, pd_districts, "pd_id") |>
+    tidyparcel_pd <- zr_find_district_idx(parcel_dims, pd_districts, "pd_id") |>
       dplyr::filter(!is.na(pd_id))
 
     pd_parcels <- unique(tidyparcel_pd$parcel_id)
@@ -191,8 +190,8 @@ zr_run_zoning_checks <- function(bldg_file,
   for (i in 1:nrow(parcel_df)){
     parcel_data <- parcel_df[i,]
     district_data <- zoning_sf[parcel_data$zoning_id,]
-    vars <- get_variables(bldg_data, parcel_data, district_data, zoning_data)
-    zoning_req <- get_zoning_req(district_data, vars = vars)
+    vars <- zr_get_variables(bldg_data, parcel_data, district_data, zoning_data)
+    zoning_req <- zr_get_zoning_req(district_data, vars = vars)
 
 
 
@@ -304,12 +303,12 @@ zr_run_zoning_checks <- function(bldg_file,
 
         # if two buildable areas were recorded, we need to test for both
         if (length(buildable_area) > 1){
-          check_1 <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[1]]), crs = crs_m)
+          check_1 <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[1]]), crs = crs)
 
           if (check_1){
             check <- check_1
           } else{
-            check_2 <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[2]]), crs = crs_m)
+            check_2 <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[2]]), crs = crs)
             if (check_2){
               check <- "MAYBE"
             } else{
@@ -318,7 +317,7 @@ zr_run_zoning_checks <- function(bldg_file,
           }
 
         } else{
-          check <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[1]]), crs = crs_m)
+          check <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[1]]), crs = crs)
         }
 
       } else{
@@ -501,7 +500,7 @@ zr_run_zoning_checks <- function(bldg_file,
 # run_check_lot_size <- TRUE
 # run_check_parking_enclosed <- TRUE
 # run_check_fit <- FALSE
-# crs_m <- 3081
+# crs <- 3081
 #
 #
 #
