@@ -10,29 +10,18 @@
 #' @export
 #'
 #' @examples
-zr_get_unit_info <- function(file_path = NULL, string = NULL){
+zr_get_unit_info <- function(bldg_data){
 
-  if (!is.null(string)){
+  if (class(bldg_data)[[1]] == "character"){
     listed_json <- tryCatch({
-      rjson::fromJSON(string)
+      rjson::fromJSON(file = bldg_data)
     }, error = function(e) {
-      stop("The string must be a json")
+      stop("bldg_data must be a file path to an OZFS *.bldg file or a list created from said file")
     })
-  }
-
-  if (!is.null(file_path) & length(grep(".",file_path,fixed = TRUE)) == 0){
-    stop("Improper file path")
-  }
-
-  if (!is.null(file_path)){
-    split_name <- strsplit(basename(file_path),".", fixed = TRUE)[[1]]
-    ext <- split_name[[length(split_name)]]
-
-    if (ext == "json" | ext == "JSON"){
-      listed_json <- rjson::fromJSON(file = file_path)
-    } else{
-      stop("The file must be a json")
-    }
+  } else if (class(zoning_data)[[1]] == "list"){
+    listed_json <- bldg_data
+  } else{
+    stop("Improper input: bldg_data")
   }
 
   if (is.null(listed_json$bldg_info) | is.null(listed_json$unit_info) | is.null(listed_json$level_info)){
@@ -54,3 +43,5 @@ zr_get_unit_info <- function(file_path = NULL, string = NULL){
   return(unit_info_df)
 
 }
+
+

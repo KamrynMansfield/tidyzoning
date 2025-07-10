@@ -193,6 +193,7 @@ zr_run_zoning_checks <- function(bldg_file,
     vars <- zr_get_variables(bldg_data, parcel_data, district_data, zoning_data)
     zoning_req <- zr_get_zoning_req(district_data, vars = vars)
 
+    initial_checks_df <- data.frame(res_type = zr_check_res_type(vars, district_data))
 
 
     checks_df <- tryCatch({
