@@ -40,6 +40,7 @@ zr_get_zoning_req <- function(district_data,
 
   listed_constraints <- rjson::fromJSON(district_data$constraints)
   constraints <- names(listed_constraints)
+  constraints <- constraints[constraints != "unit_size"]
 
   if (length(constraints) == 0){
     return("No zoning requirements recorded for this district")
@@ -63,7 +64,7 @@ zr_get_zoning_req <- function(district_data,
   max_val_notes <- rep(list(NA), length(constraints))
   for (i in 1:length(constraints)){
     constraint_name <- constraints[[i]]
-    constraint_list <- listed_constraints[[i]]
+    constraint_list <- listed_constraints[[constraint_name]]
 
     # loop through each min/max_val
     for (val_idx in 1:length(constraint_list)){
