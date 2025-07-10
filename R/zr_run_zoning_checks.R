@@ -193,9 +193,11 @@ zr_run_zoning_checks <- function(bldg_file,
     vars <- zr_get_variables(bldg_data, parcel_data, district_data, zoning_data)
     zoning_req <- zr_get_zoning_req(district_data, vars = vars)
 
+    #chekcing land use
     initial_checks_df <- data.frame(res_type = zr_check_res_type(vars, district_data))
 
-
+    #checking other initial constraints
+    # we need to check for the unit size separately with zr_check_unit
     checks_df <- tryCatch({
       zr_check_constraints(vars, zoning_req, initial_checks)
     }, warning = function(w) {
