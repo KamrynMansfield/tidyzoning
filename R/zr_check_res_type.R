@@ -14,7 +14,7 @@
 #'
 #' @examples
 zr_check_res_type <- function(vars, district_data){
-  check <- vars$res_type %in% district_data$res_types_allowed
+  check <- vars$res_type %in% district_data$res_types_allowed[[1]]
   return(check)
 }
 
