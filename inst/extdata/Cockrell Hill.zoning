@@ -3,22 +3,57 @@
     "muni_name": "Cockrell Hill",
     "date": "2024-06-30",
     "definitions": {
-        "height":[
+        "height": [
             {
-                "roof_type":"hip", 
-                "expression":"(height_top + height_eave) / 2"
+                "condition": "roof_type == 'flat'",
+                "expression": "height_top"
             },
             {
-                "roof_type":"mansard", 
-                "expression":"height_top"
+                "condition": "roof_type == 'hip'",
+                "expression": "0.5 * (height_top + height_eave)"
             },
             {
-                "roof_type":"gable", 
-                "expression":"(height_top + height_eave) / 2"
+                "condition": "roof_type == 'mansard'",
+                "expression": "height_deck"
             },
             {
-                "roof_type":"gambrel", 
-                "expression":"(height_top + height_eave) / 2"
+                "condition": "roof_type == 'gable'",
+                "expression": "0.5 * (height_top + height_eave)"
+            },
+            {
+                "condition": "roof_type == 'skillion'",
+                "expression": "0.5 * (height_top + height_eave)"
+            },
+            {
+                "condition": "roof_type == 'gambrel'",
+                "expression": "0.5 * (height_top + height_eave)"
+            }
+        ],
+        "res_type": [
+            {
+                "condition": "total_units == 1",
+                "expression": "'1_unit'"
+            },
+            {
+                "condition": "total_units == 2",
+                "expression": "'2_unit'"
+            },
+            {
+                "condition": [
+                    "total_units > 2",
+                    "n_outside_entry == total_units",
+                    "n_ground_entry == total_units",
+                    "sep_platting == TRUE"
+                ],
+                "expression": "'townhome'"
+            },
+            {
+                "condition": "total_units == 3",
+                "expression": "'3_unit'"
+            },
+            {
+                "condition": "total_units > 3",
+                "expression": "'4_plus'"
             }
         ]
     },
