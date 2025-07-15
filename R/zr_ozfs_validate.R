@@ -72,7 +72,7 @@ zr_ozfs_validate <- function(list_of_files){
       }
 
       # possible constraint names that could be listed
-      possible_constraint_names <- c("lot_size",
+      possible_constraint_names <- c("lot_area",
                                      "setback_front",
                                      "setback_side_int",
                                      "setback_side_ext",
@@ -90,12 +90,12 @@ zr_ozfs_validate <- function(list_of_files){
                                      "unit_size",
                                      "unit_size_avg",
                                      "unit_density",
-                                     "unit_qty",
-                                     "unit_0bed_qty",
-                                     "unit_1bed_qty",
-                                     "unit_2bed_qty",
-                                     "unit_3bed_qty",
-                                     "unit_4bed_qty",
+                                     "total_units",
+                                     "units_0bed",
+                                     "units_1bed",
+                                     "units_2bed",
+                                     "units_3bed",
+                                     "units_4bed",
                                      "unit_pct_0bed",
                                      "unit_pct_1bed",
                                      "unit_pct_2bed",
