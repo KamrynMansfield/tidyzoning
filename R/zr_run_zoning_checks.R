@@ -6,12 +6,13 @@
 #' @param bldg_file The path to the OZFS *.bldg file
 #' @param parcels_file The path to the OZFS *.parcel file
 #' @param zoning_file The path to the OZFS *.zoning
-#' @param detailed_check When TRUE, every parcel passes through each check no matter the result,
-#' and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE
+#' @param detailed_check When TRUE, every parcel passes through each
+#' check no matter the result, and it take more time. When FALSE,
+#' subsequent checks are skipped as soon as one check reads FALSE
 #' @param checks A list of all the checks that should take place. The default is
 #' every check possible. Note, if a zoning file doesn't have zoning info for one
-#' of the constraints listed in the checks variable, then we assume it is allowed
-#' based on that condition.
+#' of the constraints listed in the checks variable, then it is assumed that
+#' building characteristic is allowed.
 #'
 #' @returns a simple features data frame with the centroid of each parcel with a column
 #' stating building allowance on the parcel and a column stating the reason
@@ -20,41 +21,42 @@
 #'
 #' @examples
 zr_run_zoning_checks <- function(bldg_file,
-                                    parcels_file,
-                                    zoning_file,
-                                    detailed_check = TRUE,
-                                    checks = c("land_use",
-                                               "far",
-                                               "fl_area",
-                                               "fl_area_first",
-                                               "fl_area_top",
-                                               "footprint",
-                                               "height",
-                                               "height_eave",
-                                               "lot_cov_bldg",
-                                               "lot_size",
-                                               "parking_enclosed",
-                                               "stories",
-                                               "unit_0bed",
-                                               "unit_1bed",
-                                               "unit_2bed",
-                                               "unit_3bed",
-                                               "unit_4bed",
-                                               "unit_density",
-                                               "unit_pct_0bed",
-                                               "unit_pct_1bed",
-                                               "unit_pct_2bed",
-                                               "unit_pct_3bed",
-                                               "unit_pct_4bed",
-                                               "total_units",
-                                               "unit_size_avg",
-                                               "unit_size",
-                                               "bldg_fit",
-                                               "overlay")){
+                                 parcels_file,
+                                 zoning_file,
+                                 detailed_check = TRUE,
+                                 checks = c("res_type",
+                                            "far",
+                                            "fl_area",
+                                            "fl_area_first",
+                                            "fl_area_top",
+                                            "footprint",
+                                            "height",
+                                            "height_eave",
+                                            "lot_cov_bldg",
+                                            "lot_size",
+                                            "parking_enclosed",
+                                            "stories",
+                                            "unit_0bed",
+                                            "unit_1bed",
+                                            "unit_2bed",
+                                            "unit_3bed",
+                                            "unit_4bed",
+                                            "unit_density",
+                                            "unit_pct_0bed",
+                                            "unit_pct_1bed",
+                                            "unit_pct_2bed",
+                                            "unit_pct_3bed",
+                                            "unit_pct_4bed",
+                                            "total_units",
+                                            "unit_size_avg",
+                                            "unit_size",
+                                            "bldg_fit",
+                                            "overlay")){
+
   # track the start time to give a time stamp at end
   total_start_time <- proc.time()[[3]]
 
-  initial_checks <- checks[checks != c("land_use",
+  initial_checks <- checks[!checks %in% c("res_type",
                                        "unit_size",
                                        "bldg_fit",
                                        "overlay")]
@@ -87,7 +89,7 @@ zr_run_zoning_checks <- function(bldg_file,
   # get appropriate crs in meters to use in the check footprint function
   crs <- zr_get_crs(zoning_sf)
 
-  ## TIDYPARCELS ##
+  ## PARCELS ##
   # separate the parcel data into two special feature data frames
   parcel_geo <- zr_get_parcel_geo(parcels_file) # parcels with side labels
   parcel_dims <- zr_get_parcel_dims(parcels_file) # parcels with centroid and dimensions
@@ -96,6 +98,14 @@ zr_run_zoning_checks <- function(bldg_file,
   ## GET DISTRICT INDICES ##
   # use the base zoning districts to add zoning_id to parcel_dims
   parcel_dims <- zr_find_district_idx(parcel_dims, zoning_sf, "zoning_id")
+
+  zoning_is_na <- parcel_dims$zoning_id |>
+    unique() |>
+    is.na()
+
+  if (length(zoning_is_na) == 1 & TRUE %in% zoning_is_na){
+    stop("Zoning districts and parcels do not appear to overlap.")
+  }
 
   # add false_reasons and maybe_reasons columns to parcel_dims (for tracking maybs and falses)
   # this parcel_df is what we will use for most of the calculations
@@ -115,10 +125,10 @@ zr_run_zoning_checks <- function(bldg_file,
   # if parcels are in a planned development, the building is automatically not allowed
   if (nrow(pd_districts) > 0){ # if there are pd_districts
     # make a new df with the pd district indexes
-    tidyparcel_pd <- zr_find_district_idx(parcel_dims, pd_districts, "pd_id") |>
+    pd_parcel_df <- zr_find_district_idx(parcel_dims, pd_districts, "pd_id") |>
       dplyr::filter(!is.na(pd_id))
 
-    pd_parcels <- unique(tidyparcel_pd$parcel_id)
+    pd_parcels <- unique(pd_parcel_df$parcel_id)
 
     parcel_df <- parcel_df |>
       dplyr::mutate(check_pd = ifelse(parcel_id %in% pd_parcels, FALSE, TRUE),
@@ -128,10 +138,10 @@ zr_run_zoning_checks <- function(bldg_file,
     # we filter the parcel_df to have just the TRUEs and MAYBEs
     # so it will be small for the next checks
     if (detailed_check == FALSE){
-      tidyparcel_false <- parcel_df |>
+      false_parcels <- parcel_df |>
         dplyr::filter(check_pd == FALSE)
-      # Add the tidyparcel_false to the false_df list
-      false_df[[false_df_idx]] <- tidyparcel_false
+      # Add the false_parcels to the false_df list
+      false_df[[false_df_idx]] <- false_parcels
       false_df_idx <- false_df_idx + 1
 
       parcel_df <- parcel_df |>
@@ -139,146 +149,138 @@ zr_run_zoning_checks <- function(bldg_file,
     }
   }
 
-  # LAND USE CHECK
-  # perform land use check
-  if (run_check_land_use == TRUE){
-    lu_start_time <- proc.time()[[3]]
-    # land use for each district
-    lu_check <- c()
-
-    # for this one, we just need to loop through each district to check the land use.
-    # then any parcels in those unacceptable districts will be marked FALSE
-    for (k in 1:nrow(zoning_sf)){
-      tidydistrict <- zoning_sf[k, ]
-      lu_check <- c(lu_check,check_land_use(tidybuilding, tidydistrict))
-    }
-
-    # add a column stating the land_use_check results and any false reasons
-    parcel_df <- parcel_df |>
-      dplyr::mutate(check_land_use = ifelse(zoning_id %in% which(lu_check == TRUE), TRUE, FALSE),
-                    false_reasons = ifelse(zoning_id %in% which(lu_check == TRUE), false_reasons, ifelse(!is.na(false_reasons),paste(false_reasons, "check_land_use", sep = ", "),"check_land_use")))
-
-
-    # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
-    # we filter the parcel_df to have just the TRUEs and MAYBEs
-    # so it will be smaller for the next checks
-    if (detailed_check == FALSE){
-      # filter the tidyparcels that don't allow the land use
-      tidyparcel_false <- parcel_df |>
-        dplyr::filter(check_land_use == FALSE)
-      # Add the tidyparcel_false to the false_df list
-      false_df[[false_df_idx]] <- tidyparcel_false
-      false_df_idx <- false_df_idx + 1
-
-      parcel_df <- parcel_df |>
-        dplyr::filter(check_land_use == TRUE)
-    }
-
-    time_lapsed <- proc.time()[[3]] - lu_start_time
-    cat(paste0("_____","check_land_use","_____\n"))
-    cat(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)\n"))
-    cat(paste(length(which(parcel_df[,"check_land_use"][[1]] %in% c(TRUE, 'MAYBE'))),"parcels are TRUE or MAYBE\n"))
-
-  }
-
-  # INITIAL CHECKS
-  # perform all the initial checks
-
-  # start empty variables to store potential errors and warnings
-  errors <- c()
-  warnings <- c()
-  for (i in 1:nrow(parcel_df)){
-    parcel_data <- parcel_df[i,]
+  # GET ZONING REQUIREMENTS AND VARIABLES
+  vars_list <- list()
+  zoning_req_list <- list()
+  for (row_num in 1:nrow(parcel_df)){
+    parcel_data <- parcel_df[row_num,]
+    parcel_id <- as.character(parcel_data$parcel_id)
     district_data <- zoning_sf[parcel_data$zoning_id,]
     vars <- zr_get_variables(bldg_data, parcel_data, district_data, zoning_data)
     zoning_req <- zr_get_zoning_req(district_data, vars = vars)
 
-    #chekcing land use
-    initial_checks_df <- data.frame(res_type = zr_check_res_type(vars, district_data))
+    vars_list[[parcel_id]] <- vars
+    zoning_req_list[[parcel_id]] <- zoning_req
+  }
+
+
+  # INITIAL CHECKS
+  # perform all the initial checks
+  func_start_time <- proc.time()[[3]]
+
+  # start empty variables to store potential errors and warnings
+  errors <- c()
+  warnings <- c()
+  initial_checks_list <- list()
+  true_maybe_list <- c()
+  # loop through each parcel for initial checks
+  for (i in 1:nrow(parcel_df)){
+    parcel_data <- parcel_df[i,]
+    district_data <- zoning_sf[parcel_data$zoning_id,]
+    vars <- vars_list[[parcel_data$parcel_id]]
+    zoning_req <- zoning_req_list[[parcel_data$parcel_id]]
+
+    #checking res_type
+    if ("res_type" %in% checks){
+      res_type_check_df <- data.frame(res_type = zr_check_res_type(vars, district_data))
+    } else{
+      res_type_check_df <- data.frame(row.names = 1)
+    }
 
     #checking other initial constraints
     # we need to check for the unit size separately with zr_check_unit
-    checks_df <- tryCatch({
+    check_constraints_df <- tryCatch({
       zr_check_constraints(vars, zoning_req, initial_checks)
-    }, warning = function(w) {
-      # code to execute for errors
-      paste("Warning in zoning_id",tidyparcel$zoning_id)
     }, error = function(e) {
       # code to execute for errors
-      paste("Error in zoning_id",tidyparcel$zoning_id)
+      paste(FALSE)
     })
 
 
-    # need to update this so it works with the data frame output.
-    if (class(checks_df)[[1]] == "data.frame"){
-      if (length(grep("Warning",check)) > 0){
-        warnings <- c(warnings, check)
-        check <- "MAYBE"
-      } else{
-        errors <- c(errors,check)
-        check <- "MAYBE"
-      }
+    if (class(check_constraints_df)[[1]] == "data.frame"){
+      # Pivot to one row using base R
+      checks_df <- setNames(as.data.frame(t(check_constraints_df$allowed)), check_constraints_df$constraint_name)
+    } else if (class(check_constraints_df)[[1]] == "character"){
+      checks_df <- data.frame(row.names = 1)
+    } else{
+      checks_df <- data.frame(row.names = 1)
+      warning("there was an error in zr_check_constraints function")
     }
 
-    parcel_df[i, func_name] <- as.character(check)
+    #checking res_type
+    if ("unit_size" %in% checks){
+      unit_check_df <- data.frame(unit_size = zr_check_unit(vars, district_data))
+    } else{
+      unit_check_df <- data.frame(row.names = 1)
+    }
+
+    combined_checks <- cbind(res_type_check_df, checks_df, unit_check_df)
+
+    # get a vector of each value in the combined_checks df
+    value_vec <- as.character(unlist(combined_checks[1, ]))
+
+    # assign an overall value for the check
+    if (FALSE %in% value_vec){
+      check <- FALSE
+    } else if ("MAYBE" %in% value_vec){
+      check <- "MAYBE"
+      true_maybe_list <- c(true_maybe_list,i)
+    } else{
+      check <- TRUE
+      true_maybe_list <- c(true_maybe_list,i)
+    }
+
+    initial_checks_list[[i]] <- combined_checks
 
     # if the check returns FALSE or MAYBE,
     # then write the function name in the reasons column
     if (check == "MAYBE"){
-      parcel_df[i,"maybe_reasons"] <- ifelse(is.na(parcel_df[[i,"maybe_reasons"]]), func_name, paste(parcel_df[[i,"maybe_reasons"]], func_name, sep = ", "))
+      parcel_df[i,"maybe_reasons"] <- ifelse(is.na(parcel_df[[i,"maybe_reasons"]]), "initial_checks", paste(parcel_df[[i,"maybe_reasons"]], "initial_checks", sep = ", "))
     }
 
     if (check == FALSE){
-      parcel_df[i,"false_reasons"] <- ifelse(is.na(parcel_df[[i,"false_reasons"]]), func_name, paste(parcel_df[[i,"false_reasons"]], func_name, sep = ", "))
+      parcel_df[i,"false_reasons"] <- ifelse(is.na(parcel_df[[i,"false_reasons"]]), "initial_checks", paste(parcel_df[[i,"false_reasons"]], "initial_checks", sep = ", "))
     }
-  }
+
+
+  } # end loop through each parcel for initial checks
+
+
+  all_initial_checks_df <- dplyr::bind_rows(initial_checks_list)
+
+  parcel_df <- cbind(parcel_df, all_initial_checks_df)
 
   # if detailed_check == FALSE, then we store the FALSE parcels in a list to be combined later
   # we filter the parcel_df to have just the TRUEs and MAYBEs
-  # so it will be smalle for the next checks
+  # so it will be smaller for the next checks
   if (detailed_check == FALSE){
-    tidyparcel_false <- parcel_df[parcel_df[,func_name][[1]] == FALSE,]
-    parcel_df <- parcel_df[parcel_df[,func_name][[1]] %in% c(TRUE, "MAYBE"),]
-    # Add the tidyparcel_false to the false_df list
-    false_df[[false_df_idx]] <- tidyparcel_false
+    false_parcels <- parcel_df[!is.na(parcel_df$false_reasons),]
+    parcel_df <- parcel_df[is.na(parcel_df$false_reasons),]
+    # Add the false_parcels to the false_df list
+    false_df[[false_df_idx]] <- false_parcels
     false_df_idx <- false_df_idx + 1
   }
 
-  for (j in 1:length(check_functions)){ # loop through each check function
-
-    if (check_functions[[j]][[1]]){ #if the function is marked true, then it will run the function
-
-      func_start_time <- proc.time()[[3]] #start time for function time stamps
-
-      # if there are no more parcels to check, it will exit the loop
-      if (nrow(parcel_df) == 0){
-        break
-      }
-
-
-      # print out info about the function run
-      time_lapsed <- proc.time()[[3]] - func_start_time
-      cat(paste0("_____",func_name,"_____\n"))
-      cat(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)\n"))
-      cat(paste(length(which(parcel_df[,func_name][[1]] %in% c(TRUE, 'MAYBE'))),"parcels are TRUE or MAYBE\n"))
-    }
-  }
-
+  # print out info about the function run
+  time_lapsed <- proc.time()[[3]] - func_start_time
+  cat(paste0("_____","initial_checks","_____\n"))
+  cat(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)\n"))
+  cat(paste(length(true_maybe_list),"parcels are TRUE or MAYBE\n"))
 
 
   # SIDE LABEL CHECK
   # if parcels have labeled sides, we can move on to the footprint check
-  if (run_check_fit & nrow(parcel_df) > 0){
+  if ("bldg_fit" %in% checks & nrow(parcel_df) > 0){
     parcels_with_sides <- unique(parcel_geo$parcel_id)
 
     parcel_df <- parcel_df |>
       dplyr::mutate(check_side_lbl = ifelse(parcel_id %in% parcels_with_sides,TRUE, "MAYBE"),
                     maybe_reasons = ifelse(parcel_id %in% parcels_with_sides, maybe_reasons, ifelse(!is.na(maybe_reasons),paste(maybe_reasons, "no side labels", sep = ", "),"no side labels")))
 
-    tidyparcel_no_sides <- parcel_df |>
+    parcel_no_sides <- parcel_df |>
       dplyr::filter(!parcel_id %in% parcels_with_sides)
 
-    false_df[[false_df_idx]] <- tidyparcel_no_sides
+    false_df[[false_df_idx]] <- parcel_no_sides
     false_df_idx <- false_df_idx + 1
 
     parcel_df <- parcel_df |>
@@ -289,29 +291,30 @@ zr_run_zoning_checks <- function(bldg_file,
   # FOOTPRINT CHECK
   # see if the building footprint fits in the parcel's buildable area
 
-  if (run_check_fit & nrow(parcel_df) > 0 & !is.null(parcel_geo)){
+  if ("bldg_fit" %in% checks & nrow(parcel_df) > 0 & !is.null(parcel_geo)){
     foot_start_time <- proc.time()[[3]]
     for (z in 1:nrow(parcel_df)){
-      tidyparcel <- parcel_df[z,]
-      tidydistrict <- zoning_sf[tidyparcel$zoning_id,]
-      zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
+      parcel_data <- parcel_df[z,]
+      district_data <- zoning_sf[parcel_data$zoning_id,]
+      zoning_req <- zoning_req_list[[parcel_data$parcel_id]]
+      vars <- vars_list[[parcel_data$parcel_id]]
 
       # if the footprint area is smaller than the parcel area,
       # then run the check_fit function
-      if (check_fit_area(tidybuilding, tidyparcel)$check_fit_area[[1]] == TRUE){
-        tidyparcel_sides <- parcel_geo |>
-          dplyr::filter(parcel_id == tidyparcel$parcel_id)
-        parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
-        buildable_area <- get_buildable_area(parcel_with_setbacks)
+      if (vars$lot_cov_bldg <= 100){
+        parcel_sides <- parcel_geo |>
+          dplyr::filter(parcel_id == parcel_data$parcel_id)
+        parcel_with_setbacks <- zr_add_setbacks(parcel_sides, zoning_req = zoning_req)
+        buildable_area <- zr_get_buildable_area(parcel_with_setbacks)
 
         # if two buildable areas were recorded, we need to test for both
         if (length(buildable_area) > 1){
-          check_1 <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[1]]), crs = crs)
+          check_1 <- zr_check_fit(bldg_data, sf::st_make_valid(buildable_area[[1]]), crs = crs)
 
           if (check_1){
             check <- check_1
           } else{
-            check_2 <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[2]]), crs = crs)
+            check_2 <- zr_check_fit(bldg_data, sf::st_make_valid(buildable_area[[2]]), crs = crs)
             if (check_2){
               check <- "MAYBE"
             } else{
@@ -320,7 +323,7 @@ zr_run_zoning_checks <- function(bldg_file,
           }
 
         } else{
-          check <- check_fit(tidybuilding, sf::st_make_valid(buildable_area[[1]]), crs = crs)
+          check <- zr_check_fit(bldg_data, sf::st_make_valid(buildable_area[[1]]), crs = crs)
         }
 
       } else{
@@ -344,10 +347,10 @@ zr_run_zoning_checks <- function(bldg_file,
     # we filter the parcel_df to have just the TRUEs and MAYBEs
     # so it will be smalle for the next checks
     if (detailed_check == FALSE){
-      tidyparcel_false <- parcel_df[parcel_df[,"check_fit"][[1]] == FALSE,]
+      false_parcels <- parcel_df[parcel_df[,"check_fit"][[1]] == FALSE,]
       parcel_df <- parcel_df[parcel_df[,"check_fit"][[1]] %in% c(TRUE, "MAYBE"),]
-      # Add the tidyparcel_false to the false_df list
-      false_df[[false_df_idx]] <- tidyparcel_false
+      # Add the false_parcels to the false_df list
+      false_df[[false_df_idx]] <- false_parcels
       false_df_idx <- false_df_idx + 1
     }
 
@@ -361,12 +364,12 @@ zr_run_zoning_checks <- function(bldg_file,
   # OVERLAY CHECK
   # of the parcels that pass all the checks,
   # the ones in an overlay district will be marked as "MAYBE"
-  if (nrow(overlays) > 0){ # if there are pd_districts
+  if (nrow(overlays) > 0 & "overlay" %in% checks){ # if there are pd_districts
     # make a new df with the overlay district indexes
-    tidyparcel_overlays <- find_district_idx(parcel_dims, overlays, "overlay_id") |>
+    parcels_overlays <- zr_find_district_idx(parcel_dims, overlays, "overlay_id") |>
       dplyr::filter(!is.na(overlay_id))
 
-    overlay_parcels <- unique(tidyparcel_overlays$parcel_id)
+    overlay_parcels <- unique(parcels_overlays$parcel_id)
 
     parcel_df <- parcel_df |>
       dplyr::mutate(check_overlay = ifelse(parcel_id %in% overlay_parcels,"MAYBE", TRUE),
@@ -486,25 +489,45 @@ zr_run_zoning_checks <- function(bldg_file,
 
 }
 
-# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/2_fam.bldg"
-# parcels_file <- "../personal_rpoj/tidyzoning2.0/tidyparcels/Cockrell Hill.parcel"
-# zoning_file <- "../personal_rpoj/tidyzoning2.0/tidyzonings/Cockrell Hill.zoning"
-# detailed_check <- TRUE
-# run_check_land_use <- TRUE
-# run_check_height <- TRUE
-# run_check_height_eave <- TRUE
-# run_check_floors <- TRUE
-# run_check_unit_size <- TRUE
-# run_check_far <- TRUE
-# run_check_unit_density <- TRUE
-# run_check_lot_coverage <- TRUE
-# run_check_fl_area <- TRUE
-# run_check_unit_qty <- TRUE
-# run_check_lot_size <- TRUE
-# run_check_parking_enclosed <- TRUE
-# run_check_fit <- FALSE
-# crs <- 3081
+# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_test.bldg"
+# parcels_file <- "inst/extdata/Cockrell Hill.parcel"
+# zoning_file <- "inst/extdata/Cockrell Hill.zoning"
 #
+#
+# test_run <- zr_run_zoning_checks(bldg_file,
+#                                  parcels_file,
+#                                  zoning_file,
+#                                  detailed_check = TRUE,
+#                                  checks = c("res_type",
+#                                             "far",
+#                                             "fl_area",
+#                                             "fl_area_first",
+#                                             "fl_area_top",
+#                                             "footprint",
+#                                             "height",
+#                                             "height_eave",
+#                                             "lot_cov_bldg",
+#                                             "lot_size",
+#                                             "parking_enclosed",
+#                                             "stories",
+#                                             "unit_0bed",
+#                                             "unit_1bed",
+#                                             "unit_2bed",
+#                                             "unit_3bed",
+#                                             "unit_4bed",
+#                                             "unit_density",
+#                                             "unit_pct_0bed",
+#                                             "unit_pct_1bed",
+#                                             "unit_pct_2bed",
+#                                             "unit_pct_3bed",
+#                                             "unit_pct_4bed",
+#                                             "total_units",
+#                                             "unit_size_avg",
+#                                             "unit_size",
+#                                             "bldg_fit",
+#                                             "overlay"))
+
+
 #
 #
 # ggplot2::ggplot(final_df) +
@@ -539,13 +562,13 @@ zr_run_zoning_checks <- function(bldg_file,
 # type_list <- list()
 # length(type_list) <- nrow(parcel_df)
 # for (z in 1:nrow(parcel_df)){
-#   tidyparcel <- parcel_df[z,]
-#   tidydistrict <- tidyzoning[tidyparcel$zoning_id,]
-#   zoning_req <- get_zoning_req(tidybuilding, tidydistrict, tidyparcel)
-#   if (check_fit_area(tidybuilding, tidyparcel)$check_fit_area[[1]] == TRUE){
-#     tidyparcel_sides <- parcel_geo |>
-#       dplyr::filter(parcel_id == tidyparcel$parcel_id)
-#     parcel_with_setbacks <- add_setbacks(tidyparcel_sides, zoning_req = zoning_req)
+#   parcel_data <- parcel_df[z,]
+#   tidydistrict <- tidyzoning[parcel_data$zoning_id,]
+#   zoning_req <- get_zoning_req(bldg_data, tidydistrict, parcel_data)
+#   if (check_fit_area(bldg_data, parcel_data)$check_fit_area[[1]] == TRUE){
+#     parcel_sides <- parcel_geo |>
+#       dplyr::filter(parcel_id == parcel_data$parcel_id)
+#     parcel_with_setbacks <- add_setbacks(parcel_sides, zoning_req = zoning_req)
 #     buildable_area <- get_buildable_area(parcel_with_setbacks)
 #
 #     type_list[[z]] <- class(buildable_area)
