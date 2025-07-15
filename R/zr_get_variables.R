@@ -199,7 +199,7 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
     }
 
     if (notmet == length(var_list)){
-      stop(paste("No conditions met. Unable to fine",var_name, "variable"))
+      stop(paste("No conditions met. Unable to find",var_name, "variable"))
     }
 
     vars_df[[var_name]] <- value
