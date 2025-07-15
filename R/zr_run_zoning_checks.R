@@ -490,7 +490,7 @@ zr_run_zoning_checks <- function(bldg_file,
 }
 
 # bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_test.bldg"
-# parcels_file <- "inst/extdata/Cockrell Hill.parcel"
+# parcels_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/Cockrell Hill.zoning"
 # zoning_file <- "inst/extdata/Cockrell Hill.zoning"
 #
 #
@@ -526,7 +526,7 @@ zr_run_zoning_checks <- function(bldg_file,
 #                                             "unit_size",
 #                                             "bldg_fit",
 #                                             "overlay"))
-
+#
 
 #
 #
