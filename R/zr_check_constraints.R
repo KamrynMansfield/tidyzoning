@@ -1,3 +1,23 @@
+#' Is the building allowed base on zoning constraints?
+#'
+#' `zr_check_constraints()` compares the building characteristics
+#' against many of the main constraints in the `.zoning` file. It returns
+#' a one-row data frame with a column for each constraint it checked against.
+#'
+#' @param vars the result from the `zr_get_variables()` function.
+#' If this data frame is supplied, bldg_data, parcel_data, and zoning_data
+#' are not needed.
+#' @param zoning_req The output of `zr_get_zoning_req()`. A data frame with
+#' constraint values
+#' @param checks A list of all the checks that should take place. The default is
+#' every check possible. Note, if a zoning file doesn't have zoning info for one
+#' of the constraints listed in the checks variable, then it is assumed that
+#' building characteristic is allowed.
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 zr_check_constraints <- function(vars,
                                  zoning_req,
                                  checks = c("far",
@@ -150,5 +170,3 @@ zr_check_constraints <- function(vars,
   return(checked_df)
 
 }
-
-zr_check_constraints(vars, zoning_req)
