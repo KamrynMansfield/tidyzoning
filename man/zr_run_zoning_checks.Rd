@@ -9,7 +9,7 @@ zr_run_zoning_checks(
   parcels_file,
   zoning_file,
   detailed_check = TRUE,
-  checks = c("land_use", "far", "fl_area", "fl_area_first", "fl_area_top", "footprint",
+  checks = c("res_type", "far", "fl_area", "fl_area_first", "fl_area_top", "footprint",
     "height", "height_eave", "lot_cov_bldg", "lot_size", "parking_enclosed", "stories",
     "unit_0bed", "unit_1bed", "unit_2bed", "unit_3bed", "unit_4bed", "unit_density",
     "unit_pct_0bed", "unit_pct_1bed", "unit_pct_2bed", "unit_pct_3bed", "unit_pct_4bed",
@@ -23,13 +23,14 @@ zr_run_zoning_checks(
 
 \item{zoning_file}{The path to the OZFS *.zoning}
 
-\item{detailed_check}{When TRUE, every parcel passes through each check no matter the result,
-and it take more time. When FALSE, subsequent checks are skipped as soon as one check reads FALSE}
+\item{detailed_check}{When TRUE, every parcel passes through each
+check no matter the result, and it take more time. When FALSE,
+subsequent checks are skipped as soon as one check reads FALSE}
 
 \item{checks}{A list of all the checks that should take place. The default is
 every check possible. Note, if a zoning file doesn't have zoning info for one
-of the constraints listed in the checks variable, then we assume it is allowed
-based on that condition.}
+of the constraints listed in the checks variable, then it is assumed that
+building characteristic is allowed.}
 }
 \value{
 a simple features data frame with the centroid of each parcel with a column

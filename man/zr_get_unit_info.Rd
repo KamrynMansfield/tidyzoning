@@ -4,7 +4,7 @@
 \alias{zr_get_unit_info}
 \title{Create data frame with unit info}
 \usage{
-zr_get_unit_info(file_path = NULL, string = NULL)
+zr_get_unit_info(bldg_data)
 }
 \arguments{
 \item{file_path}{a json file with ozfs building attributes}

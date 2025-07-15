@@ -2,30 +2,24 @@
 % Please edit documentation in R/zr_add_setbacks.R
 \name{zr_add_setbacks}
 \alias{zr_add_setbacks}
-\title{Add setback column to tidyparcel object}
+\title{Add setback column to parcel_geo object}
 \usage{
-zr_add_setbacks(
-  tidyparcel_geo,
-  tidydistrict,
-  tidybuilding,
-  tidyparcel_dims = NULL,
-  zoning_req = NULL
-)
+zr_add_setbacks(parcel_geo, district_data, zoning_req)
 }
 \arguments{
-\item{tidyparcel_geo}{A tidyparcel object is a simple features object depicting each side of a parcel and its label (front, interior side, exterior side, rear, centroid).}
+\item{parcel_geo}{A parcel_geo object is a simple features object depicting each side of a parcel and its label (front, interior side, exterior side, rear, centroid).}
 
-\item{tidydistrict}{The tidydistrict corresponding to the tidyparcel. A tidydistrict object is one row from a tidyzoning simple features object.}
+\item{district_data}{The district_data corresponding to the parcel_geo. A district_data object is one row from a tidyzoning simple features object.}
+
+\item{zoning_req}{The results of the get_zoning_req funcion. If provided, parcel_geo_dims need not be provided.}
 
 \item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
 
-\item{tidyparcel_dims}{The simple features object with each parcel centroid and the parcel dimensions}
-
-\item{zoning_req}{The results of the get_zoning_req funcion. If provided, tidyparcel_dims need not be provided.}
+\item{parcel_geo_dims}{The simple features object with each parcel centroid and the parcel dimensions}
 }
 \value{
-Returns the tidyparcel object with a "setbacks" column added to the end.
+Returns the parcel_geo object with a "setbacks" column added to the end.
 }
 \description{
-\code{zr_add_setbacks()} returns the tidyparcel object with a new setback column
+\code{zr_add_setbacks()} returns the parcel_geo object with a new setback column
 }

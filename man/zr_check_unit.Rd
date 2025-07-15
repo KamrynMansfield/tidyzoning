@@ -4,22 +4,24 @@
 \alias{zr_check_unit}
 \title{Compare unit sizes and allowed unit sizes}
 \usage{
-zr_check_unit(
-  tidybuilding,
-  tidydistrict,
-  tidyparcel_dims,
-  building_json,
-  zoning_req = NULL
-)
+zr_check_unit(district_data, bldg_data, vars)
 }
 \arguments{
-\item{building_json}{The file path or json string of the json representing the building.}
+\item{district_data}{one row (representing one district) of a
+zoning data frame created from the OZFS *.zoning file}
 
-\item{zoning_req}{The data frame result from the \code{get_zoning_req()} function.}
+\item{bldg_data}{either the file path to an OZFS *.bldg file or
+a list created from the the *.bldg file using \code{rjson::fromJSON}}
+
+\item{vars}{the result from the \code{get_variables()} function.
+If this data frame is supplied, bldg_data, parcel_data, and zoning_data
+are not needed.}
 }
 \value{
-Returns TRUE, FALSE, or MAYBE stating whether or not the building would be allowed in the district based on the unit sizes.
+Returns TRUE, FALSE, or MAYBE stating whether or not the building would
+be allowed in the district based on the unit sizes.
 }
 \description{
-\code{zr_check_unit()} takes a tidybuilding and a tidydistrict to see if the district's zoning code allows the tidybuilding based on unit sizes.
+\code{zr_check_unit()} checks to see if the district's zoning
+code allows the building based on unit sizes.
 }
