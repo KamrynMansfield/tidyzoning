@@ -1,6 +1,7 @@
 #' A 4-family residence as a tidyzoning object
 #'
-#' This was created based on observations of a typical 4-family residence with a square-like footprint.
+#' This was created based on observations of a typical 4-family residence
+#' with a square-like footprint.
 #'
 #' @format
 #' A special features object with 1 row and 7 columns:
@@ -18,7 +19,8 @@
 
 #' A 4-family residence as a tidyzoning object
 #'
-#' This was created based on observations of a typical 4-family residence with a rectangular footprint.
+#' This was created based on observations of a typical 4-family residence
+#' with a rectangular footprint.
 #'
 #' @format
 #' A special features object with 1 row and 7 columns:

@@ -1,19 +1,18 @@
-Package: tidyzoning
+Package: zoneR
 Type: Package
 Title: Zoning Code Analysis
-Version: 0.1.1
+Version: 0.5.0
 Author: Kamryn Mansfield
 Maintainer: Kamryn Mansfield <mansfieldkamryn@gmail.com>
-Description: The tidyzoning package was built to analyze housing capacity
-    under existing zoning laws. There are three main datasets that it is designed
-    to work with. Tidyozning, tidyparcel, and tidybuilding.
+Description: The zoneR package was built to analyze housing capacity
+    under existing zoning laws. It is designed to work with OZFS files (*.bldg, 
+    *.parcel, *.zoning).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: xz
 Imports: 
     dplyr,
-    ggplot2,
     rjson,
     sf,
     terra
