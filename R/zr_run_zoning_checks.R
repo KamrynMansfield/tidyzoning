@@ -125,8 +125,8 @@ zr_run_zoning_checks <- function(bldg_file,
   if (print_checkpoints){
     time_lapsed <- proc.time()[[3]] - total_start_time
     cat(ifelse(time_lapsed > 60,
-           paste0("___data_prep___(",round(time_lapsed / 60,2), " min)\n"),
-           paste0("___data_prep___(",round(time_lapsed,1), " sec)\n")))
+           paste0("___data_prep___(",round(time_lapsed / 60,2), " min)\n\n"),
+           paste0("___data_prep___(",round(time_lapsed,1), " sec)\n\n")))
   }
   ########----START CHECKS----########
   # PLANNED DEVELOPMENT CHECK
@@ -163,7 +163,7 @@ zr_run_zoning_checks <- function(bldg_file,
       cat(ifelse(time_lapsed > 60,
                  paste0("___planned_dev_check___(",round(time_lapsed / 60,2), " min)\n"),
                  paste0("___planned_dev_check___(",round(time_lapsed,1), " sec)\n")))
-      cat(paste("   ",length(parcel_df$zoning_id[parcel_df$check_pd == TRUE]),"parcels in planned developement districts\n"))
+      cat(paste(length(parcel_df$zoning_id[parcel_df$check_pd == TRUE]),"parcels in planned developement districts\n\n"))
     }
 
   }
@@ -188,8 +188,8 @@ zr_run_zoning_checks <- function(bldg_file,
   if (print_checkpoints){
     time_lapsed <- proc.time()[[3]] - zone_req_var_time
     cat(ifelse(time_lapsed > 60,
-               paste0("___get_zoning_req___(",round(time_lapsed / 60,2), " min)\n"),
-               paste0("___get_zoning_req___(",round(time_lapsed,1), " sec)\n")))
+               paste0("___get_zoning_req___(",round(time_lapsed / 60,2), " min)\n\n"),
+               paste0("___get_zoning_req___(",round(time_lapsed,1), " sec)\n\n")))
   }
 
 
@@ -296,7 +296,7 @@ zr_run_zoning_checks <- function(bldg_file,
     cat(ifelse(time_lapsed > 60,
                paste0("___initial_checks___(",round(time_lapsed / 60,2), " min)\n"),
                paste0("___initial_checks___(",round(time_lapsed,1), " sec)\n")))
-    cat(paste("   ",length(true_maybe_list),"parcels are TRUE or MAYBE\n"))
+    cat(paste(length(true_maybe_list),"parcels are TRUE or MAYBE\n\n"))
   }
 
   # SIDE LABEL CHECK
@@ -391,7 +391,7 @@ zr_run_zoning_checks <- function(bldg_file,
       cat(ifelse(time_lapsed > 60,
                  paste0("___check_fit___(",round(time_lapsed / 60,2), " min)\n"),
                  paste0("___check_fit___(",round(time_lapsed,1), " sec)\n")))
-      cat(paste("   ",length(which(parcel_df[,"check_fit"][[1]] %in% c(TRUE, 'MAYBE'))),"parcels are TRUE or MAYBE\n"))
+      cat(paste(length(which(parcel_df[,"check_fit"][[1]] %in% c(TRUE, 'MAYBE'))),"parcels are TRUE or MAYBE\n\n"))
     }
 
   }
@@ -417,7 +417,7 @@ zr_run_zoning_checks <- function(bldg_file,
       cat(ifelse(time_lapsed > 60,
                  paste0("___overlay_check___(",round(time_lapsed / 60,2), " min)\n"),
                  paste0("___overlay_check___(",round(time_lapsed,1), " sec)\n")))
-      cat(paste("   ",length(parcel_df$zoning_id[parcel_df$check_overlay == TRUE]),"parcels in overlay districts\n"))
+      cat(paste(length(parcel_df$zoning_id[parcel_df$check_overlay == TRUE]),"parcels in overlay districts\n\n"))
     }
   }
   ########----END CHECKS----########
@@ -524,14 +524,13 @@ zr_run_zoning_checks <- function(bldg_file,
   # report total runtime and other statistics
   total_time <- proc.time()[[3]] - total_start_time
   if (print_checkpoints){
-    cat("\n")
     cat("_____summary_____\n")
     cat(paste0("total runtime: ", round(total_time,1), " sec (",round(total_time / 60,2)," min)\n"))
     cat(paste(length(which(final_df$allowed == TRUE)), "/", nrow(final_df), "parcels allow the building\n"))
-    cat(paste(length(which(final_df$allowed == "MAYBE")), "/", nrow(final_df), "parcels might allow the building\n"))
+    cat(paste(length(which(final_df$allowed == "MAYBE")), "/", nrow(final_df), "parcels might allow the building\n\n\n"))
   } else{
     cat("run finished\n")
-    cat(cat(paste0("total runtime: ", round(total_time,1), " sec (",round(total_time / 60,2)," min)\n")))
+    cat(cat(paste0("total runtime: ", round(total_time,1), " sec (",round(total_time / 60,2)," min)\n\n\n")))
   }
 
 
@@ -541,114 +540,117 @@ zr_run_zoning_checks <- function(bldg_file,
 
 }
 
-bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_test.bldg"
-parcels_file <- "inst/extdata/Cockrell Hill.parcel"
-zoning_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/Cockrell Hill.zoning"
-
-
-test_run <- zr_run_zoning_checks(bldg_file,
-                                 parcels_file,
-                                 zoning_file,
-                                 detailed_check = TRUE,
-                                 checks = c("res_type",
-                                            "far",
-                                            "fl_area",
-                                            "fl_area_first",
-                                            "fl_area_top",
-                                            "footprint",
-                                            "height",
-                                            "height_eave",
-                                            "lot_cov_bldg",
-                                            "lot_size",
-                                            "parking_enclosed",
-                                            "stories",
-                                            "unit_0bed",
-                                            "unit_1bed",
-                                            "unit_2bed",
-                                            "unit_3bed",
-                                            "unit_4bed",
-                                            "unit_density",
-                                            "unit_pct_0bed",
-                                            "unit_pct_1bed",
-                                            "unit_pct_2bed",
-                                            "unit_pct_3bed",
-                                            "unit_pct_4bed",
-                                            "total_units",
-                                            "unit_size_avg",
-                                            "unit_size",
-                                            "bldg_fit",
-                                            "overlay"))
-
-
-
-checks_list = c("res_type",
-           "far",
-           "fl_area",
-           "fl_area_first",
-           "fl_area_top",
-           "footprint",
-           "height",
-           "height_eave",
-           "lot_cov_bldg",
-           "lot_size",
-           "parking_enclosed",
-           "stories",
-           "unit_0bed",
-           "unit_1bed",
-           "unit_2bed",
-           "unit_3bed",
-           "unit_4bed",
-           "unit_density",
-           "unit_pct_0bed",
-           "unit_pct_1bed",
-           "unit_pct_2bed",
-           "unit_pct_3bed",
-           "unit_pct_4bed",
-           "total_units",
-           "unit_size_avg",
-           "unit_size",
-           "bldg_fit",
-           "overlay")
-
-test_zoning_list <- list.files("../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/", full.names = T)
-test_parcel_list <- list.files("../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_parcels_to_test//", full.names = T)
-test_bldg_files <- list.files("../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_tests/", full.names = T)
-
-errors_list <- c()
-for (i in 1:length(test_bldg_files)){
-  bldg_file <- test_bldg_files[[i]]
-  bldg_name <- basename(bldg_file)
-
-  for (j in 1:length(test_zoning_list)){
-    zoning_file <- test_zoning_list[[j]]
-    parcels_file <- test_parcel_list[[j]]
-    file_name <- basename(zoning_file)
-
-    zoning_check <- tryCatch(
-      {
-        # Code that might throw an error
-        zr_run_zoning_checks(bldg_file,
-                             parcels_file,
-                             zoning_file,
-                             detailed_check = TRUE,
-                             checks = checks_list)
-      }, error = function(e) {
-        # Code to run if an error occurs
-        return("error")
-
-      }, warning = function(w) {
-        # Code to run if an error occurs
-        return("warning")
-
-      }
-    )
-
-    if (class(zoning_check)[[1]] == "character"){
-      errors_list <- c(errors_list, paste0(zoning_check, ":",bldg_name, "   ---   ", file_name))
-    }
-
-  }
-}
-
-
-
+# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_tests/tiny_test2.bldg"
+# parcels_file <- "inst/extdata/Cockrell Hill.parcel"
+# zoning_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/Cockrell Hill.zoning"
+#
+# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_tests/tiny_test1.bldg"
+# parcels_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_parcels_to_test/Dallas.parcel"
+# zoning_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/Dallas.zoning"
+#
+# test_run <- zr_run_zoning_checks(bldg_file,
+#                                  parcels_file,
+#                                  zoning_file,
+#                                  detailed_check = TRUE,
+#                                  checks = c("res_type",
+#                                             "far",
+#                                             "fl_area",
+#                                             "fl_area_first",
+#                                             "fl_area_top",
+#                                             "footprint",
+#                                             "height",
+#                                             "height_eave",
+#                                             "lot_cov_bldg",
+#                                             "lot_size",
+#                                             "parking_enclosed",
+#                                             "stories",
+#                                             "unit_0bed",
+#                                             "unit_1bed",
+#                                             "unit_2bed",
+#                                             "unit_3bed",
+#                                             "unit_4bed",
+#                                             "unit_density",
+#                                             "unit_pct_0bed",
+#                                             "unit_pct_1bed",
+#                                             "unit_pct_2bed",
+#                                             "unit_pct_3bed",
+#                                             "unit_pct_4bed",
+#                                             "total_units",
+#                                             "unit_size_avg",
+#                                             "unit_size",
+#                                             "bldg_fit",
+#                                             "overlay"))
+#
+#
+#
+# checks_list = c("res_type",
+#            "far",
+#            "fl_area",
+#            "fl_area_first",
+#            "fl_area_top",
+#            "footprint",
+#            "height",
+#            "height_eave",
+#            "lot_cov_bldg",
+#            "lot_size",
+#            "parking_enclosed",
+#            "stories",
+#            "unit_0bed",
+#            "unit_1bed",
+#            "unit_2bed",
+#            "unit_3bed",
+#            "unit_4bed",
+#            "unit_density",
+#            "unit_pct_0bed",
+#            "unit_pct_1bed",
+#            "unit_pct_2bed",
+#            "unit_pct_3bed",
+#            "unit_pct_4bed",
+#            "total_units",
+#            "unit_size_avg",
+#            "unit_size",
+#            "bldg_fit",
+#            "overlay")
+#
+# test_zoning_list <- list.files("../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/", full.names = T)
+# test_parcel_list <- list.files("../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_parcels_to_test//", full.names = T)
+# test_bldg_files <- list.files("../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_tests/", full.names = T)
+#
+# errors_list <- c()
+# for (i in 1:length(test_bldg_files)){
+#   bldg_file <- test_bldg_files[[i]]
+#   bldg_name <- basename(bldg_file)
+#
+#   for (j in 1:length(test_zoning_list)){
+#     zoning_file <- test_zoning_list[[j]]
+#     parcels_file <- test_parcel_list[[j]]
+#     file_name <- basename(zoning_file)
+#
+#     zoning_check <- tryCatch(
+#       {
+#         # Code that might throw an error
+#         zr_run_zoning_checks(bldg_file,
+#                              parcels_file,
+#                              zoning_file,
+#                              detailed_check = TRUE,
+#                              checks = checks_list)
+#       }, error = function(e) {
+#         # Code to run if an error occurs
+#         return("error")
+#
+#       }, warning = function(w) {
+#         # Code to run if an error occurs
+#         return("warning")
+#
+#       }
+#     )
+#
+#     if (class(zoning_check)[[1]] == "character"){
+#       errors_list <- c(errors_list, paste0(zoning_check, ":",bldg_name, "   ---   ", file_name))
+#     }
+#
+#   }
+# }
+#
+#
+#

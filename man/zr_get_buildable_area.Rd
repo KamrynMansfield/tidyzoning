@@ -4,14 +4,17 @@
 \alias{zr_get_buildable_area}
 \title{Create a parcel's buildable area}
 \usage{
-zr_get_buildable_area(tidyparcel_with_setbacks)
+zr_get_buildable_area(parcel_with_setbacks)
 }
 \arguments{
-\item{tidyparcel_with_setbacks}{A tidyparcel object that has setback infomration added. tidyparcel_with_setbacks is the output of the \code{\link[=add_setbacks]{add_setbacks()}} function.}
+\item{parcel_with_setbacks}{A parcel_geo object that has setback
+information added. parcel_with_setbacks is the output of the
+\code{\link[=zr_add_setbacks]{zr_add_setbacks()}} function.}
 }
 \value{
 Returns a polygon representing the buildable area of the parcel.
 }
 \description{
-\code{zr_get_buildable_area()} takes a tidyparcel object with setback information and produces a polygon representing the builablel area of the parcel.
+\code{zr_get_buildable_area()} takes a parcel with setback information and
+produces a polygon representing the buildable area of the parcel.
 }

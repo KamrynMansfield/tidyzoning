@@ -2,14 +2,17 @@
 % Please edit documentation in R/zr_add_setbacks.R
 \name{zr_add_setbacks}
 \alias{zr_add_setbacks}
-\title{Add setback column to parcel_geo object}
+\title{Add setback column to the parcel_geo data frame}
 \usage{
 zr_add_setbacks(parcel_geo, district_data, zoning_req)
 }
 \arguments{
-\item{parcel_geo}{A parcel_geo object is a simple features object depicting each side of a parcel and its label (front, interior side, exterior side, rear, centroid).}
+\item{parcel_geo}{The output of \code{zr_get_parcel_geo()}. This is a simple
+features object depicting each side of a parcel and its label
+(front, interior side, exterior side, rear).}
 
-\item{district_data}{The district_data corresponding to the parcel_geo. A district_data object is one row from a tidyzoning simple features object.}
+\item{district_data}{The district_data corresponding to the parcel_geo.
+A district_data object is one row from a zoning simple features object.}
 
 \item{zoning_req}{The results of the get_zoning_req funcion. If provided, parcel_geo_dims need not be provided.}
 
@@ -21,5 +24,6 @@ zr_add_setbacks(parcel_geo, district_data, zoning_req)
 Returns the parcel_geo object with a "setbacks" column added to the end.
 }
 \description{
-\code{zr_add_setbacks()} returns the parcel_geo object with a new setback column
+\code{zr_add_setbacks()} returns the parcel_geo object with a new column
+containing setback values
 }

@@ -9,6 +9,7 @@ zr_run_zoning_checks(
   parcels_file,
   zoning_file,
   detailed_check = TRUE,
+  print_checkpoints = TRUE,
   checks = c("res_type", "far", "fl_area", "fl_area_first", "fl_area_top", "footprint",
     "height", "height_eave", "lot_cov_bldg", "lot_size", "parking_enclosed", "stories",
     "unit_0bed", "unit_1bed", "unit_2bed", "unit_3bed", "unit_4bed", "unit_density",

@@ -1,10 +1,14 @@
-#' Add setback column to parcel_geo object
+#' Add setback column to the parcel_geo data frame
 #'
-#' `zr_add_setbacks()` returns the parcel_geo object with a new setback column
+#' `zr_add_setbacks()` returns the parcel_geo object with a new column
+#' containing setback values
 #'
 #'
-#' @param parcel_geo A parcel_geo object is a simple features object depicting each side of a parcel and its label (front, interior side, exterior side, rear, centroid).
-#' @param district_data The district_data corresponding to the parcel_geo. A district_data object is one row from a tidyzoning simple features object.
+#' @param parcel_geo The output of `zr_get_parcel_geo()`. This is a simple
+#' features object depicting each side of a parcel and its label
+#' (front, interior side, exterior side, rear).
+#' @param district_data The district_data corresponding to the parcel_geo.
+#' A district_data object is one row from a zoning simple features object.
 #' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
 #' @param parcel_geo_dims The simple features object with each parcel centroid and the parcel dimensions
 #' @param zoning_req The results of the get_zoning_req funcion. If provided, parcel_geo_dims need not be provided.
