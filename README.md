@@ -1,31 +1,43 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# tidyzoning <a href="https://kamrynmansfield.github.io/tidyzoning/"><img src="man/figures/logo.png" align="right" height="136" alt="tidyzoning website" /></a>
+# zoneR
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-The purpose of the tidyzoning package is to analyze housing capacity
-under current zoning laws. It is designed to read three types of
-datasets.
+zoneR helps analyze the housing capacity of cities using data that
+follow the Open Zoning Feed Specification (OZFS) standards. Function
 
-- **tidybuilding:** A json file with attributes to represent a building
+**bldg_file:**
 
-- **tidyzoning:** A geojson file of city zoning codes formatted to
-  follow the Open Zoning Feed Specification
+- bldg_data: The bldg_file read in as a list using `rjson::fromJSON()`
 
-- **tidyparcel:** A geojson of with the city’s parcel data with labeled
-  parcel sides (front, side interior, side exterior, rear) and parcel
-  dimensions (lot_width, lot_depth, lot_area)
+**parcels_file:**
 
-The functions of tiyzoning allow the user to find which parcels allow
-the specified building based on the zoning regulations of each parcel.
+- parcel_dims: Created from the `zr_get_parcel_dims()` function. A
+  simple features data frame with all the centroid and dimensional data
+  from the parcels_file. It contains one row per parcel.
+
+  - parcel_data: One row of the parcel_dims data frame representing a
+    unique parcel
+
+- parcel_geo: Created from the `zr_get_parcel_geo()` function. A simple
+  features data frame with the geometry of each parcel side and no
+  centroid or dimensional data.
+
+**zoning_file:**
+
+- zoning_data: The data in the zoning_file represented as a simple
+  features data frame using `sf::st_read(zoning_file)`.
+
+  - district_data: One row of the zoning_data data frame representing a
+    unique district.
 
 ## Installation
 
-You can install the development version of tidyzoning from
+You can install the development version of zoneR from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -35,15 +47,11 @@ devtools::install_github("KamrynMansfield/tidyzoning")
 
 ## Example
 
+This is a basic example which shows you how to solve a common problem:
+
 ``` r
-library(tidyzoning)
-unify_tidybuilding("inst/extdata/bldg_12_fam.json")
-#>   height width depth roof_type parking height_eave stories total_units     type
-#> 1     60    65    76      flat       8          60       4          12 4_family
-#>   gross_fl_area total_bedrooms fl_area_first fl_area_top units_0bed units_1bed
-#> 1         13200             23          4400        4400          0          1
-#>   units_2bed units_3bed units_4bed
-#> 1         11          0          0
+library(zoneR)
+## basic example code
 ```
 
 What is special about using `README.Rmd` instead of just `README.md`?
@@ -63,12 +71,7 @@ summary(cars)
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
 up-to-date. `devtools::build_readme()` is handy for this.
 
-<!-- You can also embed plots, for example: -->
+You can also embed plots
 
-<!-- ```{r pressure, echo = FALSE} -->
-
-<!-- plot(pressure) -->
-
-<!-- ``` -->
-
-<!-- In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN. -->
+In that case, don’t forget to commit and push the resulting figure
+files, so they display on GitHub and CRAN.
