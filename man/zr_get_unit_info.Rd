@@ -7,9 +7,8 @@
 zr_get_unit_info(bldg_data)
 }
 \arguments{
-\item{file_path}{a json file with ozfs building attributes}
-
-\item{string}{a json string with ozfs building attributes}
+\item{bldg_data}{either the file path to an OZFS *.bldg file or
+a list created from the the *.bldg file using \code{rjson::fromJSON}}
 }
 \value{
 a data frame with information for each unit in the building

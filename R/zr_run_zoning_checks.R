@@ -9,6 +9,8 @@
 #' @param detailed_check When TRUE, every parcel passes through each
 #' check no matter the result, and it take more time. When FALSE,
 #' subsequent checks are skipped as soon as one check reads FALSE
+#' @param print_checkpoints When TRUE, runtimes and other info will be
+#' printed at certain points throughout the function.
 #' @param checks A list of all the checks that should take place. The default is
 #' every check possible. Note, if a zoning file doesn't have zoning info for one
 #' of the constraints listed in the checks variable, then it is assumed that

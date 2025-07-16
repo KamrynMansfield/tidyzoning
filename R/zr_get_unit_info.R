@@ -3,8 +3,7 @@
 #' `zr_get_unit_info()` takes a json representing a building and
 #' returns a data frame with data for each unit in the building.
 #'
-#' @param file_path a json file with ozfs building attributes
-#' @param string a json string with ozfs building attributes
+#' @inheritParams zr_get_variables
 #'
 #' @returns a data frame with information for each unit in the building
 #' @export

@@ -9,8 +9,6 @@
 #' (front, interior side, exterior side, rear).
 #' @param district_data The district_data corresponding to the parcel_geo.
 #' A district_data object is one row from a zoning simple features object.
-#' @param tidybuilding A tidybuilding is a list of data frames used to represent a building.
-#' @param parcel_geo_dims The simple features object with each parcel centroid and the parcel dimensions
 #' @param zoning_req The results of the get_zoning_req funcion. If provided, parcel_geo_dims need not be provided.
 #'
 #' @return Returns the parcel_geo object with a "setbacks" column added to the end.

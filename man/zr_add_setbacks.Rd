@@ -15,10 +15,6 @@ features object depicting each side of a parcel and its label
 A district_data object is one row from a zoning simple features object.}
 
 \item{zoning_req}{The results of the get_zoning_req funcion. If provided, parcel_geo_dims need not be provided.}
-
-\item{tidybuilding}{A tidybuilding is a list of data frames used to represent a building.}
-
-\item{parcel_geo_dims}{The simple features object with each parcel centroid and the parcel dimensions}
 }
 \value{
 Returns the parcel_geo object with a "setbacks" column added to the end.
