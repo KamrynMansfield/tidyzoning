@@ -24,6 +24,7 @@ zr_run_zoning_checks <- function(bldg_file,
                                  parcels_file,
                                  zoning_file,
                                  detailed_check = TRUE,
+                                 print_checkpoints = TRUE,
                                  checks = c("res_type",
                                             "far",
                                             "fl_area",
@@ -120,8 +121,16 @@ zr_run_zoning_checks <- function(bldg_file,
   false_df_idx <- 1
   ########----END DATA PREP----########
 
+  # print checkpoint info
+  if (print_checkpoints){
+    time_lapsed <- proc.time()[[3]] - total_start_time
+    cat(ifelse(time_lapsed > 60,
+           paste0("___data_prep___(",round(time_lapsed / 60,2), " min)\n"),
+           paste0("___data_prep___(",round(time_lapsed,1), " sec)\n")))
+  }
   ########----START CHECKS----########
   # PLANNED DEVELOPMENT CHECK
+  pd_time <- proc.time()[[3]]
   # if parcels are in a planned development, the building is automatically not allowed
   if (nrow(pd_districts) > 0){ # if there are pd_districts
     # make a new df with the pd district indexes
@@ -147,9 +156,21 @@ zr_run_zoning_checks <- function(bldg_file,
       parcel_df <- parcel_df |>
         dplyr::filter(check_pd == TRUE)
     }
+
+    # print checkpoint info
+    if (print_checkpoints){
+      time_lapsed <- proc.time()[[3]] - pd_time
+      cat(ifelse(time_lapsed > 60,
+                 paste0("___planned_dev_check___(",round(time_lapsed / 60,2), " min)\n"),
+                 paste0("___planned_dev_check___(",round(time_lapsed,1), " sec)\n")))
+      cat(paste("   ",length(parcel_df$zoning_id[parcel_df$check_pd == TRUE]),"parcels in planned developement districts\n"))
+    }
+
   }
 
   # GET ZONING REQUIREMENTS AND VARIABLES
+  zone_req_var_time <- proc.time()[[3]]
+
   vars_list <- list()
   zoning_req_list <- list()
   for (row_num in 1:nrow(parcel_df)){
@@ -161,6 +182,14 @@ zr_run_zoning_checks <- function(bldg_file,
 
     vars_list[[parcel_id]] <- vars
     zoning_req_list[[parcel_id]] <- zoning_req
+  }
+
+  # print checkpoint info
+  if (print_checkpoints){
+    time_lapsed <- proc.time()[[3]] - zone_req_var_time
+    cat(ifelse(time_lapsed > 60,
+               paste0("___get_zoning_req___(",round(time_lapsed / 60,2), " min)\n"),
+               paste0("___get_zoning_req___(",round(time_lapsed,1), " sec)\n")))
   }
 
 
@@ -261,12 +290,14 @@ zr_run_zoning_checks <- function(bldg_file,
     false_df_idx <- false_df_idx + 1
   }
 
-  # print out info about the function run
-  time_lapsed <- proc.time()[[3]] - func_start_time
-  cat(paste0("_____","initial_checks","_____\n"))
-  cat(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)\n"))
-  cat(paste(length(true_maybe_list),"parcels are TRUE or MAYBE\n"))
-
+  # print checkpoint info
+  if (print_checkpoints){
+    time_lapsed <- proc.time()[[3]] - func_start_time
+    cat(ifelse(time_lapsed > 60,
+               paste0("___initial_checks___(",round(time_lapsed / 60,2), " min)\n"),
+               paste0("___initial_checks___(",round(time_lapsed,1), " sec)\n")))
+    cat(paste("   ",length(true_maybe_list),"parcels are TRUE or MAYBE\n"))
+  }
 
   # SIDE LABEL CHECK
   # if parcels have labeled sides, we can move on to the footprint check
@@ -354,14 +385,19 @@ zr_run_zoning_checks <- function(bldg_file,
       false_df_idx <- false_df_idx + 1
     }
 
-    # print out info about the function run
-    time_lapsed <- proc.time()[[3]] - foot_start_time
-    cat(paste0("_____","check_fit","_____\n"))
-    cat(paste0("runtime: ", round(time_lapsed,1), " sec (",round(time_lapsed / 60,2)," min)\n"))
-    cat(paste(length(which(parcel_df[,"check_fit"][[1]] %in% c(TRUE, 'MAYBE'))),"parcels are TRUE or MAYBE\n"))
+    # print checkpoint info
+    if (print_checkpoints){
+      time_lapsed <- proc.time()[[3]] - foot_start_time
+      cat(ifelse(time_lapsed > 60,
+                 paste0("___check_fit___(",round(time_lapsed / 60,2), " min)\n"),
+                 paste0("___check_fit___(",round(time_lapsed,1), " sec)\n")))
+      cat(paste("   ",length(which(parcel_df[,"check_fit"][[1]] %in% c(TRUE, 'MAYBE'))),"parcels are TRUE or MAYBE\n"))
+    }
+
   }
 
   # OVERLAY CHECK
+  overlay_time <- proc.time()[[3]]
   # of the parcels that pass all the checks,
   # the ones in an overlay district will be marked as "MAYBE"
   if (nrow(overlays) > 0 & "overlay" %in% checks){ # if there are pd_districts
@@ -374,6 +410,15 @@ zr_run_zoning_checks <- function(bldg_file,
     parcel_df <- parcel_df |>
       dplyr::mutate(check_overlay = ifelse(parcel_id %in% overlay_parcels,"MAYBE", TRUE),
                     maybe_reasons = ifelse(parcel_id %in% overlay_parcels, ifelse(!is.na(maybe_reasons),paste(maybe_reasons, "parcel in overlay district", sep = ", "),"parcel in overlay district"), maybe_reasons))
+
+    # print checkpoint info
+    if (print_checkpoints){
+      time_lapsed <- proc.time()[[3]] - overlay_time
+      cat(ifelse(time_lapsed > 60,
+                 paste0("___overlay_check___(",round(time_lapsed / 60,2), " min)\n"),
+                 paste0("___overlay_check___(",round(time_lapsed,1), " sec)\n")))
+      cat(paste("   ",length(parcel_df$zoning_id[parcel_df$check_overlay == TRUE]),"parcels in overlay districts\n"))
+    }
   }
   ########----END CHECKS----########
 
@@ -478,10 +523,17 @@ zr_run_zoning_checks <- function(bldg_file,
   ## RUN STATISTICS ##
   # report total runtime and other statistics
   total_time <- proc.time()[[3]] - total_start_time
-  cat("_____summary_____\n")
-  cat(paste0("total runtime: ", round(total_time,1), " sec (",round(total_time / 60,2)," min)\n"))
-  cat(paste(length(which(final_df$allowed == TRUE)), "/", nrow(final_df), "parcels allow the building\n"))
-  cat(paste(length(which(final_df$allowed == "MAYBE")), "/", nrow(final_df), "parcels might allow the building\n"))
+  if (print_checkpoints){
+    cat("\n")
+    cat("_____summary_____\n")
+    cat(paste0("total runtime: ", round(total_time,1), " sec (",round(total_time / 60,2)," min)\n"))
+    cat(paste(length(which(final_df$allowed == TRUE)), "/", nrow(final_df), "parcels allow the building\n"))
+    cat(paste(length(which(final_df$allowed == "MAYBE")), "/", nrow(final_df), "parcels might allow the building\n"))
+  } else{
+    cat("run finished\n")
+    cat(cat(paste0("total runtime: ", round(total_time,1), " sec (",round(total_time / 60,2)," min)\n")))
+  }
+
 
   # Return the final data frame
   # It will contain every parcel with an "allowed" column and a "reason" column
@@ -489,91 +541,114 @@ zr_run_zoning_checks <- function(bldg_file,
 
 }
 
-# bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_test.bldg"
-# parcels_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/Cockrell Hill.zoning"
-# zoning_file <- "inst/extdata/Cockrell Hill.zoning"
-#
-#
-# test_run <- zr_run_zoning_checks(bldg_file,
-#                                  parcels_file,
-#                                  zoning_file,
-#                                  detailed_check = TRUE,
-#                                  checks = c("res_type",
-#                                             "far",
-#                                             "fl_area",
-#                                             "fl_area_first",
-#                                             "fl_area_top",
-#                                             "footprint",
-#                                             "height",
-#                                             "height_eave",
-#                                             "lot_cov_bldg",
-#                                             "lot_size",
-#                                             "parking_enclosed",
-#                                             "stories",
-#                                             "unit_0bed",
-#                                             "unit_1bed",
-#                                             "unit_2bed",
-#                                             "unit_3bed",
-#                                             "unit_4bed",
-#                                             "unit_density",
-#                                             "unit_pct_0bed",
-#                                             "unit_pct_1bed",
-#                                             "unit_pct_2bed",
-#                                             "unit_pct_3bed",
-#                                             "unit_pct_4bed",
-#                                             "total_units",
-#                                             "unit_size_avg",
-#                                             "unit_size",
-#                                             "bldg_fit",
-#                                             "overlay"))
-#
+bldg_file <- "../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_test.bldg"
+parcels_file <- "inst/extdata/Cockrell Hill.parcel"
+zoning_file <- "../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/Cockrell Hill.zoning"
 
-#
-#
-# ggplot2::ggplot(final_df) +
-#   ggplot2::geom_sf(ggplot2::aes(color = allowed)) +
-#   ggplot2::geom_sf(data = parcel_geo)
-#
-# ggplot2::ggplot(tidyzoning) +
-#   ggplot2::geom_sf(ggplot2::aes(fill = dist_abbr),alpha = .6) +
-#   ggplot2::geom_sf(data = parcel_geo) +
-#   ggplot2::geom_sf(data = final_df, ggplot2::aes(color = allowed))
-#
-# df <- zoning_analysis_pipline(bldg_file,
-#                                parcels_file,
-#                                zoning_file,
-#                                detailed_check = TRUE,
-#                                run_check_land_use = TRUE,
-#                                run_check_height = TRUE,
-#                                run_check_height_eave = TRUE,
-#                                run_check_floors = TRUE,
-#                                run_check_unit_size = TRUE,
-#                                run_check_far = TRUE,
-#                                run_check_unit_density = TRUE,
-#                                run_check_lot_coverage = TRUE,
-#                                run_check_fl_area = TRUE,
-#                                run_check_unit_qty = TRUE,
-#                                run_check_fit = FALSE)
-#
-# ggplot2::ggplot(df) +
-#   ggplot2::geom_sf(ggplot2::aes(color = allowed))
-#
-#
-# type_list <- list()
-# length(type_list) <- nrow(parcel_df)
-# for (z in 1:nrow(parcel_df)){
-#   parcel_data <- parcel_df[z,]
-#   tidydistrict <- tidyzoning[parcel_data$zoning_id,]
-#   zoning_req <- get_zoning_req(bldg_data, tidydistrict, parcel_data)
-#   if (check_fit_area(bldg_data, parcel_data)$check_fit_area[[1]] == TRUE){
-#     parcel_sides <- parcel_geo |>
-#       dplyr::filter(parcel_id == parcel_data$parcel_id)
-#     parcel_with_setbacks <- add_setbacks(parcel_sides, zoning_req = zoning_req)
-#     buildable_area <- get_buildable_area(parcel_with_setbacks)
-#
-#     type_list[[z]] <- class(buildable_area)
-#
-#
-#   }
-# }
-# unique(type_list)
+
+test_run <- zr_run_zoning_checks(bldg_file,
+                                 parcels_file,
+                                 zoning_file,
+                                 detailed_check = TRUE,
+                                 checks = c("res_type",
+                                            "far",
+                                            "fl_area",
+                                            "fl_area_first",
+                                            "fl_area_top",
+                                            "footprint",
+                                            "height",
+                                            "height_eave",
+                                            "lot_cov_bldg",
+                                            "lot_size",
+                                            "parking_enclosed",
+                                            "stories",
+                                            "unit_0bed",
+                                            "unit_1bed",
+                                            "unit_2bed",
+                                            "unit_3bed",
+                                            "unit_4bed",
+                                            "unit_density",
+                                            "unit_pct_0bed",
+                                            "unit_pct_1bed",
+                                            "unit_pct_2bed",
+                                            "unit_pct_3bed",
+                                            "unit_pct_4bed",
+                                            "total_units",
+                                            "unit_size_avg",
+                                            "unit_size",
+                                            "bldg_fit",
+                                            "overlay"))
+
+
+
+checks_list = c("res_type",
+           "far",
+           "fl_area",
+           "fl_area_first",
+           "fl_area_top",
+           "footprint",
+           "height",
+           "height_eave",
+           "lot_cov_bldg",
+           "lot_size",
+           "parking_enclosed",
+           "stories",
+           "unit_0bed",
+           "unit_1bed",
+           "unit_2bed",
+           "unit_3bed",
+           "unit_4bed",
+           "unit_density",
+           "unit_pct_0bed",
+           "unit_pct_1bed",
+           "unit_pct_2bed",
+           "unit_pct_3bed",
+           "unit_pct_4bed",
+           "total_units",
+           "unit_size_avg",
+           "unit_size",
+           "bldg_fit",
+           "overlay")
+
+test_zoning_list <- list.files("../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_to_test/", full.names = T)
+test_parcel_list <- list.files("../personal_rpoj/1_nza_to_ozfs/nza_to_ozfs/zoning_parcels_to_test//", full.names = T)
+test_bldg_files <- list.files("../personal_rpoj/tidyzoning2.0/tidybuildings/tiny_tests/", full.names = T)
+
+errors_list <- c()
+for (i in 1:length(test_bldg_files)){
+  bldg_file <- test_bldg_files[[i]]
+  bldg_name <- basename(bldg_file)
+
+  for (j in 1:length(test_zoning_list)){
+    zoning_file <- test_zoning_list[[j]]
+    parcels_file <- test_parcel_list[[j]]
+    file_name <- basename(zoning_file)
+
+    zoning_check <- tryCatch(
+      {
+        # Code that might throw an error
+        zr_run_zoning_checks(bldg_file,
+                             parcels_file,
+                             zoning_file,
+                             detailed_check = TRUE,
+                             checks = checks_list)
+      }, error = function(e) {
+        # Code to run if an error occurs
+        return("error")
+
+      }, warning = function(w) {
+        # Code to run if an error occurs
+        return("warning")
+
+      }
+    )
+
+    if (class(zoning_check)[[1]] == "character"){
+      errors_list <- c(errors_list, paste0(zoning_check, ":",bldg_name, "   ---   ", file_name))
+    }
+
+  }
+}
+
+
+

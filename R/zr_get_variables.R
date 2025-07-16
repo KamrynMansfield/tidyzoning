@@ -115,7 +115,7 @@ zr_get_variables <- function(bldg_data, parcel_data, district_data, zoning_data)
                         fl_area = fl_area,
                         fl_area_first = fl_area_first,
                         fl_area_top = fl_area_top,
-                        floors = floors,
+                        stories = stories,
                         height_deck = height_deck,
                         height_eave = height_eave,
                         height_plate = height_plate,
