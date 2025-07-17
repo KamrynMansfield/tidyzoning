@@ -338,7 +338,7 @@ zr_run_zoning_checks <- function(bldg_file,
         parcel_sides <- parcel_geo |>
           dplyr::filter(parcel_id == parcel_data$parcel_id)
         parcel_with_setbacks <- zr_add_setbacks(parcel_sides, zoning_req = zoning_req)
-        buildable_area <- zr_get_buildable_area(parcel_with_setbacks)
+        buildable_area <- zr_get_buildable_area(sf::st_make_valid(parcel_with_setbacks))
 
         # if two buildable areas were recorded, we need to test for both
         if (length(buildable_area) > 1){
