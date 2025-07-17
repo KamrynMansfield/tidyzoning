@@ -57,31 +57,7 @@
 </div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p>zoneR helps analyze the housing capacity of cities using data that follow the Open Zoning Feed Specification (OZFS) standards. Function</p>
-<p><strong>bldg_file:</strong></p>
-<ul>
-<li>bldg_data: The bldg_file read in as a list using <code><a href="https://rdrr.io/pkg/rjson/man/fromJSON.html" class="external-link">rjson::fromJSON()</a></code>
-</li>
-</ul>
-<p><strong>parcels_file:</strong></p>
-<ul>
-<li>
-<p>parcel_dims: Created from the <code><a href="reference/zr_get_parcel_dims.html">zr_get_parcel_dims()</a></code> function. A simple features data frame with all the centroid and dimensional data from the parcels_file. It contains one row per parcel.</p>
-<ul>
-<li>parcel_data: One row of the parcel_dims data frame representing a unique parcel</li>
-</ul>
-</li>
-<li><p>parcel_geo: Created from the <code><a href="reference/zr_get_parcel_geo.html">zr_get_parcel_geo()</a></code> function. A simple features data frame with the geometry of each parcel side and no centroid or dimensional data.</p></li>
-</ul>
-<p><strong>zoning_file:</strong></p>
-<ul>
-<li>
-<p>zoning_data: The data in the zoning_file represented as a simple features data frame using <code>sf::st_read(zoning_file)</code>.</p>
-<ul>
-<li>district_data: One row of the zoning_data data frame representing a unique district.</li>
-</ul>
-</li>
-</ul>
+<p>zoneR helps analyze the housing capacity of cities using data that follow the Open Zoning Feed Specification (OZFS) standards.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -89,6 +65,18 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"KamrynMansfield/tidyzoning"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>The main function of zoneR is <code><a href="reference/zr_run_zoning_checks.html">zr_run_zoning_checks()</a></code> which reads in a <code>.bldg</code>, <code>.parcel</code>, and <code>.zoning</code> file. It calculates the zoning requirements for each parcel, checks them against the building characteristics, and returns a data frame stating if the parcel is allowed or not.</p>
+<p>Inside the <code><a href="reference/zr_run_zoning_checks.html">zr_run_zoning_checks()</a></code> function, different variables are made from the OZFS files and used in other functions to perform the checks.</p>
+<p><strong>bldg_data:</strong> The <code>.bldg</code> file read in as a list using <code><a href="https://rdrr.io/pkg/rjson/man/fromJSON.html" class="external-link">rjson::fromJSON()</a></code></p>
+<p><strong>parcel_dims:</strong> Created from the <code><a href="reference/zr_get_parcel_dims.html">zr_get_parcel_dims()</a></code> function. A simple features data frame with all the centroid and dimensional data from the <code>.parcel</code> file. It contains one row per parcel.</p>
+<p><strong>parcel_data:</strong> One row of the parcel_dims data frame representing a unique parcel</p>
+<p><strong>parcel_geo:</strong> Created from the <code><a href="reference/zr_get_parcel_geo.html">zr_get_parcel_geo()</a></code> function. A simple features data frame containing the geometry of each parcel side without the centroid or dimensional data.</p>
+<p><strong>zoning_data:</strong> The data in the <code>.zoning</code> file read in as a simple features data frame using <code><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">sf::st_read()</a></code>.</p>
+<p><strong>district_data:</strong> One row of the zoning_data data frame representing a unique district.</p>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
