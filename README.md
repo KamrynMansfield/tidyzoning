@@ -8,32 +8,7 @@
 <!-- badges: end -->
 
 zoneR helps analyze the housing capacity of cities using data that
-follow the Open Zoning Feed Specification (OZFS) standards. Function
-
-**bldg_file:**
-
-- bldg_data: The bldg_file read in as a list using `rjson::fromJSON()`
-
-**parcels_file:**
-
-- parcel_dims: Created from the `zr_get_parcel_dims()` function. A
-  simple features data frame with all the centroid and dimensional data
-  from the parcels_file. It contains one row per parcel.
-
-  - parcel_data: One row of the parcel_dims data frame representing a
-    unique parcel
-
-- parcel_geo: Created from the `zr_get_parcel_geo()` function. A simple
-  features data frame with the geometry of each parcel side and no
-  centroid or dimensional data.
-
-**zoning_file:**
-
-- zoning_data: The data in the zoning_file represented as a simple
-  features data frame using `sf::st_read(zoning_file)`.
-
-  - district_data: One row of the zoning_data data frame representing a
-    unique district.
+follow the Open Zoning Feed Specification (OZFS) standards.
 
 ## Installation
 
@@ -44,6 +19,38 @@ You can install the development version of zoneR from
 # install.packages("devtools")
 devtools::install_github("KamrynMansfield/tidyzoning")
 ```
+
+## Introduction
+
+The main function of zoneR is `zr_run_zoning_checks()` which reads in a
+`.bldg`, `.parcel`, and `.zoning` file. It calculates the zoning
+requirements for each parcel, checks them against the building
+characteristics, and returns a data frame stating if the parcel is
+allowed or not.
+
+Inside the `zr_run_zoning_checks()` function, different variables are
+made from the OZFS files and used in other functions to perform the
+checks.
+
+**bldg_data:** The `.bldg` file read in as a list using
+`rjson::fromJSON()`
+
+**parcel_dims:** Created from the `zr_get_parcel_dims()` function. A
+simple features data frame with all the centroid and dimensional data
+from the `.parcel` file. It contains one row per parcel.
+
+**parcel_data:** One row of the parcel_dims data frame representing a
+unique parcel
+
+**parcel_geo:** Created from the `zr_get_parcel_geo()` function. A
+simple features data frame containing the geometry of each parcel side
+without the centroid or dimensional data.
+
+**zoning_data:** The data in the `.zoning` file read in as a simple
+features data frame using `sf::st_read()`.
+
+**district_data:** One row of the zoning_data data frame representing a
+unique district.
 
 ## Example
 
